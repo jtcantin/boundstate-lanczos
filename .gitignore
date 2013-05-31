@@ -1,0 +1,4 @@
+#ignore object files
+*.o
+#ignore Gaussian cube files
+*.cube
