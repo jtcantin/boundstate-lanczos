@@ -1,0 +1,102 @@
+time ./TIP4P_AH2_CoulombTest sII_unitCelltest_CM_EA_ZYZ.xyz sII_cageCentres.xyz 1.731 66	
+Program Initialized.	
+Atom Positions read from file 'sII_unitCelltest_CM_EA_ZYZ.xyz'.	
+Test locations read from 'sII_cageCentres.xyz'.	
+Beginning potential calculation.	
+Cage Ar(Small): -30.63 kJ/mol	
+Cage Ar(Small): -27.656 kJ/mol	
+Cage Ar(Small): -20.8798 kJ/mol	
+Cage Ar(Small): -30.2361 kJ/mol	
+Cage Ar(Small): -25.2307 kJ/mol	
+Cage Ar(Small): -21.0707 kJ/mol	
+Cage Ar(Small): -32.3684 kJ/mol	
+Cage Ar(Small): -25.3881 kJ/mol	
+Cage Ar(Small): -25.7667 kJ/mol	
+Cage Ar(Small): -28.1894 kJ/mol	
+Cage Ar(Small): -27.4116 kJ/mol	
+Cage Ar(Small): -28.3889 kJ/mol	
+Cage Ar(Small): -17.5752 kJ/mol	
+Cage Ar(Small): -24.239 kJ/mol	
+Cage Ar(Small): -22.2685 kJ/mol	
+Cage Ar(Small): -25.8358 kJ/mol	
+Cage Kr(Large): -60.0218 kJ/mol	
+Cage Kr(Large): -48.236 kJ/mol	
+Cage Kr(Large): -57.4781 kJ/mol	
+Cage Kr(Large): -61.9288 kJ/mol	
+Cage Kr(Large): -53.4966 kJ/mol	
+Cage Kr(Large): -48.8331 kJ/mol	
+Cage Kr(Large): -56.8606 kJ/mol	
+Cage Kr(Large): -54.9078 kJ/mol	
+	
+real	5m54.422s
+user	72m55.950s
+sys	53m15.990s
+	
+time ./TIP4P_AH2_CoulombTest sI_unitCelltest_CM_EA_ZYZ.xyz sI_cageCentres.xyz 1.203 90Program Initialized.	
+Atom Positions read from file 'sI_unitCelltest_CM_EA_ZYZ.xyz'.	
+Test locations read from 'sI_cageCentres.xyz'.	
+Beginning potential calculation.	
+Cage Ar(Small): -15.7303 kJ/mol	
+Cage Ar(Small): -15.7098 kJ/mol	
+Cage Kr(Large): -50.6457 kJ/mol	
+Cage Kr(Large): -50.645 kJ/mol	
+Cage Kr(Large): -51.1146 kJ/mol	
+Cage Kr(Large): -51.1146 kJ/mol	
+Cage Kr(Large): -51.1029 kJ/mol	
+Cage Kr(Large): -51.1026 kJ/mol	
+	
+real	2m1.873s
+user	23m47.670s
+sys	19m40.460s
+	
+time ./TIP4P_AH2_CoulombTest sI_unitCelltest_CM_EA_ZYZ.xyz sI_cageCentres.xyz 1.203 100	
+Program Initialized.	
+Atom Positions read from file 'sI_unitCelltest_CM_EA_ZYZ.xyz'.	
+Test locations read from 'sI_cageCentres.xyz'.	
+Beginning potential calculation.	
+Cage Ar(Small): -15.7303 kJ/mol	
+Cage Ar(Small): -15.7098 kJ/mol	
+Cage Kr(Large): -50.6457 kJ/mol	
+Cage Kr(Large): -50.645 kJ/mol	
+Cage Kr(Large): -51.1146 kJ/mol	
+Cage Kr(Large): -51.1146 kJ/mol	
+Cage Kr(Large): -51.1029 kJ/mol	
+Cage Kr(Large): -51.1026 kJ/mol	
+	
+real	2m40.185s
+user	30m15.900s
+sys	27m6.430s
+	
+time ./TIP4P_AH2_CoulombTest sII_unitCelltest_CM_EA_ZYZ.xyz sII_cageCentres.xyz 1.731 66	
+Program Initialized.	
+Atom Positions read from file 'sII_unitCelltest_CM_EA_ZYZ.xyz'.	
+Test locations read from 'sII_cageCentres.xyz'.	
+Beginning potential calculation.	
+Cage Ar(Small): -30.63 kJ/mol	
+Cage Ar(Small): -27.656 kJ/mol	
+Cage Ar(Small): -20.8798 kJ/mol	
+Cage Ar(Small): -30.2361 kJ/mol	
+Cage Ar(Small): -25.2307 kJ/mol	
+Cage Ar(Small): -21.0707 kJ/mol	
+Cage Ar(Small): -32.3684 kJ/mol	
+Cage Ar(Small): -25.3881 kJ/mol	
+Cage Ar(Small): -25.7667 kJ/mol	
+Cage Ar(Small): -28.1894 kJ/mol	
+Cage Ar(Small): -27.4116 kJ/mol	
+Cage Ar(Small): -28.3889 kJ/mol	
+Cage Ar(Small): -17.5752 kJ/mol	
+Cage Ar(Small): -24.239 kJ/mol	
+Cage Ar(Small): -22.2685 kJ/mol	
+Cage Ar(Small): -25.8358 kJ/mol	
+Cage Kr(Large): -60.0218 kJ/mol	
+Cage Kr(Large): -48.236 kJ/mol	
+Cage Kr(Large): -57.4781 kJ/mol	
+Cage Kr(Large): -61.9288 kJ/mol	
+Cage Kr(Large): -53.4966 kJ/mol	
+Cage Kr(Large): -48.8331 kJ/mol	
+Cage Kr(Large): -56.8606 kJ/mol	
+Cage Kr(Large): -54.9078 kJ/mol	
+	
+real	5m52.672s
+user	73m17.500s
+sys	52m7.250s
