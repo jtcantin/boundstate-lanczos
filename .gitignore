@@ -2,3 +2,5 @@
 *.o
 #ignore Gaussian cube files
 *.cube
+#ignore Apple internal filesystem stuff
+.DS_Store
