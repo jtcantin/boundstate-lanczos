@@ -1,0 +1,7 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+=================================================
+Running job 'h2oh2_J0evn_o.pbs' from '/work/tzeng/h2o_h2/dvr/jmax15_25_20/J0evn_o'
+My job ID is '67475.nlogn.nlogn'
+I ran on 'cpu007' from the 'long' queue
+=================================================
