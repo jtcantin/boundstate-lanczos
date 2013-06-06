@@ -1,0 +1,26 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module SphFort ! in 
+    interface  ! in :SphFort
+        subroutine ylm(l,m,th1,phi,ylmout) ! in :SphFort:ylm_py.f
+            real*8 :: l
+            real*8 :: m
+            real*8 :: th1
+            real*8 :: phi
+            real*8, intent(out) :: ylmout
+            real*8 dimension(41) :: fact
+            common /factorial/ fact
+        end subroutine ylm
+        subroutine plmrb(p,x,lmax) ! in :SphFort:ylm_py.f
+            real*8 dimension(51,51), intent(inout) :: p
+            real*8 :: x
+            real*8 :: lmax
+            real*8 dimension(41) :: fact
+            common /factorial/ fact
+        end subroutine plmrb
+    end interface 
+end python module SphFort
+
+! This file was auto-generated with f2py (version:2_5972).
+! See http://cens.ioc.ee/projects/f2py2e/
