@@ -4,3 +4,7 @@
 *.cube
 #ignore Apple internal filesystem stuff
 .DS_Store
+#ignore DSYM archives
+*.dSYM
+#ignore .greg files (I am not sure what they are, though - JTC)
+*.greg
