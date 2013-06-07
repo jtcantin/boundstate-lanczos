@@ -1,0 +1,21 @@
+CC=g++
+SUP_PATH1= ./
+SUP_PATH2= ./
+INCLUDES= -I $(SUP_PATH1) -I $(SUP_PATH2) 
+CFLAGS=-c -Wall -fopenmp -DLINUX -ggdb -O0 $(INCLUDES)
+LIB_SOURCES= 
+LDFLAGS=-fopenmp -framework Accelerate
+SOURCES=TEMPLATE.cpp $(LIB_SOURCES)
+OBJECTS=$(SOURCES:.cpp=.o)
+EXECUTABLE=TEMPLATE
+
+all: $(SOURCES) $(EXECUTABLE)
+
+$(EXECUTABLE): $(OBJECTS)
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+
+.cpp.o:
+	$(CC) $(CFLAGS) $< -o $@
+
+clean:
+	rm -f $(OBJECTS) $(EXECUTABLE)
