@@ -1,5 +1,5 @@
 CC=g++
-SUP_PATH1= ./
+SUP_PATH1= ../librarySources/general
 SUP_PATH2= ./
 INCLUDES= -I $(SUP_PATH1) -I $(SUP_PATH2) 
 CFLAGS=-c -Wall -fopenmp -DLINUX -ggdb -O0 $(INCLUDES)
