@@ -101,8 +101,8 @@ void legendrePoly_zerothOrder(int l_max, double **legendre, double **legendreDer
 
 //Calculation of the zeros of the Legendre polynomials of order 0 using Newton's method (not secant as the derivatives are known)
 double* legendreRoots(int l, double max_relError) {
-	double *legendre, *legendreDeriv, *roots, res, relError, oldRoot, newRoot;
-	int i, numRoots;
+	double *legendre, *legendreDeriv, *roots, res, relError, oldRoot, newRoot, relError2, d_x;
+	int i, j, numRoots, n, rootCount, found;
 	
 	numRoots = l; //There are l roots for a Legendre polynomial of degree l.
 	
@@ -110,62 +110,78 @@ double* legendreRoots(int l, double max_relError) {
 	
 	roots = new double [l];
 	
-	//Get estimate for the roots
-	if (l%2 == 1) {
-		//Get estimate for the positive roots as guess = res*i, where i = 1 to (l+1)/2
-		res = 1.0/( (double(l)-1.0)/2 + 1 );
-		for (i=1; i<((l+1)/2); i++) {
-			oldRoot = res*i;
-			//cout << oldRoot << endl;
+	//Step through domain (-1 to 1) to find all unique roots
+	n = l*10;
+	d_x = 2.0/double(n);
+	rootCount = 0;
+	found = 0;
+	for (i=0; i<n; i++) {
+		oldRoot = (i+1)*d_x-1.0;
+		//cout << "Next root" << endl;
+		//Use Newton's method to find the root
+		while (relError>max_relError) {
+			legendrePoly_zerothOrder(l, &legendre, &legendreDeriv, oldRoot);
+			newRoot = oldRoot - legendre[l]/legendreDeriv[l];
+			//cout << abs(newRoot) << " ";
+//			if (abs(newRoot) > 1) {
+//				break;
+//			}
 			
-			//Use Newton's method to find the root
-			while (relError>max_relError) {
-				legendrePoly_zerothOrder(l, &legendre, &legendreDeriv, oldRoot);
-				newRoot = oldRoot - legendre[l]/legendreDeriv[l];
-				
-				relError = abs(newRoot-oldRoot)/oldRoot;
-				oldRoot = newRoot;
-				//cout << newRoot << " ";
-				//cout << legendre[l] << endl;
-			}
-			roots[i-1] = newRoot;
-			relError = max_relError + 1000000;
+			relError = abs(newRoot-oldRoot)/abs(oldRoot);
+			//cout << oldRoot << " ";
+			oldRoot = newRoot;
+			//cout << newRoot << " ";
+//			
+//			cout << legendre[l] << " ";
+//			cout << relError << endl;
 		}
-		//Get negative roots
-		for (i= (l-1)/2 + 1; i<numRoots; i++) {
-			roots[i] = -1.0*roots[i-(l-1)/2];
+		relError = max_relError + 1000000;
+		
+		//cout << newRoot << endl;
+		
+		if ((abs(newRoot) > 1.0)||isnan(newRoot)) {
+			
+			//cout << "Root too big" << endl;
+			continue;
+		} 
+		else {
+			for (j=0; j<rootCount; j++) {
+				relError2 = abs(newRoot-roots[j])/abs(roots[j]);
+				//cout << relError2 << endl;
+				if (relError2<max_relError) {
+					found = 1;
+					//cout << "ROOT ALREADYYYYY FOUND... " << endl;
+//					cout << endl;
+					break;
+					
+				}
+				//cout << "ROOT NOT ALREADY FOUND! " << endl;
+			}
+			if (found == 0) {
+				roots[rootCount] = newRoot;
+				rootCount += 1;
+				//cout << "ROOT FOUND" << " ";
+//				cout << roots[i] << " ";
+//				cout << rootCount << endl;
+			}
+			found = 0;
 		}
 	}
-	else {
-		//Get estimate for the roots as guess = res*i, where i = 1 to l/2
-		res = 2.0/(double(l) +1.0);
-		for (i=1; i<=l/2; i++) {
-			oldRoot = res*i;
-			//cout << oldRoot << endl;
-			
-			//Use Newton's method to find the root
-			while (relError>max_relError) {
-				legendrePoly_zerothOrder(l, &legendre, &legendreDeriv, oldRoot);
-				newRoot = oldRoot - legendre[l]/legendreDeriv[l];
-				
-				relError = abs(newRoot-oldRoot)/oldRoot;
-				oldRoot = newRoot;
-				//cout << newRoot << " ";
-				//cout << legendre[l] << endl;
-			}
-			roots[i-1] = newRoot;
-			relError = max_relError + 1000000;
-		}
-		//Get negative roots
-		for (i=l/2; i<numRoots; i++) {
-			roots[i] = -1.0*roots[i-l/2];
+	double storage;
+	int swapped;
+	
+	swapped = 0;
+	//Sort roots
+	while (<#condition#>) {
+		if (roots[i] > roots[i+1]){
+			storage = roots[i+1];
+			roots[i+1] = roots[i];
+			roots[i] = storage;
 		}
 	}
 	
 	return roots;
 }
-
-	
 
 //Calculation of the set of "spherical Legendre polynomials" for l = 0 to l_max and m = -l_max to l_max 
 // that is the spherical harmonics excluding only the trigonometric term (i.e. cos(m*phi) and sin(|m|*phi) )
