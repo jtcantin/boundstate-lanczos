@@ -70,6 +70,103 @@ void genIndices_lm(int l_max, int ***qNum, int *length, int ***index, int *dims)
 	}	
 }
 
+//Calculation of the Legendre polynomials of order 0 and their derivatives
+//Bonnet's Recursion formula is used (Abramowitz and Stegun pg 334, Eq. 8.5.3 and 8.5.4 where mu = 0)
+//Valid for -1<x<1.
+void legendrePoly_zerothOrder(int l_max, double **legendre, double **legendreDeriv, double x){
+	int l;
+	double ld;
+	
+	//Initialize containers
+	(*legendre) = new double [l_max+1];
+	(*legendreDeriv) = new double [l_max+1];
+	
+	(*legendre)[0] = 1.0;
+	(*legendre)[1] = x;
+	
+	(*legendreDeriv)[0] = 0.0;
+	
+	//Calculate the polynomials
+	for (l=2; l<=l_max; l++) {
+		ld = double (l) - 1.0;
+		(*legendre)[l] = (1.0/(ld + 1.0)) * ( (2.0*ld+1.0) * x * (*legendre)[l-1] - ld*(*legendre)[l-2]);
+	}
+	
+	//Calculate the derivatives
+	for (l=1; l<=l_max; l++) {
+		ld = double (l);
+		(*legendreDeriv)[l] = (1/(x*x-1)) * (ld * x * (*legendre)[l] - ld * (*legendre)[l-1]);
+	}
+}
+
+//Calculation of the zeros of the Legendre polynomials of order 0 using Newton's method (not secant as the derivatives are known)
+double* legendreRoots(int l, double max_relError) {
+	double *legendre, *legendreDeriv, *roots, res, relError, oldRoot, newRoot;
+	int i, numRoots;
+	
+	numRoots = l; //There are l roots for a Legendre polynomial of degree l.
+	
+	relError = max_relError + 1000000;
+	
+	roots = new double [l];
+	
+	//Get estimate for the roots
+	if (l%2 == 1) {
+		//Get estimate for the positive roots as guess = res*i, where i = 1 to (l+1)/2
+		res = 1.0/( (double(l)-1.0)/2 + 1 );
+		for (i=1; i<((l+1)/2); i++) {
+			oldRoot = res*i;
+			//cout << oldRoot << endl;
+			
+			//Use Newton's method to find the root
+			while (relError>max_relError) {
+				legendrePoly_zerothOrder(l, &legendre, &legendreDeriv, oldRoot);
+				newRoot = oldRoot - legendre[l]/legendreDeriv[l];
+				
+				relError = abs(newRoot-oldRoot)/oldRoot;
+				oldRoot = newRoot;
+				//cout << newRoot << " ";
+				//cout << legendre[l] << endl;
+			}
+			roots[i-1] = newRoot;
+			relError = max_relError + 1000000;
+		}
+		//Get negative roots
+		for (i= (l-1)/2 + 1; i<numRoots; i++) {
+			roots[i] = -1.0*roots[i-(l-1)/2];
+		}
+	}
+	else {
+		//Get estimate for the roots as guess = res*i, where i = 1 to l/2
+		res = 2.0/(double(l) +1.0);
+		for (i=1; i<=l/2; i++) {
+			oldRoot = res*i;
+			//cout << oldRoot << endl;
+			
+			//Use Newton's method to find the root
+			while (relError>max_relError) {
+				legendrePoly_zerothOrder(l, &legendre, &legendreDeriv, oldRoot);
+				newRoot = oldRoot - legendre[l]/legendreDeriv[l];
+				
+				relError = abs(newRoot-oldRoot)/oldRoot;
+				oldRoot = newRoot;
+				//cout << newRoot << " ";
+				//cout << legendre[l] << endl;
+			}
+			roots[i-1] = newRoot;
+			relError = max_relError + 1000000;
+		}
+		//Get negative roots
+		for (i=l/2; i<numRoots; i++) {
+			roots[i] = -1.0*roots[i-l/2];
+		}
+	}
+	
+	return roots;
+}
+
+	
+
 //Calculation of the set of "spherical Legendre polynomials" for l = 0 to l_max and m = -l_max to l_max 
 // that is the spherical harmonics excluding only the trigonometric term (i.e. cos(m*phi) and sin(|m|*phi) )
 // This function returns a pointer to an array of the spherical Legendre polynomials
@@ -170,7 +267,7 @@ double* sphLegendrePoly(int **qNum, int length, double x){
 		}
 		else {
 			m *= -1; //Make m positive to effectively take the absolute value of m.
-			legendre[n] = sqrt(2.0) * pow(-1.0, m) * legenArr[l][m]; //Excluding sin(|m|*phi)
+			legendre[n] = sqrt(2.0) * legenArr[l][m]; //Excluding sin(|m|*phi)
 		}
 
 	}
@@ -216,22 +313,27 @@ int main(int argc, char** argv) {
 	int i, l, m, n;
 	
 	double *trig, *legendre;
-	double theta, phi, sphereHarm;
+	double theta, phi, sphereHarm; 
+	
+	double max_relError, *roots;
 	
 	l_max = atoi(argv[1]);
 	theta = atof(argv[2]);
 	phi = atof(argv[3]);
-	l = atoi(argv[4]);
-	m = atoi(argv[5]);
+	//l = atoi(argv[4]);
+	//m = atoi(argv[5]);
+	max_relError = atof(argv[4]);
 	
 	genIndices_lm(l_max, &qNum, &length, &index, dims);
 	
 	tesseralHarmonicsTerms(qNum, length, &legendre, &trig, theta, phi);
 	
-	n = index[l][m_shift(m)];
-	sphereHarm = legendre[n] * trig[n];
+	cout << fixed << setprecision(12);
 	
-	cout << "Spherical Harmonic: " << fixed << setprecision(6) << sphereHarm << endl;
+	//n = index[l][m_shift(m)];
+//	sphereHarm = legendre[n] * trig[n];
+	
+	//cout << "Spherical Harmonic: " << sphereHarm << endl;
 	
 	//cout << "Trig: " << endl;
 //	for (n=0; n<length; n++) {
@@ -249,13 +351,25 @@ int main(int argc, char** argv) {
 //		cout << l << " " << m << " " << legendre[n] << endl;
 //	}
 	
-	cout << "SphereHarm: " << endl;
-	for (n=0; n<length; n++) {
-		l = qNum[n][0];
-		m = qNum[n][1];
-		
-		cout << l << " " << m << " " << legendre[n] * trig[n] << endl;
+//	cout << "SphereHarm: " << endl;
+//	for (n=0; n<length; n++) {
+//		l = qNum[n][0];
+//		m = qNum[n][1];
+//		
+//		cout << l << " " << m << " " << legendre[n] * trig[n] << endl;
+//	}
+	
+	cout << "Finding Legendre polynomial roots:" << endl;
+	
+	roots = legendreRoots(l_max, max_relError);
+	
+	cout << "Roots Found:" << endl;
+	
+	for (l=0; l<l_max; l++) {
+		cout << roots[l] << endl;
 	}
+	
+	
 	
 	
 	for (i=0 ; i<length; i++) {		
