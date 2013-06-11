@@ -4,6 +4,7 @@
 #include <omp.h>
 #include <string.h>
 #include <iomanip>
+#include <cfloat>
 #include "lanczosUnits.h"
 
 using namespace std;
@@ -100,86 +101,102 @@ void legendrePoly_zerothOrder(int l_max, double **legendre, double **legendreDer
 }
 
 //Calculation of the zeros of the Legendre polynomials of order 0 using Newton's method (not secant as the derivatives are known)
-double* legendreRoots(int l, double max_relError) {
-	double *legendre, *legendreDeriv, *roots, res, relError, oldRoot, newRoot, relError2, d_x;
+double* legendreRoots(int l, int *numRootsFound) {
+	double *legendre, *legendreDeriv, *roots, res, relError, oldRoot, newRoot, relError2, d_x, max_relError, retry_relError;
 	int i, j, numRoots, n, rootCount, found;
+	
+	int iteration, max_iterations;
 	
 	numRoots = l; //There are l roots for a Legendre polynomial of degree l.
 	
+	max_relError = DBL_EPSILON;
+	retry_relError = 1e-6;
 	relError = max_relError + 1000000;
+	
+	max_iterations = 10000;
 	
 	roots = new double [l];
 	
 	//Step through domain (-1 to 1) to find all unique roots
-	n = l*10;
+	n = l*100;
 	d_x = 2.0/double(n);
 	rootCount = 0;
 	found = 0;
+	iteration = 0;
 	for (i=0; i<n; i++) {
+		//Incrementally increase the initial guess to catch all roots
 		oldRoot = (i+1)*d_x-1.0;
-		//cout << "Next root" << endl;
-		//Use Newton's method to find the root
-		while (relError>max_relError) {
+		
+		//if ((iteration>=max_iterations) && (relError<retry_relError)) { //Root is not converging, so ignore it.
+//			oldRoot = newRoot;
+//			i--; //Reset i to try the root again 
+//		}
+		
+		iteration = 0; //Reset the iteration count
+		
+		//Use Newton's method to find the root (ie. x_(i+1) = x_i - f(x_i)/f'(x_i))
+		while ((relError>max_relError) && (iteration<max_iterations)) {
+			
+			//Get f(x) and f'(x)
 			legendrePoly_zerothOrder(l, &legendre, &legendreDeriv, oldRoot);
+			
+			//x_(i+1) = x_i - f(x_i)/f'(x_i)
 			newRoot = oldRoot - legendre[l]/legendreDeriv[l];
-			//cout << abs(newRoot) << " ";
-//			if (abs(newRoot) > 1) {
-//				break;
-//			}
 			
-			relError = abs(newRoot-oldRoot)/abs(oldRoot);
-			//cout << oldRoot << " ";
+			//Get the error
+			relError = fabs(newRoot-oldRoot)/fabs(oldRoot);
+			
+			//Update the root
 			oldRoot = newRoot;
-			//cout << newRoot << " ";
-//			
-//			cout << legendre[l] << " ";
-//			cout << relError << endl;
+			iteration++;
 		}
-		relError = max_relError + 1000000;
 		
-		//cout << newRoot << endl;
+		if (iteration>=max_iterations) { //Root is not converging, so ignore it.
+			continue;
+		}
 		
-		if ((abs(newRoot) > 1.0)||isnan(newRoot)) {
-			
-			//cout << "Root too big" << endl;
+		
+		relError = max_relError + 1000000; //Reset the error magnitude
+		
+		
+		//If the root is nan or is outside of (-1,1), ignore it.
+		if ((fabs(newRoot) >= 1.0)||isnan(newRoot)) { 
 			continue;
 		} 
 		else {
+			//Cycle through all current roots, checking if the newRoot has already been found.
 			for (j=0; j<rootCount; j++) {
-				relError2 = abs(newRoot-roots[j])/abs(roots[j]);
-				//cout << relError2 << endl;
-				if (relError2<max_relError) {
+				relError2 = fabs(newRoot-roots[j]);
+				if (relError2<DBL_EPSILON) { //Root has been already found if newRoot and roots[j] are within the machine epsilon
 					found = 1;
-					//cout << "ROOT ALREADYYYYY FOUND... " << endl;
-//					cout << endl;
 					break;
-					
 				}
-				//cout << "ROOT NOT ALREADY FOUND! " << endl;
 			}
-			if (found == 0) {
+			if (found == 0) { //It is a new root, so add it to the list
 				roots[rootCount] = newRoot;
-				rootCount += 1;
-				//cout << "ROOT FOUND" << " ";
-//				cout << roots[i] << " ";
-//				cout << rootCount << endl;
+				rootCount++;
 			}
 			found = 0;
 		}
 	}
+	//Sort the roots
 	double storage;
 	int swapped;
 	
-	swapped = 0;
+	swapped = 1;
 	//Sort roots
-	while (<#condition#>) {
-		if (roots[i] > roots[i+1]){
-			storage = roots[i+1];
-			roots[i+1] = roots[i];
-			roots[i] = storage;
+	while (swapped == 1) {
+		swapped = 0;
+		for (i=0; i<(rootCount-1); i++) {
+			if (roots[i] > roots[i+1]){
+				storage = roots[i+1];
+				roots[i+1] = roots[i];
+				roots[i] = storage;
+				swapped = 1;
+			}
 		}
 	}
-	
+	*numRootsFound = rootCount;
 	return roots;
 }
 
@@ -332,19 +349,20 @@ int main(int argc, char** argv) {
 	double theta, phi, sphereHarm; 
 	
 	double max_relError, *roots;
+	int rootCount;
 	
 	l_max = atoi(argv[1]);
 	theta = atof(argv[2]);
 	phi = atof(argv[3]);
 	//l = atoi(argv[4]);
 	//m = atoi(argv[5]);
-	max_relError = atof(argv[4]);
+	//max_relError = atof(argv[4]);
 	
 	genIndices_lm(l_max, &qNum, &length, &index, dims);
 	
 	tesseralHarmonicsTerms(qNum, length, &legendre, &trig, theta, phi);
 	
-	cout << fixed << setprecision(12);
+	cout << fixed << setprecision(15);
 	
 	//n = index[l][m_shift(m)];
 //	sphereHarm = legendre[n] * trig[n];
@@ -377,11 +395,11 @@ int main(int argc, char** argv) {
 	
 	cout << "Finding Legendre polynomial roots:" << endl;
 	
-	roots = legendreRoots(l_max, max_relError);
+	roots = legendreRoots(l_max, &rootCount);
 	
 	cout << "Roots Found:" << endl;
 	
-	for (l=0; l<l_max; l++) {
+	for (l=0; l<rootCount; l++) {
 		cout << roots[l] << endl;
 	}
 	
