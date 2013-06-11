@@ -102,7 +102,9 @@ void legendrePoly_zerothOrder(int l_max, double **legendre, double **legendreDer
 
 //Calculation of the zeros of the Legendre polynomials of order 0 using Newton's method (not secant as the derivatives are known)
 double* legendreRoots(int l, int *numRootsFound) {
-	double *legendre, *legendreDeriv, *roots, res, relError, oldRoot, newRoot, relError2, d_x, max_relError, retry_relError;
+	double *legendre, *legendreDeriv, *roots;
+	double oldRoot, newRoot;
+	double relError, relError2, max_relError, d_x;
 	int i, j, numRoots, n, rootCount, found;
 	
 	int iteration, max_iterations;
@@ -110,7 +112,6 @@ double* legendreRoots(int l, int *numRootsFound) {
 	numRoots = l; //There are l roots for a Legendre polynomial of degree l.
 	
 	max_relError = DBL_EPSILON;
-	retry_relError = 1e-6;
 	relError = max_relError + 1000000;
 	
 	max_iterations = 10000;
@@ -124,13 +125,10 @@ double* legendreRoots(int l, int *numRootsFound) {
 	found = 0;
 	iteration = 0;
 	for (i=0; i<n; i++) {
-		//Incrementally increase the initial guess to catch all roots
-		oldRoot = (i+1)*d_x-1.0;
+		//Incrementally increase the initial guess to catch all roots; it is brute force, but it seems to work
+		//oldRoot = (i+1)*d_x-1.0;
 		
-		//if ((iteration>=max_iterations) && (relError<retry_relError)) { //Root is not converging, so ignore it.
-//			oldRoot = newRoot;
-//			i--; //Reset i to try the root again 
-//		}
+		//Use the relation x_i ~= cos(pi*(4i+3)/(4n+2)) to get an efficient guess
 		
 		iteration = 0; //Reset the iteration count
 		
@@ -154,7 +152,6 @@ double* legendreRoots(int l, int *numRootsFound) {
 		if (iteration>=max_iterations) { //Root is not converging, so ignore it.
 			continue;
 		}
-		
 		
 		relError = max_relError + 1000000; //Reset the error magnitude
 		
@@ -196,6 +193,7 @@ double* legendreRoots(int l, int *numRootsFound) {
 			}
 		}
 	}
+	
 	*numRootsFound = rootCount;
 	return roots;
 }
