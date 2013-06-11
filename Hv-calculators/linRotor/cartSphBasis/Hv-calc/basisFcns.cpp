@@ -199,6 +199,46 @@ double* legendreRoots(int l, int *numRootsFound) {
 	return roots;
 }
 
+// Dr. PN Roy's code for the calculation of the Gauss-Legendre abscissae and weights
+void gauleg(double x1,double x2,double *x,double *w,int n)
+{
+	int m,j,i;
+	double z1,z,xm,xl,pp,p3,p2,p1;
+	
+	m=(n+1)/2;
+	xm=0.5*(x2+x1); //Mean x value
+	xl=0.5*(x2-x1); //Length of domain
+	
+	//Cycle through each positive root
+	for (i=1;i<=m;i++)  {
+		
+		z=cos(M_PI*((double)i-0.25)/((double)n+0.5)); //Make an initial guess that is efficient for Newton's Method
+		
+		//Perform Newton's method
+		do {
+			//Calculate the Legendre polynomial
+			p1=1.0;
+			p2=0.0;
+			for (j=1;j<=n;j++) {
+				p3=p2;
+				p2=p1;
+				p1=((2.0*(double)j-1.0)*z*p2-((double)j-1.0)*p3)/(double)j;
+			}
+			
+			pp=(double)n*(z*p1-p2)/(z*z-1.0); //Calculate the derivative of the Legendre Polynomial
+			
+			z1=z;
+			z=z1-p1/pp; //Newton's Method equation: x_(i+1) = x_i - f(x_i)/f'(x_i)
+		} while (fabs(z-z1) > DBL_EPSILON);
+		
+		x[i-1]=xm-xl*z; //Store the negative root;
+		x[n-i]=xm+xl*z; //Store the positive root;
+		
+		w[i-1]=2.0*xl/((1.0-z*z)*pp*pp);
+		w[n-i]=w[i-1];
+	}
+}
+
 //Calculation of the set of "spherical Legendre polynomials" for l = 0 to l_max and m = -l_max to l_max 
 // that is the spherical harmonics excluding only the trigonometric term (i.e. cos(m*phi) and sin(|m|*phi) )
 // This function returns a pointer to an array of the spherical Legendre polynomials
@@ -350,6 +390,8 @@ int main(int argc, char** argv) {
 	double max_absError, *roots;
 	int rootCount;
 	
+	double *roots_pn, *weights_pn;
+	
 	l_max = atoi(argv[1]);
 	theta = atof(argv[2]);
 	phi = atof(argv[3]);
@@ -390,7 +432,7 @@ int main(int argc, char** argv) {
 //		m = qNum[n][1];
 //		
 //		cout << l << " " << m << " " << legendre[n] * trig[n] << endl;
-//	}
+//	} 
 	
 	cout << "Finding Legendre polynomial roots:" << endl;
 	
@@ -400,6 +442,23 @@ int main(int argc, char** argv) {
 	
 	for (l=0; l<rootCount; l++) {
 		cout << roots[l] << endl;
+	}
+	
+	roots_pn = new double [l_max];
+	weights_pn = new double [l_max];
+	
+	gauleg(-1.0, 1.0,roots_pn,weights_pn,l_max);
+	
+	cout << "Difference between JTC and PN's roots: " << endl;
+	
+	for (l=0; l<l_max; l++) {
+		cout << roots[l]-roots_pn[l] << endl;
+	}
+	
+	cout << "PN's weights: " << endl;
+	
+	for (l=0; l<l_max; l++) {
+		cout << weights_pn[l] << endl;
 	}
 	
 	
