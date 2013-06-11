@@ -104,15 +104,15 @@ void legendrePoly_zerothOrder(int l_max, double **legendre, double **legendreDer
 double* legendreRoots(int l, int *numRootsFound) {
 	double *legendre, *legendreDeriv, *roots;
 	double oldRoot, newRoot;
-	double relError, relError2, max_relError, d_x;
+	double absError, absError2, max_absError, d_x;
 	int i, j, numRoots, n, rootCount, found;
 	
 	int iteration, max_iterations;
 	
 	numRoots = l; //There are l roots for a Legendre polynomial of degree l.
 	
-	max_relError = DBL_EPSILON;
-	relError = max_relError + 1000000;
+	max_absError = DBL_EPSILON;
+	absError = max_absError + 1000000;
 	
 	max_iterations = 10000;
 	
@@ -126,14 +126,15 @@ double* legendreRoots(int l, int *numRootsFound) {
 	iteration = 0;
 	for (i=0; i<n; i++) {
 		//Incrementally increase the initial guess to catch all roots; it is brute force, but it seems to work
-		//oldRoot = (i+1)*d_x-1.0;
+		oldRoot = (i+1)*d_x-1.0;
 		
-		//Use the relation x_i ~= cos(pi*(4i+3)/(4n+2)) to get an efficient guess
+		//Use the relation x_i ~= cos(pi*(i-1/4)/(l+1/2)) to get a more efficient guess
+		//oldRoot = cos(PI * (double(i)-0.25) / (double(l)+1/2));
 		
 		iteration = 0; //Reset the iteration count
 		
 		//Use Newton's method to find the root (ie. x_(i+1) = x_i - f(x_i)/f'(x_i))
-		while ((relError>max_relError) && (iteration<max_iterations)) {
+		while ((absError>max_absError) && (iteration<max_iterations)) {
 			
 			//Get f(x) and f'(x)
 			legendrePoly_zerothOrder(l, &legendre, &legendreDeriv, oldRoot);
@@ -142,7 +143,7 @@ double* legendreRoots(int l, int *numRootsFound) {
 			newRoot = oldRoot - legendre[l]/legendreDeriv[l];
 			
 			//Get the error
-			relError = fabs(newRoot-oldRoot)/fabs(oldRoot);
+			absError = fabs(newRoot-oldRoot);
 			
 			//Update the root
 			oldRoot = newRoot;
@@ -153,7 +154,7 @@ double* legendreRoots(int l, int *numRootsFound) {
 			continue;
 		}
 		
-		relError = max_relError + 1000000; //Reset the error magnitude
+		absError = max_absError + 1000000; //Reset the error magnitude
 		
 		
 		//If the root is nan or is outside of (-1,1), ignore it.
@@ -163,8 +164,8 @@ double* legendreRoots(int l, int *numRootsFound) {
 		else {
 			//Cycle through all current roots, checking if the newRoot has already been found.
 			for (j=0; j<rootCount; j++) {
-				relError2 = fabs(newRoot-roots[j]);
-				if (relError2<DBL_EPSILON) { //Root has been already found if newRoot and roots[j] are within the machine epsilon
+				absError2 = fabs(newRoot-roots[j]);
+				if (absError2<DBL_EPSILON) { //Root has been already found if newRoot and roots[j] are within the machine epsilon
 					found = 1;
 					break;
 				}
@@ -346,7 +347,7 @@ int main(int argc, char** argv) {
 	double *trig, *legendre;
 	double theta, phi, sphereHarm; 
 	
-	double max_relError, *roots;
+	double max_absError, *roots;
 	int rootCount;
 	
 	l_max = atoi(argv[1]);
@@ -354,7 +355,7 @@ int main(int argc, char** argv) {
 	phi = atof(argv[3]);
 	//l = atoi(argv[4]);
 	//m = atoi(argv[5]);
-	//max_relError = atof(argv[4]);
+	//max_absError = atof(argv[4]);
 	
 	genIndices_lm(l_max, &qNum, &length, &index, dims);
 	
