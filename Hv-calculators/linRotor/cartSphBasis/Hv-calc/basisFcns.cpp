@@ -354,7 +354,7 @@ void tesseralHarmonicsTerms(int **qNum, int length, double **legendre, double **
 	
 	double x;
 	
-	//Calculate the trigonometric portion of the tesseral harmonics, which are a function of m and phi only.
+	//Calculate the trigonometric portion of the tesseral harmonics, which are a function of m and phi only and include 
 	*trig = new double [length];
 	
 	for (n=0; n<length; n++) {

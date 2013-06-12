@@ -1,0 +1,329 @@
+\documentclass{revtex4-1}
+\usepackage{amsmath, latexsym, braket, amsfonts, url, bbold, amssymb}
+\setcounter{secnumdepth}{5}
+
+\begin{document}
+
+% Top Matter
+\title{Lanczos Bound-state Calculation Code}
+\author{Joshua T. Cantin}
+%\address{Department of Chemistry, University of Waterloo, Waterloo, Ontario N2L 3G1, Canada}
+\date{\today}
+
+\maketitle
+
+\section{Introduction}\label{S:intro}
+This document contains both documentation concerning the Lanczos Bound-state Calculation Code as well as information about the underlying theory.
+
+\section{Theory}\label{S:theory}
+It should be noted that it is possible that one could define a combined basis $\ket{\gamma}$ that represents $\ket{\gamma}=\ket{\alpha\beta}=\ket{\alpha}\ket{\beta}$ such that $\gamma[\alpha,\beta]$ in a similar manner to that done with $n[l,m]$ for the $\ket{n}=\ket{lm}$ Tesseral Harmonic basis.
+
+We also may want to test out a specialized code (either in terms of type of rotor or the spin isomers) versus a generalized code (use the symmetrizing operator to select out the even and odd states?) and see which is computationally more efficient.
+
+The Colbert-Miller Formulae will be used for the translational basis and the Wigner functions could possibly be used for the Asymmetric Top ($e^{im\phi}d^{J}_{MK}(\theta)e^{ik\chi}$).
+\subsection{Hamiltonian}\label{S:Hamilton}
+It should be noted that one may be able to define a symmetrizing operator that will allow one to select out the ortho, para or spinless states from the Hamiltonian when calculating the Krylov Subspace. The operator would act as follows
+\begin{align*}
+w &= \hat{S}\hat{H}v \\
+w_{para} &= \hat{S}_{even}\hat{H}v \\
+w_{ortho} &= \hat{S}_{odd}\hat{H}v \\
+w_{spinless} &= \hat{S}_{all}\hat{H}v \\
+\end{align*}
+\subsection{Basis States}\label{S:BS}
+\subsubsection{Rotor Bases}\label{S:RotBS}
+\paragraph{Linear Rotor}\label{S:LinRotBS}
+For the linear rotor, the tesseral spherical harmonics will be used as the basis states and are defined as follows (taken from \url{http://en.wikipedia.org/wiki/Spherical_harmonics}):
+\begin{align}
+Y_{lm}(\theta,\phi)&=\begin{cases}\label{E:SphDefComb} 	\frac{1}{\sqrt{2}}\left(Y^{m}_{l}\left(\theta,\phi\right)+\left(-1\right)^{m}Y^{-m}_{l}\left(\theta,\phi\right)\right) &\mbox{if } m>0\\
+								 	Y^{0}_{l}\left(\theta,\phi\right) &\mbox{if } m=0\\
+								 	\frac{1}{i\sqrt{2}}\left(Y^{-m}_{l}\left(\theta,\phi\right)-\left(-1\right)^{m}Y^{m}_{l}\left(\theta,\phi\right)\right) &\mbox{if } m<0\\
+								 	\end{cases}\\
+				   &=\begin{cases}\label{E:SphDefTes} 	\sqrt{2}N_{\left(l,m\right)}P^{m}_{l}\left(\cos{\theta}\right)\cos{m\phi} &\mbox{if } m>0\\
+				   					Y^{0}_{l}\left(\theta,\phi\right) &\mbox{if } m=0\\
+									\sqrt{2}N_{\left(l,|m|\right)}P^{|m|}_{l}\left(\cos{\theta}\right)\sin{|m|\phi} &\mbox{if } m<0\\
+				   					\end{cases}
+\end{align}
+where $N_{\left(l,m\right)}$ is a normalization constant and is 
+\begin{equation}
+N_{\left(l,m\right)}\equiv\sqrt{\frac{1}{2\pi}}\sqrt{\frac{\left(2l+1\right)}{2}\frac{\left(l-m\right)!}{\left(l+m\right)!}}
+\end{equation}
+Note that we incorporate the Condon-Shortley phase in $N_{\left(l,m\right)}$, so that 
+\begin{equation}
+N_{\left(l,m\right)}\equiv\left(-1\right)^{m}\sqrt{\frac{1}{2\pi}}\sqrt{\frac{\left(2l+1\right)}{2}\frac{\left(l-m\right)!}{\left(l+m\right)!}}
+\end{equation}
+$Y^{m}_{l}\left(\theta,\phi\right)$ are the Laplace Spherical Harmonics and are  
+\begin{equation}
+Y^{m}_{l}\left(\theta,\phi\right)=N_{\left(l,m\right)}P^{m}_{l}\left(\cos{\theta}\right)e^{im\phi}
+\end{equation}
+
+$P^{m}_{l}$ are the associated Legendre polynomials of non-negative $m$, defined as
+\begin{equation}
+P^{m}_{l}\left(x\right)=\left(-1\right)^{m}\left(1-x^{2}\right)^{\frac{m}{2}}\frac{d^{m}}{dx^{m}}\left(P_{l}\left(x\right)\right)
+\end{equation}
+where $P_{l}\left(x\right)$ are the Legendre Polynomials, expressed using Rodrigues' formula:
+\begin{equation}
+P_{l}\left(x\right)=\frac{1}{2^{l}l!}\frac{d^{l}}{dx^{l}}\lbrack\left(x^{2}-1\right)^{l}\rbrack
+\end{equation} 
+
+In practise, the associated Legendre Polynomials $\left(P^{m}_{l}\left(x\right)\right)$ are calculated by first calculating
+\begin{equation*}
+P^{l}_{l}\left(x\right)=\left(2l-1\right)P^{l-1}_{l-1}\left(x\right)\sqrt{1-x^{2}}
+\end{equation*}
+for $l=1 \mbox{ to } l=l_{max}$, where $P^{0}_{0}=1$.
+
+Then, the associated Legendre Polynomials are calculated for $m=0\mbox{ to }m=l_{max}-1$ and for $l=1 \mbox{ to } l=l_{max}$ as follows
+\begin{equation}
+P^{l+1}_{m}\left(x\right)=\frac{\lbrack\left(2l+1\right)xP^{l}_{m}\left(x\right)-\left(l+m\right)P^{l-1}_{m}\left(x\right)\rbrack}{l-m+1}
+\end{equation}
+where $P^{l-1}_{m}\left(x\right)=0\mbox{ if }l-1<m$.
+
+\subparagraph{Legendre Polynomial Recursion Relations}\label{S:LegPolyRecursive}
+From Abramowitz and Stegun, pg.334, the Legendre Polynomials can be generated using the following recurrence relations, where 
+\begin{align*}
+&\{\nu | \nu \epsilon \mathbb{C} \}\\
+&\{\mu | \mu \epsilon \mathbb{C} \}\\
+&\{n | n \geq0, n \epsilon \mathbb{Z} \}\\
+&\{m | m \geq0, m \epsilon \mathbb{Z} \}\\
+&\{z | z \epsilon \mathbb{C} \}\\
+&\{x | x \epsilon \mathbb{R} \}\\
+\end{align*}
+If the degree $(\nu)$ is varying,
+
+8.5.3:
+\begin{equation}
+\left( \nu - \mu +1 \right)P^{\mu}_{\nu+1}\left( z \right) = (2\nu+1)zP^{\mu}_{\nu}(z)-(\nu+\mu)P^{\mu}_{\nu-1}(z)
+\end{equation}
+
+8.5.4:
+\begin{equation}
+(z^{2}-1) \frac{dP^{\mu}_{\nu}(z)}{dz}=\nu z P^{\mu}_{\nu}-(\nu+\mu)P^{\mu}_{\nu-1}(z)
+\end{equation}
+
+If the order $(\mu)$ is varying,
+
+8.5.1:
+\begin{equation}
+P^{\mu+1}_{\nu}(z) = \sqrt{z^{2}-1} [(\nu-\mu)zP^{\mu}_{\nu}(z)-(\nu+\mu)P^{\mu}_{\nu-1}(z)]
+\end{equation}
+
+8.5.2:
+\begin{equation}
+(z^{2}-1)\frac{dP^{\mu}_{\nu}(z)}{dz}=(\nu+\mu)(\nu-\mu+1)\sqrt{z^{2}-1}P^{\mu-1}_{\nu}(z)-\mu z P^{\mu}_{\nu}(z)
+\end{equation}
+
+If the order $(\mu)$ and the degree $(\nu)$ are varying,
+
+8.5.5:
+\begin{equation}
+P^{\mu}_{\nu+1}(z)=P^{\mu}_{\nu-1}(z)+(2\nu+1)\sqrt{z^{2}-1}P^{\mu-1}_{\nu}(z)
+\end{equation}
+
+It should also be noted that (A\&S pg.333 8.4.1 and 8.4.3)
+\begin{align}
+P^{0}_{0}(z) &= 1\\
+P^{0}_{1}(z) &= z
+\end{align}
+
+and (A\&S pg.333 8.2.1)
+\begin{equation}
+P^{\mu}_{-\nu-1}(z)=P^{\mu}_{\nu}(z)
+\end{equation}
+
+For the system used here, $\mu$ can be set to $m$, $\nu$ to $n$, and $z$ to $x$, resulting in: 
+
+If the degree $(n)$ is varying,
+
+\begin{equation}
+\left( n - m +1 \right)P^{m}_{n+1}\left( x \right) = (2n+1)xP^{m}_{n}(x)-(n+m)P^{m}_{n-1}(x)
+\end{equation}
+
+\begin{equation}
+(x^{2}-1) \frac{dP^{m}_{n}(x)}{dx}=n x P^{m}_{n}-(n+m)P^{m}_{n-1}(x)
+\end{equation}
+and Bonnet's Recursion Formula if $m=0$ (from \url{http://en.wikipedia.org/wiki/Legendre_polynomials})
+\begin{equation}
+\left( n +1 \right)P_{n+1}\left( x \right) = (2n+1)xP_{n}(x)-nP_{n-1}(x)
+\end{equation}
+from this, the corresponding formula for the derivative is found to be (from \url{http://en.wikipedia.org/wiki/Legendre_polynomials})
+\begin{equation}
+(x^{2}-1) \frac{dP_{n}(x)}{dx}=n x P_{n}-nP_{n-1}(x)
+\end{equation}
+
+If the order $(m)$ is varying,
+
+\begin{equation}
+P^{m+1}_{n}(x) = \sqrt{x^{2}-1} [(n-m)xP^{m}_{n}(x)-(n+m)P^{m}_{n-1}(x)]
+\end{equation}
+
+\begin{equation}
+(x^{2}-1)\frac{dP^{m}_{n}(x)}{dx}=(n+m)(n-m+1)\sqrt{x^{2}-1}P^{m-1}_{n}(x)-m x P^{m}_{n}(x)
+\end{equation}
+
+If the order $(m)$ and the degree $(n)$ are varying,
+
+\begin{equation}
+P^{m}_{n+1}(x)=P^{m}_{n-1}(x)+(2n+1)\sqrt{x^{2}-1}P^{m-1}_{n}(x)
+\end{equation}
+
+It should also be noted that (A\&S pg.333 8.4.1 and 8.4.3)
+\begin{align}
+P^{0}_{0}(x) &= 1\\
+P^{0}_{1}(x) &= x
+\end{align}
+
+
+\subparagraph{Orthonormality Test of the associated Legendre Polynomials}\label{S:assocLegPolyOrthonormTest}
+
+A numerical test of the associated Legendre Polynomials tested can be performed using their orthonormality property. The normalized associated Legendre Polynomials are defined as:
+\begin{equation}
+\widetilde{P}^{m}_{l}(x) = \sqrt{\frac{\left(2l+1\right)}{2}\frac{\left(l-m\right)!}{\left(l+m\right)!}} P^{m}_{l}(x)
+\end{equation}
+where
+\begin{align*}
+&\{n | n \geq0, n \epsilon \mathbb{Z} \}\\
+&\{m | m \geq0, m \epsilon \mathbb{Z} \}\\
+&\{x | x \epsilon \mathbb{R} \}\\
+\end{align*}
+and $P^{m}_{l}(x)$ are the non-normalized associated Legendre polynomials:
+\begin{equation}
+P^{m}_{l}\left(x\right)=\left(-1\right)^{m}\left(1-x^{2}\right)^{\frac{m}{2}}\frac{d^{m}}{dx^{m}}\left(P_{l}\left(x\right)\right)
+\end{equation}
+where $P_{l}\left(x\right)$ are the Legendre Polynomials, expressed using Rodrigues' formula:
+\begin{equation}
+P_{l}\left(x\right)=\frac{1}{2^{l}l!}\frac{d^{l}}{dx^{l}}\lbrack\left(x^{2}-1\right)^{l}\rbrack
+\end{equation} 
+Now, orthonormality states that
+\begin{equation}
+\int_{-1}^{1} \widetilde{P}^{m}_{l}(x) \widetilde{P}^{m}_{l'}(x) dx =  \delta_{ll'}
+\end{equation}
+if $0 \leq m \leq l$ (taken from PN and \url{http://en.wikipedia.org/wiki/Associated_Legendre_polynomials}).
+Now, based on the Gauss-Legendre Quadrature
+\begin{equation}
+\int_{-1}^{1} \widetilde{P}^{m}_{l}(x) \widetilde{P}^{m}_{l'}(x) dx = \sum_{\alpha=1}^{n_{\alpha}}w_{\alpha}\widetilde{P}^{m}_{l}(x_{\alpha})\widetilde{P}^{m}_{l'}(x_{\alpha}) = \delta_{ll'}
+\end{equation}
+where the condition $l \leq 2n-1$ is required for the relation to be exact (i.e. $R_{n}=0$), as shown. The definitions of $x_{\alpha}$ and $w_{\alpha}$ can be found in section \ref{S:gaussLegendreQuad}. If one defines a matrix,
+\begin{equation}
+L^{m}_{l \alpha} = \widetilde{P}^{m}_{l}(x_{\alpha})\sqrt{w_{\alpha}}
+\end{equation}
+then
+\begin{equation}
+\sum_{\alpha=1}^{n_{\alpha}}w_{\alpha}\widetilde{P}^{m}_{l}(x_{\alpha})\widetilde{P}^{m}_{l'}(x_{\alpha}) = \sum_{\alpha=1}^{n}L^{m}_{l \alpha}(L^{m}_{l' \alpha})^{\intercal} = \delta_{ll'}
+\end{equation}
+thus
+\begin{equation}
+L^{n\intercal}L^{m} = L^{n}L^{m\intercal} = \mathbb{1}
+\end{equation}
+I am not sure if the above is correct or if PN meant: 
+\begin{equation}
+L^{l\intercal}L^{l'} = L^{l}L^{l'\intercal} = \mathbb{1}
+\end{equation}
+
+Now, the $\ket{lm}$ is not a direct product of $\ket{l}$ and $\ket{m}$ (i.e. $\ket{lm} \neq \ket{l}\ket{m}$) as $l$ and $m$ are not independent quantum numbers, but $|m|\leq l, \mbox{ with the restriction that } l\geq 0$. This makes storing the $\ket{lm}$ basis in a matrix more difficult. However, this issue is at least partially alleviated by defining a new quantum number $n = l^{2}+l+m$, with $0 \leq n \leq (l_{max}^{2}+2l_{max}) =(l_{max}+1)^{2}-1$.
+
+
+\subparagraph{Gauss-Legendre Quadrature}\label{S:gaussLegendreQuad}
+
+From Abramowitz and Stegun pg.887, Section 25.4.29:
+
+The quadrature is
+\begin{equation}
+\int_{-1}^{1}f(x)dx = \sum_{i=1}^{n}w_{i}f(x_{i}) + R_{n}
+\end{equation}
+The related polynomials for this quadrature are the Legendre Polynomials $P_{n}(x)$. Also,
+\begin{align}
+x_{i} &= i\text{th root of } P_{n}(x)\\
+w_{i} &= \frac{2}{(1-x_{i}^{2})(P'_{n}(x_{i}))^{2}}\\
+R_{n} &= \frac{2^{2n+1}(n!)^{4}}{(2n+1)[(2n)!]^{3}}f^{(2n)}(\xi), (-1<\xi<1)
+\end{align}
+It should be noted that $R_{n} = 0$ if $f(x)$ is a polynomial of degree $2n-1$ or less (as $f^{(2n)}(x) = 0$ in that case).
+
+\subparagraph{Gauss-Chebyshev Quadrature}\label{S:gaussChebyshevQuad}
+												  
+												  
+\paragraph{Asymmetric Top}\label{S:AsRotBS} 
+
+\subsection{Potential Energy}\label{S:PE}
+\subsubsection{Orientational}\label{S:PEOri}
+\paragraph{Linear Rotor}\label{S:PEOriLinRot}
+Given a potential energy matrix $V(\theta,\phi)$ that is diagonal in $\theta$ and $\phi$, $V$ can be expressed as a vector $\vec{V}(\theta,\phi) = \mbox{diag}(V)$.Now, the matrix elements of $V$ are
+\begin{equation}
+V_{nn'}\left(\theta,\phi\right) = \int_{0}^{2\pi}\partial\phi\int_{-1}^{1}\partial\!\left(\cos{\theta}\right)Y_{lm\lbrack n\rbrack}\!\left(\theta,\phi\right)V\!\left(\theta,\phi\right)Y_{lm\lbrack n'\rbrack}\!\left(\theta,\phi\right)
+\end{equation}
+where $lm\lbrack n\rbrack$ denotes that the quantum numbers $l$ and $m$ are treated as a function of $n$. In this case, $l$ and $m$ are looked up in a table given $n$ as the index. $Y_{lm\lbrack n\rbrack}\!\left(\theta,\phi\right)$ is defined as in (\ref{E:SphDefComb}) and (\ref{E:SphDefTes}), but is also defined here as
+\begin{equation}
+Y_{lm\lbrack n\rbrack}(\theta_{\alpha},\phi_{\beta}) = P_{lm}(\cos{\theta_{\alpha}})N_{m}(\phi_{\beta})
+\end{equation}
+where $\alpha$ and $\beta$ are the indices of the $\theta$ and $\phi$ grids, respectively, such that $\theta\ \epsilon\ [0,\pi]$ and $\phi\ \epsilon\ [0, 2\pi]$ so that
+\begin{align}
+Y_{lm\lbrack n\rbrack}^{\alpha\beta} &= P_{lm\lbrack n\rbrack}^{\alpha}N_{m\lbrack n\rbrack}^{\beta}\\
+									&= P_{lm}^{\alpha}N_{m}^{\beta}
+\end{align}
+where the $lm[n]$ is changed to $lm$ except where there is ambiguity in the index $n$.
+
+Now, within the Lanczos algorithm, a Krylov subspace is generated using an initial vector $v_{n'}$ for the entire Hamiltonian. And, since, $V$ is a part of the Hamiltonian, the potential Krylov vector is 
+\begin{equation}
+u_{n} = \sum_{n'}V_{nn'}v_{n'}
+\end{equation}
+Now, since both $\theta$ and $\phi$ are discretized, $V$ can actually be calculated using a Gaussian Quadrature
+\begin{equation}
+V_{nn'} = \sum_{\alpha,\beta}Y_{lm\lbrack n\rbrack}^{\alpha\beta}w_{\alpha}^{\frac{1}{2}}w_{\beta}^{\frac{1}{2}}V_{\alpha\beta}w_{\alpha}^{\frac{1}{2}}w_{\beta}^{\frac{1}{2}}Y_{lm\lbrack n'\rbrack}^{\alpha\beta}
+\end{equation}
+where $w_{i}$ are the weights for each grid and are split apart for the purposes of symmetric transformations. Thus,
+\begin{align}
+u_{n} 	&= \sum_{n'}V_{nn'}v_{n'} \\
+		&= \sum_{n'}\sum_{\alpha,\beta}Y_{lm\lbrack n\rbrack}^{\alpha\beta}w_{\alpha}^{\frac{1}{2}}w_{\beta}^{\frac{1}{2}}V_{\alpha\beta}w_{\alpha}^{\frac{1}{2}}w_{\beta}^{\frac{1}{2}}Y_{lm\lbrack n'\rbrack}^{\alpha\beta}v_{n'}\\
+		&= \sum_{\alpha,\beta}Y_{lm\lbrack n\rbrack}^{\alpha\beta}w_{\alpha}^{\frac{1}{2}}w_{\beta}^{\frac{1}{2}}V_{\alpha\beta}w_{\alpha}^{\frac{1}{2}}w_{\beta}^{\frac{1}{2}}\sum_{n'}Y_{lm\lbrack n'\rbrack}^{\alpha\beta}v_{n'} \label{E:GaussQuadLinRotPot}
+\end{align}
+
+\subsubsection{Partial Summation}
+Similarly to the partial summation that can be performed for the direct product translational basis $\ket{n_{x}n_{y}n_{z}}$, it may be beneficial to try a partial summation method for the $\ket{lm}$ basis in order to have a computationally more efficient algorithm.
+
+Now, the last sum in (\ref{E:GaussQuadLinRotPot}) can be broken apart and rearranged as follows
+\begin{align}
+\sum_{n'}Y_{lm\lbrack n'\rbrack}^{\alpha\beta}v_{n'} 	&= \sum_{l=0}^{l_{max}}\sum_{m=-l}^{l}P_{lm}^{\alpha}N_{m}^{\beta}v_{lm} \label{E:GaussQuadLinRotPotFullSum}\\
+													&= \sum_{m=-l_{max}}^{l_{max}}N_{m}^{\beta}\sum_{l=|m|}^{l_{max}}P_{lm}^{\alpha}v_{lm} \label{E:GaussQuadLinRotPotPartSum} \\ 
+													&= \sum_{m=-l_{max}}^{l_{max}}N_{m}^{\beta}\tilde{v}_{m}^{\alpha} \label{E:GaussQuadLinRotPotPartSumVec}
+\end{align}
+where $l_{max}$ is the highest $l$ incorporated in the numerical calculations.
+
+Now, though each of these forms has the same mathematical meaning, they may require a different number of FLOPS to actually be calculated. For (\ref{E:GaussQuadLinRotPotFullSum}), all of the terms are calculated at once within a double loop. The number of FLOPS for (\ref{E:GaussQuadLinRotPotFullSum}) is, however, twice the number of terms since the 
+
+
+For (\ref{E:GaussQuadLinRotPotPartSum}), both the outer and inner sums should be treated separately, hence equation (\ref{E:GaussQuadLinRotPotPartSum}). Concentrating on the inner sum, the number of terms is
+\begin{align}
+\mbox{Terms}\!\left(\tilde{v}_{m}^{\alpha}\right) 	&= \mbox{Terms}\!\left(\sum_{l=|m|}^{l_{max}}P_{lm}^{\alpha}v_{lm}\right) \\
+													&= n_{\alpha}\left(l_{max}-|m|+1\right)
+\end{align}
+where $n_{\alpha}$ is the number of $\alpha$ grid points.
+
+However, this is not complete. For when $\tilde{v}_{m}^{\alpha}$ is calculated, one must also perform the calculation for all of the $m$ terms within the vector, since $P_{lm}^{\alpha}$ also depends on $m$. Thus, the number of terms is 
+\begin{align}
+\mbox{Terms}\!\left(\tilde{v}_{m}^{\alpha}\right) 	&= \sum_{m=-l_{max}}^{l_{max}}\mbox{Terms}\!\left(\sum_{l=|m|}^{l_{max}}P_{lm}^{\alpha}v_{lm}\right) \\
+													&= \sum_{m=-l_{max}}^{l_{max}}n_{\alpha}\left(l_{max}-|m|+1\right)\\
+													&= n_{\alpha}\sum_{m=-l_{max}}^{l_{max}}\left(l_{max}-|m|+1\right)\\
+													&= n_{\alpha}\left(2\sum_{m=1}^{l_{max}}\left(l_{max}-m+1\right) + \left(l_{max}-|m|+1\right)_{m=0}\right) \\
+													&= n_{\alpha}\left(2\left(\sum_{m=1}^{l_{max}}l_{max}-\sum_{m=1}^{l_{max}}m+\sum_{m=1}^{l_{max}}1\right) + l_{max}+1\right) \\
+													&= n_{\alpha}\left(2\left(l_{max}^{2}-\frac{l_{max}\left(l_{max}+1\right)}{2}+l_{max}\right) + l_{max}+1\right) \\
+													&= n_{\alpha}\left(2l_{max}^{2}-l_{max}^{2}-l_{max}+2l_{max}+l_{max}+1\right)\\
+													&= n_{\alpha}\left(l_{max}^{2}+2l_{max}+1\right) \\
+													&= n_{\alpha}\left(l_{max}+1\right)^{2}
+\end{align}
+
+Thus, there are $n_{\alpha}\left(l_{max}+1\right)^{2}$ multiplications required (i.e. FLOPS) in order to calculate $\tilde{v}_{m}^{\alpha}$. From this point, one then needs to calculate $\sum_{m=-l_{max}}^{l_{max}}N_{m}^{\beta}\tilde{v}_{m}^{\alpha}$, which has the number of terms
+\begin{equation}\label{E:GaussQuadLinRotPotPartSumOutSum}
+\mbox{Terms}\!\left(\sum_{m=-l_{max}}^{l_{max}}N_{m}^{\beta}\tilde{v}_{m}^{\alpha}\right) = n_{\alpha}n_{\beta}\left(2l_{max}+1\right)
+\end{equation}
+where $n_{\beta}$ is the number of grid points for the $\beta$ basis. Now, similar to the reasoning that the calculation of $\tilde{v}_{m}^{\alpha}$ must include the calculation of all $m$ terms, so here, since $\tilde{v}_{m}^{\alpha}$ is dependent on $\alpha$, does $\sum_{m=-l_{max}}^{l_{max}}N_{m}^{\beta}\tilde{v}_{m}^{\alpha}$ need to include all $\alpha$ terms.
+
+This leaves the total number of terms as
+\begin{align}
+\mbox{Terms}\!\left(\sum_{n'}Y_{lm\lbrack n'\rbrack}^{\alpha\beta}v_{n'}\right) 	&= \mbox{Terms}\!\left(\sum_{m=-l_{max}}^{l_{max}}N_{m}^{\beta}\tilde{v}_{m}^{\alpha}\right) + \mbox{Terms}\!\left(\tilde{v}_{m}^{\alpha}\right) \\
+																				&= n_{\alpha}\left(l_{max}+1\right)^{2} + n_{\alpha}n_{\beta}\left(2l_{max}+1\right)\\
+																				&= n_{\alpha}\lbrack\left(l_{max}+1\right)^{2} + n_{\beta}\left(2l_{max}+1\right)\rbrack
+\end{align}
+
+Here, it can	be seen that though the $\alpha$ grid must be iterated through for the whole calculation, the $\beta$ grid need only be evaluated for the $2l_{max}+1$ terms. This may give a potential computational cost savings.
+													
+
+
+\end{document}
