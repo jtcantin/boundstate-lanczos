@@ -199,7 +199,7 @@ double* legendreRoots(int l, int *numRootsFound) {
 	return roots;
 }
 
-// Dr. PN Roy's code for the calculation of the Gauss-Legendre abscissae and weights
+// Dr. P.-N. Roy's code for the calculation of the Gauss-Legendre abscissae and weights
 void gauleg(double x1,double x2,double *x,double *w,int n)
 {
 	int m,j,i;
@@ -378,6 +378,46 @@ void tesseralHarmonicsTerms(int **qNum, int length, double **legendre, double **
 	(*legendre) = sphLegendrePoly(qNum, length, x);
 	
 }
+
+//Gauss-Chebyshev quadrature abscissae and weights
+void gaussChebyshev(int numPoints, double **abscissae, double **weights){
+	int i, n;
+	
+	//Calculate the abscissae x_i = cos[pi(2i-1)/2n]
+	(*abscissae) = new double [n];
+	(*weights) = new double	[n];
+	for (i=0; i<n; i++) {
+		(*abscissae)[i] = cos(PI * (2.0*double(i) - 1.0) /(2.0 * double(n)));
+		(*weights)[i] = PI / double(n);
+	}
+}
+
+//Cartesian Kinetic Energy operator and grid
+//The grid spans [-x_max, x_max]
+void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, double **grid) {
+	int i, j;
+	double d_x;
+	
+	d_x = 2*x_max/(nPoints + 1);
+	
+	(*grid) = new double [nPoints];
+	(*kinMat) = new double [nPoints*nPoints];
+	for (i=0; i<nPoints; i++) {
+		(*grid) = double(i)*d_x - x_max;
+		
+		for (j=0; j<nPoints; j++) {
+			(*kinMat)[i*nPoints + j] = (H_BAR*H_BAR) / (2.0 * totalMass * d_x * d_x) * pow(-1.0, i-j)
+			if (i==j) {
+				(*kinMat)[i*nPoints + j] *= (PI*PI)/3;
+			}
+			else {
+				(*kinMat)[i*nPoints + j] *= 2/( (i-j) * (i-j) );
+			}
+
+		}
+	}
+}
+
 
 int main(int argc, char** argv) {
 	int l_max, length;

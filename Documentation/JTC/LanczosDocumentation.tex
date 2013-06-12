@@ -29,6 +29,60 @@ w_{para} &= \hat{S}_{even}\hat{H}v \\
 w_{ortho} &= \hat{S}_{odd}\hat{H}v \\
 w_{spinless} &= \hat{S}_{all}\hat{H}v \\
 \end{align*}
+\subsubsection{Linear Rotor}\label{S:LinRotH}
+The Hamiltonian for a Cartesian grid for the centre of mass position and $\theta$ and $\phi$ for the orientation is as follows:
+\begin{equation}
+\widehat{H}_{zxy\theta\phi} = \widehat{T}_{x} + \widehat{T}_{y} + \widehat{T}_{z} + \widehat{T}_{rot} + \widehat{V}_{xyz\theta\phi} 
+\end{equation}
+Now, the discrete variable representation (DVR) presented by Colbert and Miller in their 1992 paper will be used for the Cartesian grid. Specifically, the DVR for a variable that varies from $-\infty$ to $\infty$ will be used, but truncated to the box size. This DVR will behave as if the system is suspended in empty space, rather than having an infinite potential at the boundaries (i.e. particle in a box), which a DVR designed for a finite grid would represent.
+The grid points are as follows:
+\begin{equation}
+x_{i} = i\Delta x, \text{ where } i = 0, \pm 1, \pm 2, ..., \pm \infty
+\end{equation}
+The corresponding basis functions are:
+\begin{equation}
+\braket{x|x_{i}} = \frac{\sin \left(\frac{\pi(x-x_{i})}{\Delta x}\right)}{\pi(x-x_{i})}
+\end{equation}
+The grid is set such that $\braket{x|x_{i}}$ is zero for all $x_{i}\neq x$. Thus, it appears that while interpolation between the grid points is possible, the value at each of the grid points is independent of all of the other grid points; I believe that this simplifies the equations and the subsequent diagonalization of the Hamiltonian. The kinetic energy operator is then expressed as 
+\begin{equation}
+\braket{x_{i}|\widehat{T}_{x}|x_{i'}}=\widehat{T}_{x_{i,i'}}=\frac{\hbar^{2}}{2m\Delta x^{2}} (-1)^{i-i'} \left.\begin{cases} \frac{\pi^{2}}{3}, & i=i'\\
+																			    \frac{2}{(i-i')^{2}}, &i\neq i'
+																			    \end{cases}\right\}
+\end{equation}
+where $m$ is the total mass of the linear rotor and $\Delta x$ is the grid spacing.
+Note that $\widehat{T}_{x_{i,i'}}$ is diagonal in all the other grids used, whether $\ket{yz\theta\phi}$ or $\ket{yzlm}$ and that $\widehat{T}_{y_{i,i'}}$ and $\widehat{T}_{z_{i,i'}}$ are of the same form as $\widehat{T}_{x_{i,i'}}$.
+
+For the rotation, the finite basis representation (FBR) of $\ket{lm}$ (the Tesseral Harmonics, a.k.a. the real form of the Spherical harmonics) is to be used instead of $\theta$ and $\phi$. This then makes
+\begin{equation}
+\widehat{H}_{zxylm} = \widehat{T}_{x} + \widehat{T}_{y} + \widehat{T}_{z} + \widehat{T}_{rot} + \widehat{V}_{xyzlm} 
+\end{equation}
+The rotational kinetic energy is thus
+\begin{equation}
+\widehat{T}_{rot} = B\hat{l}^{2}
+\end{equation}
+where $B$ is the rotational constant defined as
+\begin{equation}
+B = \frac{\hbar^{2}}{2I}
+\end{equation}
+with $I$ as the moment of inertia. The terms of $\widehat{T}_{rot}$ are
+\begin{equation}
+\braket{lm|\widehat{T}_{rot}|l'm'} = Bl(l+1)\delta_{ll'}\delta_{mm'}
+\end{equation}
+where $\delta_{ii'}$ is the Kronecker delta, showing that $\widehat{T}_{rot}$ is diagonal in both $l$ and $m$.
+
+Now, the potential $\widehat{V}$ is calculated and stored in the $\ket{xyz\theta\phi}$ basis and must be converted to the $\ket{xyzlm}$ basis. First of all, the terms of $\widehat{V}$ in the $\ket{xyz\theta\phi}$ basis is
+\begin{equation}
+\braket{xyz\theta\phi|\widehat{V}_{xyz\theta\phi}|x'y'z'\theta'\phi'} = V(x,y,z,\theta,\phi)\delta_{xyz\theta\phi,x'y'z'\theta'\phi'}
+\end{equation}
+To convert from $\ket{xyz\theta\phi}$ to $\ket{xyzlm}$, one can find the elements of $\widehat{V}_{xyz\theta\phi}$ in $\ket{xyzlm}$
+\begin{align}
+\braket{xyzlm|\widehat{V}_{xyzlm}|x'y'z'l'm'} &= \braket{xyzlm|\widehat{V}_{xyz\theta\phi}|x'y'z'l'm'}\\
+											 &= \braket{lm|\widehat{V}_{\theta\phi}(x,y,z)|l'm'}\\
+											 &= \int_{\theta=0}^{\pi}\int_{\phi=0}^{2\pi}\int_{\theta=0}^{\pi}\int_{\phi=0}^{2\pi}\braket{lm|\theta\phi}\braket{\theta\phi|\widehat{V}_{\theta\phi}(x,y,z)|\theta'\phi'}\braket{\theta'\phi'|l'm'}d\phi d\theta d\phi' d\theta'\\
+											 &= \int_{\theta=0}^{\pi}\int_{\phi=0}^{2\pi}\widetilde{Y}_{lm}(\theta,\phi)V(\theta,\phi; x,y,z)\widetilde{Y}_{l'm'}(\theta,\phi)d\phi d\theta
+\end{align} 
+where $\widetilde{Y}_{lm}(\theta,\phi)$ are the Tesseral harmonics. NOTE: THE ABOVE THREE OR FOUR EQUATIONS HAVE DEFINITE PROBLEMS
+
 \subsection{Basis States}\label{S:BS}
 \subsubsection{Rotor Bases}\label{S:RotBS}
 \paragraph{Linear Rotor}\label{S:LinRotBS}
@@ -229,7 +283,7 @@ The quadrature is
 \begin{equation}
 \int_{-1}^{1}f(x)dx = \sum_{i=1}^{n}w_{i}f(x_{i}) + R_{n}
 \end{equation}
-The related polynomials for this quadrature are the Legendre Polynomials $P_{n}(x)$. Also,
+The related polynomials for this quadrature are the Legendre Polynomials $P_{n}(x), P_{n}(1)=1$. Also,
 \begin{align}
 x_{i} &= i\text{th root of } P_{n}(x)\\
 w_{i} &= \frac{2}{(1-x_{i}^{2})(P'_{n}(x_{i}))^{2}}\\
@@ -238,6 +292,23 @@ R_{n} &= \frac{2^{2n+1}(n!)^{4}}{(2n+1)[(2n)!]^{3}}f^{(2n)}(\xi), (-1<\xi<1)
 It should be noted that $R_{n} = 0$ if $f(x)$ is a polynomial of degree $2n-1$ or less (as $f^{(2n)}(x) = 0$ in that case).
 
 \subparagraph{Gauss-Chebyshev Quadrature}\label{S:gaussChebyshevQuad}
+
+From Abramowitz and Stegun pg.889, Section 25.4.39:
+
+The quadrature is
+\begin{equation}
+\int_{-1}^{1}\frac{f(x)}{\sqrt{1-x^{2}}}dx = \sum_{i=1}^{n}w_{i}f(x_{i}) + R_{n}
+\end{equation}
+The related orthogonal polynomials are the Chebyshev Polynomials of the First Kind:
+\begin{equation}
+T_{n}(x),T_{n}(1)=\frac{1}{2^{n-1}}
+\end{equation}
+Also,
+\begin{align}
+x_{i} &= \cos{\frac{(2i-1)\pi}{2n}}\\
+w_{i} &= \frac{\pi}{n}\\
+R_{n} &= \frac{\pi}{(2n)!2^{2n-1}}f^{(2n)}(\xi), (-1<\xi<1)
+\end{align}
 												  
 												  
 \paragraph{Asymmetric Top}\label{S:AsRotBS} 
@@ -294,7 +365,7 @@ For (\ref{E:GaussQuadLinRotPotPartSum}), both the outer and inner sums should be
 \mbox{Terms}\!\left(\tilde{v}_{m}^{\alpha}\right) 	&= \mbox{Terms}\!\left(\sum_{l=|m|}^{l_{max}}P_{lm}^{\alpha}v_{lm}\right) \\
 													&= n_{\alpha}\left(l_{max}-|m|+1\right)
 \end{align}
-where $n_{\alpha}$ is the number of $\alpha$ grid points.
+where $n_{\alpha}$ is the number of $\alpha$ grid points. The $+1$ term is included as $m$ could be zero.
 
 However, this is not complete. For when $\tilde{v}_{m}^{\alpha}$ is calculated, one must also perform the calculation for all of the $m$ terms within the vector, since $P_{lm}^{\alpha}$ also depends on $m$. Thus, the number of terms is 
 \begin{align}
@@ -323,6 +394,16 @@ This leaves the total number of terms as
 \end{align}
 
 Here, it can	be seen that though the $\alpha$ grid must be iterated through for the whole calculation, the $\beta$ grid need only be evaluated for the $2l_{max}+1$ terms. This may give a potential computational cost savings.
+
+\subsection{Code Theory}\label{S:CodeTheory}
+For a linear array in a direct product basis, such as the eigenstates, the index of the basis, $p$ can be found as
+\begin{align}
+p &= n_{i}n_{j}n_{k}n + n_{i}n_{j}k + n_{i}j + i\\
+  &= n_{i}(n_{j}n_{k}n + n_{j}k + j) + i\\
+  &= n_{i}(n_{j}(n_{k}n + k) + j) + i\\
+  &= ((nn_{k}+k)n_{j} + j)n_{i} + i
+\end{align}
+where i is the inner most index and varies most rapidly, while n is the outer most index and varies most slowly. This would be useful for the $v$ or $u$ vectors, where each is represented in the basis $\ket{xyzn} = \ket{xyzlm}$, where $n[l,m]$ according to the ordering of $l$ and $m$ as determined by $\sum_{m=-l_{max}}^{l_{max}}\sum_{l=|m|}^{l_{max}}1$. The mapping of $n$ to $l,m$ and vice versa is given by the 1D and 2D arrays generated by the function {\em genIndices\_lm()}.
 													
 
 
