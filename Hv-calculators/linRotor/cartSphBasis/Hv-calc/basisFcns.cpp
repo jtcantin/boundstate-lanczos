@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <cfloat>
 #include "lanczosUnits.h"
+#include "vectClass.h"
 
 using namespace std;
 
@@ -243,15 +244,14 @@ void gauleg(double x1,double x2,double *x,double *w,int n)
 	}
 }
 
-//Calculation of the set of "spherical Legendre polynomials" for l = 0 to l_max and m = -l_max to l_max 
-// that is the spherical harmonics excluding only the trigonometric term (i.e. cos(m*phi) and sin(|m|*phi) )
-// This function returns a pointer to an array of the spherical Legendre polynomials
-double* sphLegendrePoly(int **qNum, int length, double x){
+//Calculation of the set of normalized associated Legendre polynomials for l = 0 to l_max and m = -l_max to l_max 
+// This function returns a pointer to an array of the normalized associated Legendre polynomials
+double* normAssocLegendrePoly(int **qNum, int length, double x){
 	//Storage arrays
 	double *legendre, **legenArr;
 	
 	//Calculation variables
-	double sqrtTwoPiInv, recFactor, phaseFactor, legenRecFactor, partialNormFactor;
+	double recFactor, phaseFactor, legenRecFactor, partialNormFactor;
 	int l_max;
 	
 	//Index variables
@@ -265,11 +265,9 @@ double* sphLegendrePoly(int **qNum, int length, double x){
 	// First the Legendre polynomials are calculated:
 	//    P^m_l(x) = 1/(l!.2^l) * (1-x^2)^(m/2) * d^(l+m)/dx^(l+m) [(x^2-1)^l]
 	// Then each is multiplied by:
-	//    N_lm = (-1)^m * sqrt{ [(2l+1) * (l-m)!] / [4.PI*(l+m)!] }  =  (-1)^m * sqrt[1/(2.PI)]  * sqrt[ (l-m)! * (2l+1) / (2(l+m)!) ]
+	//    N_lm = (-1)^m * sqrt[ (l-m)! * (2l+1) / (2(l+m)!) ]
 	// This returns P_lm(x).
 	// Note: This code (and comment) is heavily based on the code by Toby Zeng in the file ylm_py2.f
-	
-	sqrtTwoPiInv = 1.0 / sqrt(2.0*PI);
 	
 	legenArr = new double* [l_max+1];
 	
@@ -313,7 +311,7 @@ double* sphLegendrePoly(int **qNum, int length, double x){
 	
 	//At this point, the Legendre Polynomials have been calculated (except for a phase factor (-1)^m).
 	//Now, the acquired polynomials are going to be renormalized, with:
-	//    N_lm = (-1)^m * sqrt{ [(2l+1) * (l-m)!] / [4.PI*(l+m)!] }  =  (-1)^m * sqrt[1/(2.PI)]  * sqrt[ (l-m)! * (2l+1) / (2(l+m)!) ]
+	//    N_lm = (-1)^m * sqrt[ (l-m)! * (2l+1) / (2(l+m)!) ]
 	
 	for (l=0; l<=l_max; l++) {
 		phaseFactor = 1.0;
@@ -322,7 +320,7 @@ double* sphLegendrePoly(int **qNum, int length, double x){
 			md = double(m);
 			
 			partialNormFactor = double(factorial(l-m)) * (2.0*ld+1.0) / (2.0*double(factorial(l+m)));
-			legenArr[l][m] *= phaseFactor * sqrtTwoPiInv * sqrt(partialNormFactor);
+			legenArr[l][m] *= phaseFactor * sqrt(partialNormFactor);
 			phaseFactor *= -1.0;
 		}
 	}
@@ -334,16 +332,16 @@ double* sphLegendrePoly(int **qNum, int length, double x){
 		l = qNum[n][0];
 		m = qNum[n][1];
 		
-		//Build the "tesseral Harmonics", but exclude the trigonometric portion; these will be referred to as the spherical Legendre Polynomials and stored in legendre.
+		//Calculate the Legendre Polynomials for positive and negative m
 		if (m == 0) { 
 			legendre[n] = legenArr[l][m];
 		}
 		else if (m > 0) {
-			legendre[n] = sqrt(2.0) * legenArr[l][m]; //Excluding cos(m*phi)
+			legendre[n] = legenArr[l][m];
 		}
 		else {
 			m *= -1; //Make m positive to effectively take the absolute value of m.
-			legendre[n] = sqrt(2.0) * legenArr[l][m]; //Excluding sin(|m|*phi)
+			legendre[n] = legenArr[l][m];
 		}
 
 	}
@@ -356,9 +354,11 @@ void tesseralHarmonicsTerms(int **qNum, int length, double **legendre, double **
 	//Index variables
 	int m, n;
 	
-	double x;
+	double x, sqrtTwoPiInv;
 	
-	//Calculate the trigonometric portion of the tesseral harmonics, which are a function of m and phi only and include 
+	sqrtTwoPiInv = 1.0 / sqrt(2.0*PI);
+	
+	//Calculate the trigonometric portion of the tesseral harmonics, which are a function of m and phi only and include the factors sqrt(2) * sqrt(1/2pi)
 	*trig = new double [length];
 	
 	for (n=0; n<length; n++) {
@@ -368,18 +368,18 @@ void tesseralHarmonicsTerms(int **qNum, int length, double **legendre, double **
 			(*trig)[n] = 1.0;
 		}
 		else if (m > 0) {
-			(*trig)[n] = cos(double(m)*phi); //cos(m*phi)
+			(*trig)[n] = sqrt(2.0) * sqrtTwoPiInv * cos(double(m)*phi); //cos(m*phi)
 		}
 		else {
 			m *= -1; //Make m positive to effectively take the absolute value of m.
-			(*trig)[n] = sin(double(m)*phi); //sin(|m|*phi)
+			(*trig)[n] = sqrt(2.0) * sqrtTwoPiInv * sin(double(m)*phi); //sin(|m|*phi)
 		}
 	}
 	
-	//Calculate the spherical Legendre polynomials (i.e. the associated Legendre Polynomials times the normalization and phase factors)
+	//Calculate the normalized associated Legendre polynomials (i.e. the associated Legendre Polynomials times the normalization and phase factors)
 	// as a function of cos(theta) for all l and m in qNum.
 	x = cos(theta);
-	(*legendre) = sphLegendrePoly(qNum, length, x);
+	(*legendre) = normAssocLegendrePoly(qNum, length, x);
 	
 }
 
@@ -444,6 +444,56 @@ double* rotKinEng(int **qNum, int length, double momentOfInertia) {
 	return rotEng;
 }
 
+//This builds the L_la^m matrices for testing the orthonormality of the generate Legendre Polynomials
+void legendreMat(int l_max, int thetaPoints, int phiPoints) {
+	int m, l, a, n;
+	int **qNum, length, **index, dims[2];
+	
+	double **legendreGrid;
+	MAT *Lmla;
+	
+	double *phiAbscissae, *phiWeights;
+	
+	double *cosThetaAbscissae, *cosThetaWeights;
+	
+	//Find Gauss-Legendre and Gauss-Chebyshev grids
+	gaussChebyshev(phiPoints, &phiAbscissae, &phiWeights);
+	
+	cosThetaAbscissae = new double [thetaPoints];
+	cosThetaWeights = new double [thetaPoints];
+	
+	gauleg(-1.0, 1.0, cosThetaAbscissae, cosThetaWeights, thetaPoints);
+	
+	//Get the lm basis indices
+	genIndices_lm(l_max, &qNum, &length, &index, dims);
+		
+	//Calculate the Legendre polynomials for each of the Gauss-Legendre Abscissae (cosThetaAbscissae)
+	legendreGrid = new double* [thetaPoints];
+	
+	for (a=0; a<thetaPoints; a++) {
+		legendreGrid[a] = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
+	}
+	
+	//Calculate the L_la^m matrix elements
+	Lmla = new MAT [2*l_max+1]; //Outer Loop is m
+	
+	for (m=-l_max; m<=l_max; m++) {
+		Lmla[m_shift(m)] = MAT(l_max, thetaPoints);
+	}
+	
+	for (n=0; n<length; n++) {
+		l = qNum[n][0];
+		m = qNum[n][1];
+		
+		for (a=0; a<thetaPoints; a++) {
+			(Lmla[m_shift(m)])(l)(a) = sqrt(cosThetaWeights[a]) * normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
+		}
+	}
+}
+	
+
+	
+	
 				  
 int main(int argc, char** argv) {
 	int l_max, length;
@@ -452,8 +502,8 @@ int main(int argc, char** argv) {
 	
 	int i, j;
 	
-	//double *trig, *legendre;
-//	double theta, phi, sphereHarm; 
+	double *trig, *legendre;
+	double theta, phi, sphereHarm; 
 //	
 //	double max_absError, *roots;
 //	int rootCount;
@@ -466,13 +516,13 @@ int main(int argc, char** argv) {
 	//double *kinMat, *grid, x_max;
 //	int nPoints;
 	
-	double *rotEng, momentOfInertia;
+	//double *rotEng, momentOfInertia;
 	
 	
 	//numPointsCheby = atoi(argv[1]);
 	l_max = atoi(argv[1]);
-	//theta = atof(argv[2]);
-	//phi = atof(argv[3]);
+//	theta = atof(argv[2]);
+//	phi = atof(argv[3]);
 	//l = atoi(argv[4]);
 	//m = atoi(argv[5]);
 	//max_absError = atof(argv[4]);
@@ -480,7 +530,7 @@ int main(int argc, char** argv) {
 //	x_max = atof(argv[1]);
 //	nPoints = atof(argv[2]);
 	
-	genIndices_lm(l_max, &qNum, &length, &index, dims);
+//	genIndices_lm(l_max, &qNum, &length, &index, dims);
 //	
 //	tesseralHarmonicsTerms(qNum, length, &legendre, &trig, theta, phi);
 //	
@@ -497,41 +547,13 @@ int main(int argc, char** argv) {
 	
 
 //	gaussChebyshev(numPointsCheby, &abscissaeCheby, &weightsCheby);
+	
+//	momentOfInertia = 2.0*1.0*2.0*2.0; //2mr^2 in amu.nm^2
 //	
-//	//cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, double **grid);
-//	cout << "abscissaeCheby " << "weightsCheby" << endl;
-//	for (i=0; i<numPointsCheby; i++) {
-//		cout << abscissaeCheby[i] << " " << weightsCheby[i] << endl;
-//	}
+//	rotEng = rotKinEng(qNum, length, momentOfInertia);
+	
 //	cout << scientific << setprecision(15);
-//	cartKinGrid(x_max, nPoints, 2.0, &kinMat, &grid);
-//	cout << "Grid: Value" << endl;
-//	for (i=0; i<nPoints; i++) {
-//		cout << grid[i] << " ";
-//		for (j=0; j<nPoints; j++) {
-//			cout << kinMat[i*nPoints + j] << " ";
-//		}
-//		cout << endl;
-//	}
-	
-	momentOfInertia = 2.0*1.0*2.0*2.0; //2mr^2 in amu.nm^2
-	
-	rotEng = rotKinEng(qNum, length, momentOfInertia);
-	
-	cout << scientific << setprecision(15);
-	cout << "l" << endl;
-	cout << "m" << endl;
-	cout << "Rotational Energy" << endl;
-	
-	for (i=0; i<length; i++) {
-		cout << qNum[i][0] << endl;
-		}
-	for (i=0; i<length; i++) {
-		cout << qNum[i][1] << endl;
-	}
-	for (i=0; i<length; i++) {
-		cout << rotEng[i] << endl;
-	}
+
 	
 	
 	
