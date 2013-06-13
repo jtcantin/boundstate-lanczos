@@ -425,10 +425,29 @@ void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, d
 	}
 }
 
+//Rotational Kinetic Energy Operator in the |lm> basis
+// !Make sure to delete (ie. dealloc) kinVec and grid!
+// Note that kinVec = diag(kinMat), since kinMat is diagonal in the |lm> basis
+double* rotKinEng(int **qNum, int length, double momentOfInertia) {
+	double B, *rotEng, l;
+	int i;
+	
+	rotEng = new double [length];
+	
+	B = H_BAR*H_BAR / 2.0 / momentOfInertia;
+	
+	for (i=0; i<length; i++) {
+		l = double(qNum[i][0]);
+		rotEng[i] = B * l * (l+1.0);
+	}
+	
+	return rotEng;
+}
 
+				  
 int main(int argc, char** argv) {
-	//int l_max, length;
-//	int **qNum, **index, dims[2];
+	int l_max, length;
+	int **qNum, **index, dims[2];
 //	int l, m, n;
 	
 	int i, j;
@@ -444,22 +463,24 @@ int main(int argc, char** argv) {
 //	int numPointsCheby;
 //	double *abscissaeCheby, *weightsCheby;
 	
-	double *kinMat, *grid, x_max;
-	int nPoints;
+	//double *kinMat, *grid, x_max;
+//	int nPoints;
+	
+	double *rotEng, momentOfInertia;
 	
 	
 	//numPointsCheby = atoi(argv[1]);
-	//l_max = atoi(argv[1]);
+	l_max = atoi(argv[1]);
 	//theta = atof(argv[2]);
 	//phi = atof(argv[3]);
 	//l = atoi(argv[4]);
 	//m = atoi(argv[5]);
 	//max_absError = atof(argv[4]);
 	
-	x_max = atof(argv[1]);
-	nPoints = atof(argv[2]);
+//	x_max = atof(argv[1]);
+//	nPoints = atof(argv[2]);
 	
-	//genIndices_lm(l_max, &qNum, &length, &index, dims);
+	genIndices_lm(l_max, &qNum, &length, &index, dims);
 //	
 //	tesseralHarmonicsTerms(qNum, length, &legendre, &trig, theta, phi);
 //	
@@ -482,15 +503,34 @@ int main(int argc, char** argv) {
 //	for (i=0; i<numPointsCheby; i++) {
 //		cout << abscissaeCheby[i] << " " << weightsCheby[i] << endl;
 //	}
+//	cout << scientific << setprecision(15);
+//	cartKinGrid(x_max, nPoints, 2.0, &kinMat, &grid);
+//	cout << "Grid: Value" << endl;
+//	for (i=0; i<nPoints; i++) {
+//		cout << grid[i] << " ";
+//		for (j=0; j<nPoints; j++) {
+//			cout << kinMat[i*nPoints + j] << " ";
+//		}
+//		cout << endl;
+//	}
+	
+	momentOfInertia = 2.0*1.0*2.0*2.0; //2mr^2 in amu.nm^2
+	
+	rotEng = rotKinEng(qNum, length, momentOfInertia);
+	
 	cout << scientific << setprecision(15);
-	cartKinGrid(x_max, nPoints, 2.0, &kinMat, &grid);
-	cout << "Grid: Value" << endl;
-	for (i=0; i<nPoints; i++) {
-		cout << grid[i] << " ";
-		for (j=0; j<nPoints; j++) {
-			cout << kinMat[i*nPoints + j] << " ";
+	cout << "l" << endl;
+	cout << "m" << endl;
+	cout << "Rotational Energy" << endl;
+	
+	for (i=0; i<length; i++) {
+		cout << qNum[i][0] << endl;
 		}
-		cout << endl;
+	for (i=0; i<length; i++) {
+		cout << qNum[i][1] << endl;
+	}
+	for (i=0; i<length; i++) {
+		cout << rotEng[i] << endl;
 	}
 	
 	
