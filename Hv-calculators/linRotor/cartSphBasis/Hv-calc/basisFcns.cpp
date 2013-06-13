@@ -26,6 +26,8 @@ int factorial(int num) {
 //This function generates two maps for the lm basis. One, qNum, goes from n to l,m and the other, index, goes from l,m to n. 
 //   The mapping order is based on method of partial summation to be used, which sums from m=-l_max to l_max as the outer loop and l = abs(m) to l_max
 //  as the inner loop. i.e. first l is summed over, then m is.
+// !Make sure to delete (ie. dealloc) qNum and index!
+// !!Make sure to access index with the m_shift() macro!!
 void genIndices_lm(int l_max, int ***qNum, int *length, int ***index, int *dims){
 	//l_max is the maximum l value to be used
 	//qNum is a map from n to l and m; ie. qNum[n][0] = l and qNum[n][1] = m.
@@ -74,6 +76,7 @@ void genIndices_lm(int l_max, int ***qNum, int *length, int ***index, int *dims)
 //Calculation of the Legendre polynomials of order 0 and their derivatives
 //Bonnet's Recursion formula is used (Abramowitz and Stegun pg 334, Eq. 8.5.3 and 8.5.4 where mu = 0)
 //Valid for -1<x<1.
+// !Make sure to delete (ie. dealloc) legendre and legendreDeriv!
 void legendrePoly_zerothOrder(int l_max, double **legendre, double **legendreDeriv, double x){
 	int l;
 	double ld;
@@ -200,6 +203,7 @@ double* legendreRoots(int l, int *numRootsFound) {
 }
 
 // Dr. P.-N. Roy's code for the calculation of the Gauss-Legendre abscissae and weights
+// !Make sure to delete (ie. dealloc) x and w!
 void gauleg(double x1,double x2,double *x,double *w,int n)
 {
 	int m,j,i;
@@ -347,7 +351,7 @@ double* sphLegendrePoly(int **qNum, int length, double x){
 	return legendre;
 }
 
-
+// !Make sure to delete (ie. dealloc) legendre and trig!
 void tesseralHarmonicsTerms(int **qNum, int length, double **legendre, double **trig, double theta, double phi) {
 	//Index variables
 	int m, n;
@@ -380,38 +384,41 @@ void tesseralHarmonicsTerms(int **qNum, int length, double **legendre, double **
 }
 
 //Gauss-Chebyshev quadrature abscissae and weights
+// !Make sure to delete (ie. dealloc) abscissae and weights!
 void gaussChebyshev(int numPoints, double **abscissae, double **weights){
 	int i, n;
 	
+	n = numPoints;
 	//Calculate the abscissae x_i = cos[pi(2i-1)/2n]
 	(*abscissae) = new double [n];
 	(*weights) = new double	[n];
 	for (i=0; i<n; i++) {
-		(*abscissae)[i] = cos(PI * (2.0*double(i) - 1.0) /(2.0 * double(n)));
+		(*abscissae)[i] = cos(PI * (2.0*double(i+1) - 1.0) /(2.0 * double(n)));
 		(*weights)[i] = PI / double(n);
 	}
 }
 
 //Cartesian Kinetic Energy operator and grid
 //The grid spans [-x_max, x_max]
+// !Make sure to delete (ie. dealloc) kinMat and grid!
 void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, double **grid) {
 	int i, j;
 	double d_x;
 	
-	d_x = 2*x_max/(nPoints + 1);
+	d_x = 2.0*x_max/(nPoints + 1.0);
 	
 	(*grid) = new double [nPoints];
 	(*kinMat) = new double [nPoints*nPoints];
 	for (i=0; i<nPoints; i++) {
-		(*grid) = double(i)*d_x - x_max;
+		(*grid)[i] = double(i+1)*d_x - x_max;
 		
 		for (j=0; j<nPoints; j++) {
-			(*kinMat)[i*nPoints + j] = (H_BAR*H_BAR) / (2.0 * totalMass * d_x * d_x) * pow(-1.0, i-j)
+			(*kinMat)[i*nPoints + j] = (H_BAR*H_BAR) / (2.0 * totalMass * d_x * d_x) * pow(-1.0, (i+1)-(j+1));
 			if (i==j) {
-				(*kinMat)[i*nPoints + j] *= (PI*PI)/3;
+				(*kinMat)[i*nPoints + j] *= (PI*PI)/3.0;
 			}
 			else {
-				(*kinMat)[i*nPoints + j] *= 2/( (i-j) * (i-j) );
+				(*kinMat)[i*nPoints + j] *= 2.0/double( ((i+1)-(j+1)) * ((i+1)-(j+1)) );
 			}
 
 		}
@@ -420,101 +427,88 @@ void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, d
 
 
 int main(int argc, char** argv) {
-	int l_max, length;
-	int **qNum, **index, dims[2];
-	int i, l, m, n;
+	//int l_max, length;
+//	int **qNum, **index, dims[2];
+//	int l, m, n;
 	
-	double *trig, *legendre;
-	double theta, phi, sphereHarm; 
+	int i, j;
 	
-	double max_absError, *roots;
-	int rootCount;
+	//double *trig, *legendre;
+//	double theta, phi, sphereHarm; 
+//	
+//	double max_absError, *roots;
+//	int rootCount;
+//	
+//	double *roots_pn, *weights_pn;
+//	
+//	int numPointsCheby;
+//	double *abscissaeCheby, *weightsCheby;
 	
-	double *roots_pn, *weights_pn;
+	double *kinMat, *grid, x_max;
+	int nPoints;
 	
-	l_max = atoi(argv[1]);
-	theta = atof(argv[2]);
-	phi = atof(argv[3]);
+	
+	//numPointsCheby = atoi(argv[1]);
+	//l_max = atoi(argv[1]);
+	//theta = atof(argv[2]);
+	//phi = atof(argv[3]);
 	//l = atoi(argv[4]);
 	//m = atoi(argv[5]);
 	//max_absError = atof(argv[4]);
 	
-	genIndices_lm(l_max, &qNum, &length, &index, dims);
+	x_max = atof(argv[1]);
+	nPoints = atof(argv[2]);
 	
-	tesseralHarmonicsTerms(qNum, length, &legendre, &trig, theta, phi);
-	
-	cout << fixed << setprecision(15);
-	
-	//n = index[l][m_shift(m)];
-//	sphereHarm = legendre[n] * trig[n];
-	
-	//cout << "Spherical Harmonic: " << sphereHarm << endl;
-	
-	//cout << "Trig: " << endl;
-//	for (n=0; n<length; n++) {
-//		l = qNum[n][0];
-//		m = qNum[n][1];
-//		
-//		cout << l << " " << m << " " << trig[n] << endl;
-//	}
+	//genIndices_lm(l_max, &qNum, &length, &index, dims);
 //	
-//	cout << "Legendre: " << endl;
-//	for (n=0; n<length; n++) {
-//		l = qNum[n][0];
-//		m = qNum[n][1];
-//		
-//		cout << l << " " << m << " " << legendre[n] << endl;
+//	tesseralHarmonicsTerms(qNum, length, &legendre, &trig, theta, phi);
+//	
+//	cout << fixed << setprecision(15);
+//	
+//	
+//	roots = legendreRoots(l_max, &rootCount);
+//	
+//	
+//	roots_pn = new double [l_max];
+//	weights_pn = new double [l_max];
+//	
+//	gauleg(-1.0, 1.0,roots_pn,weights_pn,l_max);
+	
+
+//	gaussChebyshev(numPointsCheby, &abscissaeCheby, &weightsCheby);
+//	
+//	//cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, double **grid);
+//	cout << "abscissaeCheby " << "weightsCheby" << endl;
+//	for (i=0; i<numPointsCheby; i++) {
+//		cout << abscissaeCheby[i] << " " << weightsCheby[i] << endl;
 //	}
-	
-//	cout << "SphereHarm: " << endl;
-//	for (n=0; n<length; n++) {
-//		l = qNum[n][0];
-//		m = qNum[n][1];
-//		
-//		cout << l << " " << m << " " << legendre[n] * trig[n] << endl;
-//	} 
-	
-	cout << "Finding Legendre polynomial roots:" << endl;
-	
-	roots = legendreRoots(l_max, &rootCount);
-	
-	cout << "Roots Found:" << endl;
-	
-	for (l=0; l<rootCount; l++) {
-		cout << roots[l] << endl;
-	}
-	
-	roots_pn = new double [l_max];
-	weights_pn = new double [l_max];
-	
-	gauleg(-1.0, 1.0,roots_pn,weights_pn,l_max);
-	
-	cout << "Difference between JTC and PN's roots: " << endl;
-	
-	for (l=0; l<l_max; l++) {
-		cout << roots[l]-roots_pn[l] << endl;
-	}
-	
-	cout << "PN's weights: " << endl;
-	
-	for (l=0; l<l_max; l++) {
-		cout << weights_pn[l] << endl;
+	cout << scientific << setprecision(15);
+	cartKinGrid(x_max, nPoints, 2.0, &kinMat, &grid);
+	cout << "Grid: Value" << endl;
+	for (i=0; i<nPoints; i++) {
+		cout << grid[i] << " ";
+		for (j=0; j<nPoints; j++) {
+			cout << kinMat[i*nPoints + j] << " ";
+		}
+		cout << endl;
 	}
 	
 	
 	
-	
-	for (i=0 ; i<length; i++) {		
-		delete [] qNum[i];
-	}
-	delete [] qNum;
-	
-	for (i=0; i<l_max; i++) {
-		delete [] index[i];
-	}
-	delete [] index;
-	delete [] legendre;
-	delete [] trig;
+	//for (i=0 ; i<length; i++) {		
+//		delete [] qNum[i];
+//	}
+//	delete [] qNum;
+//	
+//	for (i=0; i<l_max; i++) {
+//		delete [] index[i];
+//	}
+//	delete [] index;
+//	delete [] legendre;
+//	delete [] trig;
+//	delete [] roots_pn;
+//	delete [] weights_pn;
+//	delete [] roots;
 	
 	
 	return 0;
