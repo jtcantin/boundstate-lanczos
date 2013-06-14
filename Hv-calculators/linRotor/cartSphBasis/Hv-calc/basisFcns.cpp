@@ -346,6 +346,11 @@ double* normAssocLegendrePoly(int **qNum, int length, double x){
 
 	}
 	
+	for (l=0; l<=l_max; l++) {
+		delete [] legenArr[l];
+	}
+	delete [] legenArr;
+	
 	return legendre;
 }
 
@@ -446,15 +451,16 @@ double* rotKinEng(int **qNum, int length, double momentOfInertia) {
 
 //This builds the L_la^m matrices for testing the orthonormality of the generate Legendre Polynomials
 void legendreMat(int l_max, int thetaPoints, int phiPoints) {
-	int m, l, a, n;
+	int m, l, a, n, i, lp;
 	int **qNum, length, **index, dims[2];
 	
 	double **legendreGrid;
-	MAT *Lmla;
 	
 	double *phiAbscissae, *phiWeights;
 	
 	double *cosThetaAbscissae, *cosThetaWeights;
+	
+	double ***Lmla, ***resMatLegendre;
 	
 	//Find Gauss-Legendre and Gauss-Chebyshev grids
 	gaussChebyshev(phiPoints, &phiAbscissae, &phiWeights);
@@ -475,20 +481,124 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 	}
 	
 	//Calculate the L_la^m matrix elements
-	Lmla = new MAT [2*l_max+1]; //Outer Loop is m
+	
+									 
+	// Allocate memory for the matrix elements
+	Lmla = new double** [2*l_max+1]; //Outer Loop is m
 	
 	for (m=-l_max; m<=l_max; m++) {
-		Lmla[m_shift(m)] = MAT(l_max, thetaPoints);
+		Lmla[m_shift(m)] = new double* [l_max+1];
+		
+		for (l=0; l<=l_max; l++) {
+			Lmla[m_shift(m)][l] = new double [thetaPoints];
+		}
 	}
 	
+	//Calculate elements, which is sqrt(gaussLegendreWeights(a)) * ~P_lm(x_a), where x_a = cos(theta_a), ~ means normalized
 	for (n=0; n<length; n++) {
 		l = qNum[n][0];
 		m = qNum[n][1];
 		
 		for (a=0; a<thetaPoints; a++) {
-			(Lmla[m_shift(m)])(l)(a) = sqrt(cosThetaWeights[a]) * normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
+			Lmla[m_shift(m)][l][a] = sqrt(cosThetaWeights[a]) * legendreGrid[a][index[l][m_shift(m)]];
 		}
 	}
+	
+	//Calculate L^m(L^m)^T = sum(over a){L^m_la * L^m_l'a)
+	resMatLegendre = new double** [2*l_max+1];
+	
+	for (m=-l_max; m<=l_max; m++) {
+		resMatLegendre[m_shift(m)] = new double* [l_max+1];
+		
+		for (l=0; l<=l_max; l++) {
+			resMatLegendre[m_shift(m)][l] = new double [l_max+1];
+			
+			for (lp=0; lp<=l_max; lp++) {
+				resMatLegendre[m_shift(m)][l][lp] = 0.0; //Initialize matrix value
+				
+				for (a=0; a<thetaPoints; a++) {
+					resMatLegendre[m_shift(m)][l][lp] += Lmla[m_shift(m)][l][a] * Lmla[m_shift(m)][lp][a];
+				}
+			}
+		}
+	}
+	
+	//Print out Legendre Polynomial matrices
+//	cout << fixed << setprecision(3);
+//	cout << "Legendre Polynomial matrices" << endl;
+//	for (m=-l_max; m<=l_max; m++) {
+//		cout << "m = " << m << endl;
+//		
+//		for (l=0; l<=l_max; l++) {
+//			
+//			for (a=0; a<thetaPoints; a++) {
+//				cout << Lmla[m_shift(m)][l][a] << " ";
+//			}
+//			cout << endl;
+//		}
+//	}
+	
+	//Print out Legendre Polynomial result matrices
+	cout << fixed << setprecision(3);
+	cout << "Legendre Polynomial Result matrices" << endl;
+	for (m=-l_max; m<=l_max; m++) {
+		cout << "m = " << m << endl;
+		
+		for (l=0; l<=l_max; l++) {
+			
+			for (lp=0; lp<=l_max; lp++) {
+				cout << resMatLegendre[m_shift(m)][l][lp] << " ";
+			}
+			cout << endl;
+		}
+	}
+	
+	//Deallocate Quadrature Arrays
+	delete [] phiAbscissae;
+	delete [] phiWeights;
+	
+	delete [] cosThetaAbscissae;
+	delete [] cosThetaWeights;
+
+	//Deallocate legendre polynomials
+	for (a=0; a<thetaPoints; a++) {
+		delete [] legendreGrid[a];
+	}
+	
+	delete [] legendreGrid;
+	
+	//Deallocate Legendre Polynomial matrices
+	for (m=-l_max; m<=l_max; m++) {
+		
+		for (l=0; l<=l_max; l++) {
+			delete [] Lmla[m_shift(m)][l];
+		}
+		delete [] Lmla[m_shift(m)];
+	}
+	delete [] Lmla;
+	
+	//Deallocate Legendre Polynomial result matrices
+	for (m=-l_max; m<=l_max; m++) {
+		
+		for (l=0; l<=l_max; l++) {
+			delete [] resMatLegendre[m_shift(m)][l];
+		}
+		delete [] resMatLegendre[m_shift(m)];
+	}
+	delete [] resMatLegendre;
+	
+	//Deallocate |lm> basis maps	
+	for (i=0; i<length; i++) {
+		delete [] qNum[i];
+	}
+	delete [] qNum;
+	
+	for (i=0; i<dims[0]; i++) {
+		delete [] index[i];
+	}
+	delete	[] index;
+	
+	
 }
 	
 
@@ -496,14 +606,17 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 	
 				  
 int main(int argc, char** argv) {
-	int l_max, length;
-	int **qNum, **index, dims[2];
+	int l_max;
+	//int length;
+	//int **qNum, **index, dims[2];
 //	int l, m, n;
 	
-	int i, j;
+	//int i, j;
 	
-	double *trig, *legendre;
-	double theta, phi, sphereHarm; 
+	//double *trig, *legendre;
+	//double theta, phi, sphereHarm; 
+	
+	int thetaPoints, phiPoints;
 //	
 //	double max_absError, *roots;
 //	int rootCount;
@@ -526,6 +639,9 @@ int main(int argc, char** argv) {
 	//l = atoi(argv[4]);
 	//m = atoi(argv[5]);
 	//max_absError = atof(argv[4]);
+	
+	thetaPoints = atoi(argv[2]);
+	phiPoints = atoi(argv[3]);
 	
 //	x_max = atof(argv[1]);
 //	nPoints = atof(argv[2]);
@@ -554,7 +670,7 @@ int main(int argc, char** argv) {
 	
 //	cout << scientific << setprecision(15);
 
-	
+	legendreMat(l_max, thetaPoints, phiPoints);
 	
 	
 	//for (i=0 ; i<length; i++) {		
