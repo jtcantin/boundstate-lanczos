@@ -105,7 +105,7 @@ void legendrePoly_zerothOrder(int l_max, double **legendre, double **legendreDer
 }
 
 //Calculation of the zeros of the Legendre polynomials of order 0 using Newton's method (not secant as the derivatives are known)
-double* legendreRoots(int l, int *numRootsFound) {
+double* legendreRoots(int l) {
 	double *legendre, *legendreDeriv, *roots;
 	double oldRoot, newRoot;
 	double absError, absError2, max_absError, d_x;
@@ -199,8 +199,26 @@ double* legendreRoots(int l, int *numRootsFound) {
 		}
 	}
 	
-	*numRootsFound = rootCount;
+	if (rootCount != l) {
+		cout << "Wrong number of Legendre Polynomial roots found!" << endl;
+		exit(1);
+	}
 	return roots;
+}
+
+double* legendreWeights(int l, double *roots) {
+	int i;
+	
+	double *weights, *legendre, *legendreDeriv;
+	
+	weights = new double [l];
+	
+	for (i=0; i<l; i++) {
+		legendrePoly_zerothOrder(l, &legendre, &legendreDeriv, roots[i]);
+		weights[i] = 2.0 / (1.0 - (roots[i] * roots[i])) / (legendreDeriv[l]*legendreDeriv[l]);
+	}
+	
+	return weights;
 }
 
 // Dr. P.-N. Roy's code for the calculation of the Gauss-Legendre abscissae and weights
@@ -241,6 +259,41 @@ void gauleg(double x1,double x2,double *x,double *w,int n)
 		
 		w[i-1]=2.0*xl/((1.0-z*z)*pp*pp);
 		w[n-i]=w[i-1];
+	}
+}
+
+// Dr. P.-N. Roy's code for the calculation of the Legendre polynomials
+double plgndr(int l,int m,double x)
+{
+	double fact,pll,pmm,pmmp1,somx2;
+	int i,ll;
+	void nrerror();
+	
+	/*	if (m < 0 || m > l || fabs(x) > 1.0)
+	 nrerror("Bad arguments in routine PLGNDR");*/
+	pmm=1.0;
+	if (m > 0) {
+		somx2=sqrt((1.0-x)*(1.0+x));
+		fact=1.0;
+		for (i=1;i<=m;i++) {
+			pmm *= -fact*somx2;
+			fact += 2.0;
+		}
+	}
+	if (l == m)
+		return pmm;
+	else {
+		pmmp1=x*(2*m+1)*pmm;
+		if (l == (m+1))
+			return pmmp1;
+		else {
+			for (ll=(m+2);ll<=l;ll++) {
+				pll=(x*(2*ll-1)*pmmp1-(ll+m-1)*pmm)/(ll-m);
+				pmm=pmmp1;
+				pmmp1=pll;
+			}
+			return pll;
+		}
 	}
 }
 
@@ -354,37 +407,45 @@ double* normAssocLegendrePoly(int **qNum, int length, double x){
 	return legendre;
 }
 
-// !Make sure to delete (ie. dealloc) legendre and trig!
-void tesseralHarmonicsTerms(int **qNum, int length, double **legendre, double **trig, double theta, double phi) {
+double* tesseralTrigTerm(int **qNum, int length, double phi){
 	//Index variables
 	int m, n;
 	
-	double x, sqrtTwoPiInv;
+	double sqrtPiInv, *trig;
 	
-	sqrtTwoPiInv = 1.0 / sqrt(2.0*PI);
+	sqrtPiInv = 1.0 / sqrt(PI);
+	//sqrtPiInv = 1.0;
 	
-	//Calculate the trigonometric portion of the tesseral harmonics, which are a function of m and phi only and include the factors sqrt(2) * sqrt(1/2pi)
-	*trig = new double [length];
+	//Calculate the trigonometric portion of the tesseral harmonics, which are a function of m and phi only and include the factors sqrt(2) * sqrt(1/2pi) = sqrt(1/pi);
+	trig = new double [length];
 	
 	for (n=0; n<length; n++) {
 		m = qNum[n][1];
 		
 		if (m == 0) { 
-			(*trig)[n] = 1.0;
+			trig[n] = 1.0;
 		}
 		else if (m > 0) {
-			(*trig)[n] = sqrt(2.0) * sqrtTwoPiInv * cos(double(m)*phi); //cos(m*phi)
+			trig[n] = sqrtPiInv * cos(double(m)*phi); //cos(m*phi)
 		}
 		else {
 			m *= -1; //Make m positive to effectively take the absolute value of m.
-			(*trig)[n] = sqrt(2.0) * sqrtTwoPiInv * sin(double(m)*phi); //sin(|m|*phi)
+			trig[n] = sqrtPiInv * sin(double(m)*phi); //sin(|m|*phi)
 		}
 	}
 	
+	return trig;
+}
+
+// !Make sure to delete (ie. dealloc) legendre and trig!
+void tesseralHarmonicsTerms(int **qNum, int length, double **legendre, double **trig, double cosTheta, double phi) {
+
+	//Calculate the trigonometric portion of the tesseral harmonics, which are a function of m and phi only and include the factors sqrt(2) * sqrt(1/2pi)
+	(*trig) = tesseralTrigTerm(qNum, length, phi);
+	
 	//Calculate the normalized associated Legendre polynomials (i.e. the associated Legendre Polynomials times the normalization and phase factors)
 	// as a function of cos(theta) for all l and m in qNum.
-	x = cos(theta);
-	(*legendre) = normAssocLegendrePoly(qNum, length, x);
+	(*legendre) = normAssocLegendrePoly(qNum, length, cosTheta);
 	
 }
 
@@ -401,6 +462,21 @@ void gaussChebyshev(int numPoints, double **abscissae, double **weights){
 		(*abscissae)[i] = cos(PI * (2.0*double(i+1) - 1.0) /(2.0 * double(n)));
 		(*weights)[i] = PI / double(n);
 	}
+}
+
+//Gauss-Legendre quadrature abscissae and weights
+// !Make sure to delete (ie. dealloc) abscissae and weights!
+void gaussLegendre(int numPoints, double **abscissae, double **weights){
+	int n;
+	
+	n = numPoints;
+	
+	(*abscissae) = new double [n];
+	(*weights) = new double [n];
+	
+	(*abscissae) = legendreRoots(n);
+	
+	(*weights) = legendreWeights(n, (*abscissae));
 }
 
 //Cartesian Kinetic Energy operator and grid
@@ -451,10 +527,12 @@ double* rotKinEng(int **qNum, int length, double momentOfInertia) {
 
 //This builds the L_la^m matrices for testing the orthonormality of the generate Legendre Polynomials
 void legendreMat(int l_max, int thetaPoints, int phiPoints) {
-	int m, l, a, n, i, lp;
+	int m, l, a, b, n, i, lp, mp;
 	int **qNum, length, **index, dims[2];
 	
-	double **legendreGrid;
+	int width;
+	
+	double **legendreGrid, **trigGrid, **trigGrid2;
 	
 	double *phiAbscissae, *phiWeights;
 	
@@ -462,13 +540,25 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 	
 	double ***Lmla, ***resMatLegendre;
 	
+	double ***Llma, ***resMatLegendre_m;
+	
+	double const_lFactor, const_mFactor;
+	
+	double normConst;
+	
+	double ***trigMat, ***trigResMat;
+	
 	//Find Gauss-Legendre and Gauss-Chebyshev grids
 	gaussChebyshev(phiPoints, &phiAbscissae, &phiWeights);
+	
+	//gaussLegendre(thetaPoints, &cosThetaAbscissae, &cosThetaWeights);
 	
 	cosThetaAbscissae = new double [thetaPoints];
 	cosThetaWeights = new double [thetaPoints];
 	
 	gauleg(-1.0, 1.0, cosThetaAbscissae, cosThetaWeights, thetaPoints);
+	
+	
 	
 	//Get the lm basis indices
 	genIndices_lm(l_max, &qNum, &length, &index, dims);
@@ -476,12 +566,34 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 	//Calculate the Legendre polynomials for each of the Gauss-Legendre Abscissae (cosThetaAbscissae)
 	legendreGrid = new double* [thetaPoints];
 	
+	
 	for (a=0; a<thetaPoints; a++) {
 		legendreGrid[a] = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
 	}
 	
-	//Calculate the L_la^m matrix elements
+//	for (a=0; a<thetaPoints; a++) {
+//		legendreGrid[a] = new double [length];
+//		for (n=0; n<length; n++) {
+//			l = qNum[n][0];
+//			m = qNum[n][1];
+//			
+//			normConst = sqrt(double (2*l+1) * double (factorial(l-m)) / 2.0 / double (factorial(l+m)));
+//		
+//			if (m<0) {
+//				m = -m;
+//				legendreGrid[a][n] = pow(-1.0, m) * double (factorial(l-m)) / double (factorial(l+m)) * normConst * plgndr(l, m, cosThetaAbscissae[a]);
+//			}
+//			else {
+//				legendreGrid[a][n] = normConst * plgndr(l, m, cosThetaAbscissae[a]);
+//			}
+//
+//		}
+//	}
 	
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Calculate the L_la^m matrix elements (ie. constant m)
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
 									 
 	// Allocate memory for the matrix elements
 	Lmla = new double** [2*l_max+1]; //Outer Loop is m
@@ -491,6 +603,11 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 		
 		for (l=0; l<=l_max; l++) {
 			Lmla[m_shift(m)][l] = new double [thetaPoints];
+			
+			for (a=0; a<thetaPoints; a++) {
+				Lmla[m_shift(m)][l][a] = 0.0;
+			}
+			
 		}
 	}
 	
@@ -523,6 +640,129 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 		}
 	}
 	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Calculate the L_ma^l matrix elements (ie. constant l)
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	
+	// Allocate memory for the matrix elements
+	Llma = new double** [l_max+1]; //Outer Loop is l
+	
+	for (l=0; l<=l_max; l++) {
+		Llma[l] = new double* [2*l_max+1];
+		
+		for (m=-l_max; m<=l_max; m++) {
+			Llma[l][m_shift(m)] = new double [thetaPoints];
+			
+				for (a=0; a<thetaPoints; a++) {
+					Llma[l][m_shift(m)][a] = 0.0;
+				}
+		}
+	}
+	
+	//for (a=0; a<thetaPoints; a++) {
+//		legendreGrid[a] = normAssocLegendrePoly(qNum, length, cos(cosThetaAbscissae[a]));
+//	}
+	
+	//Calculate elements, which is sqrt(gaussLegendreWeights(a)) * ~P_lm(x_a), where x_a = cos(theta_a), ~ means normalized
+	for (n=0; n<length; n++) {
+		l = qNum[n][0];
+		m = qNum[n][1];
+		
+		for (a=0; a<thetaPoints; a++) { //Add sqrt(1.0-(cosThetaAbscissae[a]*cosThetaAbscissae[a])) for the othogonality condition shown at http://en.wikipedia.org/wiki/Associated_Legendre_polynomials#Orthogonality
+			mp = m;
+			if (m<0) {
+				mp *= -1.0;
+			}
+			
+			Llma[l][m_shift(m)][a] = sqrt(double (2*mp) / double (2*l+1)) * sqrt(cosThetaWeights[a]) * legendreGrid[a][index[l][m_shift(m)]] / sqrt(1.0-(cosThetaAbscissae[a]*cosThetaAbscissae[a]));
+
+
+		}
+	}
+	
+	//Calculate L^l(L^l)^T = sum(over a){L_ma^l * L_m'a^l)
+	resMatLegendre_m = new double** [l_max+1];
+	
+	for (l=0; l<=l_max; l++) {
+		resMatLegendre_m[l] = new double* [2*l_max+1];
+		
+		for (m=-l_max; m<=l_max; m++) {
+			resMatLegendre_m[l][m_shift(m)] = new double [2*l_max+1];
+			
+			for (mp=-l_max; mp<=l_max; mp++) {
+				resMatLegendre_m[l][m_shift(m)][m_shift(mp)] = 0.0; //Initialize matrix value
+				
+				for (a=0; a<thetaPoints; a++) {
+					resMatLegendre_m[l][m_shift(m)][m_shift(mp)] += Llma[l][m_shift(m)][a] * Llma[l][m_shift(mp)][a];
+				}
+			}
+		}
+	}
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Check the orthogonality of the trigonometric term of the tesseral harmonics
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	//Calculate the trigonometric term of the tesseral harmonics
+	trigGrid = new double* [phiPoints];
+	trigGrid2 = new double* [phiPoints];
+	for (b=0; b<phiPoints; b++) {
+		trigGrid[b] = tesseralTrigTerm(qNum, length, acos(phiAbscissae[b]));
+		
+		trigGrid2[b] = tesseralTrigTerm(qNum, length, (2.0*PI - acos(phiAbscissae[b])));
+	}
+	
+	trigMat = new double** [l_max+1];
+	
+	//Allocate memory
+	for (l=0; l<=l_max; l++) {
+		trigMat[l] = new double* [2*l_max+1];
+		
+		for (m=-l_max; m<=l_max; m++) {
+			trigMat[l][m_shift(m)] = new double [phiPoints];
+			
+			for (b=0; b<phiPoints; b++) {
+				
+				trigMat[l][m_shift(m)][b] = 0.0;
+			}
+		}
+	}
+	
+	//Calculate the matrix elements T^l_mb = sqrt(w^GC_b) * [sqrt(2.0*PI) / sqrt(2.0)] * trig(l,m,b); [sqrt(2.0*PI) / sqrt(2.0)] is to renormalize the functions
+	for (n=0; n<length; n++) {
+		l = qNum[n][0];
+		m = qNum[n][1];
+		
+		for (b=0; b<phiPoints; b++) { 
+			
+			trigMat[l][m_shift(m)][b] = sqrt(phiWeights[b]) * ( trigGrid[b][index[l][m_shift(m)]] + trigGrid2[b][index[l][m_shift(m)]] );
+		}
+		
+	}
+	
+	
+	
+	//Calculate the T^l_mb(T^l_m'b)T = delta_mm'
+	trigResMat = new double** [l_max+1];
+	for (l=0; l<=l_max; l++) {
+		trigResMat[l] = new double* [2*l_max+1];
+		
+		for (m=-l_max; m<=l_max; m++) {
+			trigResMat[l][m_shift(m)] = new double [2*l_max+1];
+			
+			for (mp=-l_max; mp<=l_max; mp++) {
+				trigResMat[l][m_shift(m)][m_shift(mp)] = 0.0; //Initialize values
+				
+				for (b=0; b<phiPoints; b++) { //sqrt(2.0*PI) / sqrt(2.0) is to renormalize the functions
+					trigResMat[l][m_shift(m)][m_shift(mp)] += trigMat[l][m_shift(m)][b] * trigMat[l][m_shift(mp)][b];
+				}
+			}
+		}
+	}
+	
+	width = 6;
+	
 	//Print out Legendre Polynomial matrices
 //	cout << fixed << setprecision(3);
 //	cout << "Legendre Polynomial matrices" << endl;
@@ -532,22 +772,84 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 //		for (l=0; l<=l_max; l++) {
 //			
 //			for (a=0; a<thetaPoints; a++) {
-//				cout << Lmla[m_shift(m)][l][a] << " ";
+//				cout << setw(width) << Lmla[m_shift(m)][l][a] << " ";
 //			}
 //			cout << endl;
 //		}
 //	}
 	
-	//Print out Legendre Polynomial result matrices
+	//Print out Legendre Polynomial result matrices for fixed m
 	cout << fixed << setprecision(3);
-	cout << "Legendre Polynomial Result matrices" << endl;
+	cout << "Legendre Polynomial Fixed m - Result matrices" << endl;
 	for (m=-l_max; m<=l_max; m++) {
 		cout << "m = " << m << endl;
 		
 		for (l=0; l<=l_max; l++) {
 			
 			for (lp=0; lp<=l_max; lp++) {
-				cout << resMatLegendre[m_shift(m)][l][lp] << " ";
+				cout << setw(width) << resMatLegendre[m_shift(m)][l][lp] << " ";
+			}
+			cout << endl;
+		}
+	}
+	
+	//Print out Legendre Polynomial result matrices for fixed l
+	cout << fixed << setprecision(3);
+	cout << "Legendre Polynomial Fixed l - Result matrices" << endl;
+	for (l=0; l<=l_max; l++) {
+		cout << "l = " << l << endl;
+		
+		for (m=-l_max; m<=l_max; m++) {
+			
+			for (mp=-l_max; mp<=l_max; mp++) {
+				cout << setw(width) << resMatLegendre_m[l][m_shift(m)][m_shift(mp)] << " ";
+			}
+			cout << endl;
+		}
+	}
+	
+	//Print out the normalization constants
+	//cout << fixed << setprecision(3);
+//	cout << "Legendre Polynomial Fixed l - Expected Values" << endl;
+//	for (l=0; l<=l_max; l++) {
+//		cout << "l = " << l << endl;
+//		
+//		for (m=-l_max; m<=l_max; m++) {
+//			
+//			for (mp=-l_max; mp<=l_max; mp++) {
+//				if ((m==mp)&&(m!=0)) {
+//					//const_lFactor = double (factorial(l+m)) / double (m) / double (factorial(l-m));
+//					//const_mFactor = double (factorial(l+m)) * 2.0 / (double (2*l+1)) / (double (factorial(l-m)));
+//					//cout << const_lFactor/const_mFactor << " ";
+//					
+//					cout << setw(width) << double (2*l+1) / double (2*m) << " ";
+//				}
+//				else if ((m==mp)&&(m==0)) {
+//					cout << setw(width) << "Inf" << " ";
+//				}
+//				else if ((m!=mp)) {
+//					cout << setw(width) << 0.0 << " ";
+//				}
+//				else {
+//					cerr << "Error!" << endl;
+//					exit(1);
+//				}
+//
+//			}
+//			cout << endl;
+//		}
+//	}
+	
+	//Print out Trig Term result matrices for fixed l
+	cout << fixed << setprecision(3);
+	cout << "Trig Term Fixed l - Result matrices" << endl;
+	for (l=0; l<=l_max; l++) {
+		cout << "l = " << l << endl;
+		
+		for (m=-l_max; m<=l_max; m++) {
+			
+			for (mp=-l_max; mp<=l_max; mp++) {
+				cout << setw(width) << trigResMat[l][m_shift(m)][m_shift(mp)] << " ";
 			}
 			cout << endl;
 		}
