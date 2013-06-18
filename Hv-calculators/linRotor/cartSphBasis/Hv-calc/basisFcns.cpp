@@ -423,7 +423,7 @@ double* tesseralTrigTerm(int **qNum, int length, double phi){
 		m = qNum[n][1];
 		
 		if (m == 0) { 
-			trig[n] = 1.0;
+			trig[n] = sqrtPiInv / sqrt(2.0); //Also have 1/sqrt(2) as if m!=0, there is a sqrt(2) term added to cancel this 1/sqrt(2)
 		}
 		else if (m > 0) {
 			trig[n] = sqrtPiInv * cos(double(m)*phi); //cos(m*phi)
@@ -525,8 +525,8 @@ double* rotKinEng(int **qNum, int length, double momentOfInertia) {
 	return rotEng;
 }
 
-//This builds the L_la^m matrices for testing the orthonormality of the generate Legendre Polynomials
-void legendreMat(int l_max, int thetaPoints, int phiPoints) {
+//This tests the orthonormality of the Tesseral Harmonics terms
+void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	int m, l, a, b, n, i, lp, mp;
 	int **qNum, length, **index, dims[2];
 	
@@ -546,7 +546,7 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 	
 	double normConst;
 	
-	double ***trigMat, ***trigResMat;
+	double ***trigMat, ***trigResMat, ***trigMat2;
 	
 	//Find Gauss-Legendre and Gauss-Chebyshev grids
 	gaussChebyshev(phiPoints, &phiAbscissae, &phiWeights);
@@ -563,7 +563,7 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 	//Get the lm basis indices
 	genIndices_lm(l_max, &qNum, &length, &index, dims);
 		
-	//Calculate the Legendre polynomials for each of the Gauss-Legendre Abscissae (cosThetaAbscissae)
+	//Calculate the Legendre polynomials for each of the Gauss-Legendre Abscissae (cosThetaAbscissae) 
 	legendreGrid = new double* [thetaPoints];
 	
 	
@@ -681,7 +681,7 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 		}
 	}
 	
-	//Calculate L^l(L^l)^T = sum(over a){L_ma^l * L_m'a^l)
+	//Calculate L^l(L^l)^T = sum(over a){L_ma^l * L_m'a^l}
 	resMatLegendre_m = new double** [l_max+1];
 	
 	for (l=0; l<=l_max; l++) {
@@ -714,17 +714,21 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 	}
 	
 	trigMat = new double** [l_max+1];
+	trigMat2 = new double** [l_max+1];
 	
 	//Allocate memory
 	for (l=0; l<=l_max; l++) {
 		trigMat[l] = new double* [2*l_max+1];
+		trigMat2[l] = new double* [2*l_max+1];
 		
 		for (m=-l_max; m<=l_max; m++) {
 			trigMat[l][m_shift(m)] = new double [phiPoints];
+			trigMat2[l][m_shift(m)] = new double [phiPoints];
 			
 			for (b=0; b<phiPoints; b++) {
 				
 				trigMat[l][m_shift(m)][b] = 0.0;
+				trigMat2[l][m_shift(m)][b] = 0.0;
 			}
 		}
 	}
@@ -736,7 +740,8 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 		
 		for (b=0; b<phiPoints; b++) { 
 			
-			trigMat[l][m_shift(m)][b] = sqrt(phiWeights[b]) * ( trigGrid[b][index[l][m_shift(m)]] + trigGrid2[b][index[l][m_shift(m)]] );
+			trigMat[l][m_shift(m)][b] = trigGrid[b][index[l][m_shift(m)]];
+			trigMat2[l][m_shift(m)][b] = trigGrid2[b][index[l][m_shift(m)]];
 		}
 		
 	}
@@ -754,14 +759,22 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 			for (mp=-l_max; mp<=l_max; mp++) {
 				trigResMat[l][m_shift(m)][m_shift(mp)] = 0.0; //Initialize values
 				
-				for (b=0; b<phiPoints; b++) { //sqrt(2.0*PI) / sqrt(2.0) is to renormalize the functions
-					trigResMat[l][m_shift(m)][m_shift(mp)] += trigMat[l][m_shift(m)][b] * trigMat[l][m_shift(mp)][b];
+				for (b=0; b<phiPoints; b++) {
+					trigResMat[l][m_shift(m)][m_shift(mp)] += phiWeights[b] * ((trigMat[l][m_shift(m)][b] * trigMat[l][m_shift(mp)][b]) + (trigMat2[l][m_shift(m)][b] * trigMat2[l][m_shift(mp)][b]));
 				}
 			}
 		}
 	}
 	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Print out the results
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+//	width = 10;
+//	cout << scientific;
+	
 	width = 6;
+	cout << fixed;
 	
 	//Print out Legendre Polynomial matrices
 //	cout << fixed << setprecision(3);
@@ -779,7 +792,7 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 //	}
 	
 	//Print out Legendre Polynomial result matrices for fixed m
-	cout << fixed << setprecision(3);
+	cout << setprecision(3);
 	cout << "Legendre Polynomial Fixed m - Result matrices" << endl;
 	for (m=-l_max; m<=l_max; m++) {
 		cout << "m = " << m << endl;
@@ -794,7 +807,7 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 	}
 	
 	//Print out Legendre Polynomial result matrices for fixed l
-	cout << fixed << setprecision(3);
+	cout << setprecision(3);
 	cout << "Legendre Polynomial Fixed l - Result matrices" << endl;
 	for (l=0; l<=l_max; l++) {
 		cout << "l = " << l << endl;
@@ -809,7 +822,7 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 	}
 	
 	//Print out the normalization constants
-	//cout << fixed << setprecision(3);
+	//cout << setprecision(3);
 //	cout << "Legendre Polynomial Fixed l - Expected Values" << endl;
 //	for (l=0; l<=l_max; l++) {
 //		cout << "l = " << l << endl;
@@ -841,7 +854,7 @@ void legendreMat(int l_max, int thetaPoints, int phiPoints) {
 //	}
 	
 	//Print out Trig Term result matrices for fixed l
-	cout << fixed << setprecision(3);
+	cout << setprecision(3);
 	cout << "Trig Term Fixed l - Result matrices" << endl;
 	for (l=0; l<=l_max; l++) {
 		cout << "l = " << l << endl;
@@ -972,7 +985,7 @@ int main(int argc, char** argv) {
 	
 //	cout << scientific << setprecision(15);
 
-	legendreMat(l_max, thetaPoints, phiPoints);
+	tesseralTest(l_max, thetaPoints, phiPoints);
 	
 	
 	//for (i=0 ; i<length; i++) {		

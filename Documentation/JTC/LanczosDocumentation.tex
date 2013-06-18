@@ -78,10 +78,15 @@ To convert from $\ket{xyz\theta\phi}$ to $\ket{xyzlm}$, one can find the element
 \begin{align}
 \braket{xyzlm|\widehat{V}_{xyzlm}|x'y'z'l'm'} &= \braket{xyzlm|\widehat{V}_{xyz\theta\phi}|x'y'z'l'm'}\\
 											 &= \braket{lm|\widehat{V}_{\theta\phi}(x,y,z)|l'm'}\\
-											 &= \int_{\theta=0}^{\pi}\int_{\phi=0}^{2\pi}\int_{\theta=0}^{\pi}\int_{\phi=0}^{2\pi}\braket{lm|\theta\phi}\braket{\theta\phi|\widehat{V}_{\theta\phi}(x,y,z)|\theta'\phi'}\braket{\theta'\phi'|l'm'}d\phi d\theta d\phi' d\theta'\\
-											 &= \int_{\theta=0}^{\pi}\int_{\phi=0}^{2\pi}\widetilde{Y}_{lm}(\theta,\phi)V(\theta,\phi; x,y,z)\widetilde{Y}_{l'm'}(\theta,\phi)d\phi d\theta
+											 &= \int_{\theta=0}^{\pi}\int_{\phi=0}^{2\pi}\int_{\theta=0}^{\pi}\int_{\phi=0}^{2\pi}\braket{lm|\theta\phi}\braket{\theta\phi|\widehat{V}_{\theta\phi}(x,y,z)|\theta'\phi'}\braket{\theta'\phi'|l'm'}\partial\phi \sin \theta \partial\theta \partial\phi' \sin \theta' \partial\theta'\\
+											 &= \int_{\theta=0}^{\pi}\int_{\phi=0}^{2\pi}\widetilde{Y}_{lm}(\theta,\phi)V(\theta,\phi; x,y,z)\widetilde{Y}_{l'm'}(\theta,\phi)\partial\phi \sin \theta \partial\theta \\
+											 \begin{split} &=\int_{\theta=0}^{\pi}\int_{p=-1}^{1}\frac{1}{\sqrt{1-p^{2}}}\lbrack\widetilde{Y}_{lm}(\theta, \cos^{-1}p)V(\theta, \cos^{-1}p; x,y,z)\widetilde{Y}_{l'm'}(\theta, \cos^{-1}p) \\&+ \widetilde{Y}_{lm}(\theta, 2\pi-\cos^{-1}p)V(\theta, 2\pi-\cos^{-1}p; x,y,z)\widetilde{Y}_{l'm'}(\theta, 2\pi-\cos^{-1}p)\rbrack \partial p \sin \theta \partial\theta \end{split}\\
+											 \begin{split} &=\int_{\cos\theta=-1}^{1}\int_{p=-1}^{1}\frac{1}{\sqrt{1-p^{2}}}\lbrack\widetilde{Y}_{lm}(\theta, \cos^{-1}p)V(\theta, \cos^{-1}p; x,y,z)\widetilde{Y}_{l'm'}(\theta, \cos^{-1}p) \\&+ \widetilde{Y}_{lm}(\theta, 2\pi-\cos^{-1}p)V(\theta, 2\pi-\cos^{-1}p; x,y,z)\widetilde{Y}_{l'm'}(\theta, 2\pi-\cos^{-1}p)\rbrack \partial p  \partial (\cos \theta) \end{split}\\
+											 \begin{split} &=\int_{q=-1}^{1}\int_{p=-1}^{1}\frac{1}{\sqrt{1-p^{2}}}\lbrack\widetilde{Y}_{lm}(\cos^{-1}q, \cos^{-1}p)V(\cos^{-1}q, \cos^{-1}p; x,y,z)\widetilde{Y}_{l'm'}(\cos^{-1}q, \cos^{-1}p) \\&+ \widetilde{Y}_{lm}(\cos^{-1}q, 2\pi-\cos^{-1}p)V(\cos^{-1}q, 2\pi-\cos^{-1}p; x,y,z)\widetilde{Y}_{l'm'}(\cos^{-1}q, 2\pi-\cos^{-1}p)\rbrack \partial p  \partial q \end{split}\\
+											 \begin{split} &\approx\int_{q=-1}^{1}\sum_{\beta=1}^{n_{\beta}}w^{GC}_{\beta}\lbrack\widetilde{Y}_{lm}(\cos^{-1}q, \cos^{-1}p_{\beta})V(\cos^{-1}q, \cos^{-1}p_{\beta}; x,y,z)\widetilde{Y}_{l'm'}(\cos^{-1}q, \cos^{-1}p_{\beta}) \\&+ \widetilde{Y}_{lm}(\cos^{-1}q, 2\pi-\cos^{-1}p_{\beta})V(\cos^{-1}q, 2\pi-\cos^{-1}p_{\beta}; x,y,z)\widetilde{Y}_{l'm'}(\cos^{-1}q, 2\pi-\cos^{-1}p_{\beta})\rbrack \partial q \end{split}\\
+											 \begin{split} &\approx\sum_{\alpha=1}^{n_{\alpha}}w^{GL}_{\alpha}\sum_{\beta=1}^{n_{\beta}}w^{GC}_{\beta}\lbrack\widetilde{Y}_{lm}(\cos^{-1}q_{\alpha}, \cos^{-1}p_{\beta})V(\cos^{-1}q_{\alpha}, \cos^{-1}p_{\beta}; x,y,z)\widetilde{Y}_{l'm'}(\cos^{-1}q_{\alpha}, \cos^{-1}p_{\beta}) \\&+ \widetilde{Y}_{lm}(\cos^{-1}q_{\alpha}, 2\pi-\cos^{-1}p_{\beta})V(\cos^{-1}q_{\alpha}, 2\pi-\cos^{-1}p_{\beta}; x,y,z)\widetilde{Y}_{l'm'}(\cos^{-1}q_{\alpha}, 2\pi-\cos^{-1}p_{\beta})\rbrack \end{split}
 \end{align} 
-where $\widetilde{Y}_{lm}(\theta,\phi)$ are the Tesseral harmonics. NOTE: THE ABOVE THREE OR FOUR EQUATIONS HAVE DEFINITE PROBLEMS
+where $\widetilde{Y}_{lm}(\theta,\phi)$ are the Tesseral harmonics, $w^{GL}_{\alpha}$ and $q_{\alpha}$ are the Gauss-Legendre quadrature weights and abscissae, and $w^{GC}_{\beta}$ and $p_{\beta}$ are the Gauss-Chebyshev quadrature weights and abscissae.  NOTE: THE ABOVE THREE OR FOUR EQUATIONS HAVE DEFINITE PROBLEMS
 
 \subsection{Basis States}\label{S:BS}
 \subsubsection{Rotor Bases}\label{S:RotBS}
@@ -99,11 +104,11 @@ Y_{lm}(\theta,\phi)&=\begin{cases}\label{E:SphDefComb} 	\frac{1}{\sqrt{2}}\left(
 \end{align}
 where $N_{\left(l,m\right)}$ is a normalization constant and is 
 \begin{equation}
-N_{\left(l,m\right)}\equiv\sqrt{\frac{1}{2\pi}}\sqrt{\frac{\left(2l+1\right)}{2}\frac{\left(l-m\right)!}{\left(l+m\right)!}}
+N_{\left(l,m\right)}\equiv\frac{1}{\sqrt{2\pi}}\sqrt{\frac{\left(2l+1\right)}{2}\frac{\left(l-m\right)!}{\left(l+m\right)!}}
 \end{equation}
 Note that we incorporate the Condon-Shortley phase in $N_{\left(l,m\right)}$, so that 
 \begin{equation}
-N_{\left(l,m\right)}\equiv\left(-1\right)^{m}\sqrt{\frac{1}{2\pi}}\sqrt{\frac{\left(2l+1\right)}{2}\frac{\left(l-m\right)!}{\left(l+m\right)!}}
+N_{\left(l,m\right)}\equiv\left(-1\right)^{m}\frac{1}{\sqrt{2\pi}}\sqrt{\frac{\left(2l+1\right)}{2}\frac{\left(l-m\right)!}{\left(l+m\right)!}}
 \end{equation}
 $Y^{m}_{l}\left(\theta,\phi\right)$ are the Laplace Spherical Harmonics and are  
 \begin{equation}
@@ -246,7 +251,7 @@ where $P_{l}\left(x\right)$ are the Legendre Polynomials, expressed using Rodrig
 \begin{equation}
 P_{l}\left(x\right)=\frac{1}{2^{l}l!}\frac{d^{l}}{dx^{l}}\lbrack\left(x^{2}-1\right)^{l}\rbrack
 \end{equation} 
-Now, orthonormality states that
+Now, orthonormality states that, for fixed $m$,
 \begin{equation}
 \int_{-1}^{1} \widetilde{P}^{m}_{l}(x) \widetilde{P}^{m}_{l'}(x) dx =  \delta_{ll'}
 \end{equation}
@@ -263,14 +268,18 @@ then
 \begin{equation}
 \sum_{\alpha=1}^{n_{\alpha}}w_{\alpha}\widetilde{P}^{m}_{l}(x_{\alpha})\widetilde{P}^{m}_{l'}(x_{\alpha}) = \sum_{\alpha=1}^{n}L^{m}_{l \alpha}(L^{m}_{l' \alpha})^{\intercal} = \delta_{ll'}
 \end{equation}
-thus
+Also, for fixed $l$, (from \url{http://en.wikipedia.org/wiki/Associated_Legendre_polynomials})
+\begin{equation}
+\int_{-1}^{1} \frac{\widetilde{P}^{m}_{l}(x) \widetilde{P}^{m'}_{l}(x)}{1-x^{2}}dx = \begin{cases} 0 &\text{if } m \neq n\\
+																								\frac{(l+m)!}{m(l-m)!} &\text{if } m = n \neq 0\\
+																								\infty &\text{if } m = n = 0
+																				   \end{cases}
+\end{equation}
+Thus,
 \begin{equation}
 L^{n\intercal}L^{m} = L^{n}L^{m\intercal} = \mathbb{1}
 \end{equation}
-I am not sure if the above is correct or if PN meant: 
-\begin{equation}
-L^{l\intercal}L^{l'} = L^{l}L^{l'\intercal} = \mathbb{1}
-\end{equation}
+Though I think the Chebyshev Quadrature may be needed, given the form of the integral.
 
 Now, the $\ket{lm}$ is not a direct product of $\ket{l}$ and $\ket{m}$ (i.e. $\ket{lm} \neq \ket{l}\ket{m}$) as $l$ and $m$ are not independent quantum numbers, but $|m|\leq l, \mbox{ with the restriction that } l\geq 0$. This makes storing the $\ket{lm}$ basis in a matrix more difficult. However, this issue is at least partially alleviated by defining a new quantum number $n = l^{2}+l+m$, with $0 \leq n \leq (l_{max}^{2}+2l_{max}) =(l_{max}+1)^{2}-1$.
 
@@ -365,7 +374,7 @@ For (\ref{E:GaussQuadLinRotPotPartSum}), both the outer and inner sums should be
 \mbox{Terms}\!\left(\tilde{v}_{m}^{\alpha}\right) 	&= \mbox{Terms}\!\left(\sum_{l=|m|}^{l_{max}}P_{lm}^{\alpha}v_{lm}\right) \\
 													&= n_{\alpha}\left(l_{max}-|m|+1\right)
 \end{align}
-where $n_{\alpha}$ is the number of $\alpha$ grid points. The $+1$ term is included as $m$ could be zero.
+where $n_{\alpha}$ is the number of $\alpha$ grid points. The $+1$ term is included as the number of numbers (inclusive) from $a$ to $b$ is $b-a+1$.
 
 However, this is not complete. For when $\tilde{v}_{m}^{\alpha}$ is calculated, one must also perform the calculation for all of the $m$ terms within the vector, since $P_{lm}^{\alpha}$ also depends on $m$. Thus, the number of terms is 
 \begin{align}
