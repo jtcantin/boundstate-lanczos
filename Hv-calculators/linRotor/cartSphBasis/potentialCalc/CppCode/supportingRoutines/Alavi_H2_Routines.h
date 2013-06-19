@@ -1,3 +1,6 @@
+#ifndef ALAVI_H2_ROUTINES_H
+#define	ALAVI_H2_ROUTINES_H
+
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
@@ -10,10 +13,6 @@
 #include "vectClass.h" //This is to select which linear algebra class should be used.
 #include "potentialUnits.h"
 #include "boundStateContainers.h"
-
-
-#ifndef ALAVI_H2_ROUTINES_H
-#define	ALAVI_H2_ROUTINES_H
 
 int AlaviMapH2GridToHGrid(H2_orient *H2_mol, universeProp *H_universe, double H_CM_dist);
 void Alavi_H2_Eng(double *H2potential, double *CMpotential, double *H_potential, H2_orient *H2_mol, universeProp *point_universe);

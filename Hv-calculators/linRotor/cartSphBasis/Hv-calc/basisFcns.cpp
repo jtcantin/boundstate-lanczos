@@ -7,6 +7,8 @@
 #include <cfloat>
 #include "lanczosUnits.h"
 #include "vectClass.h"
+#include "boundStateContainers.h"
+#include "Alavi_H2_Routines.h"
 
 using namespace std;
 
@@ -223,8 +225,7 @@ double* legendreWeights(int l, double *roots) {
 
 // Dr. P.-N. Roy's code for the calculation of the Gauss-Legendre abscissae and weights
 // !Make sure to delete (ie. dealloc) x and w!
-void gauleg(double x1,double x2,double *x,double *w,int n)
-{
+void gauleg(double x1,double x2,double *x,double *w,int n) {
 	int m,j,i;
 	double z1,z,xm,xl,pp,p3,p2,p1;
 	
@@ -263,8 +264,7 @@ void gauleg(double x1,double x2,double *x,double *w,int n)
 }
 
 // Dr. P.-N. Roy's code for the calculation of the Legendre polynomials
-double plgndr(int l,int m,double x)
-{
+double plgndr(int l,int m,double x) {
 	double fact,pll,pmm,pmmp1,somx2;
 	int i,ll;
 	void nrerror();
@@ -298,7 +298,7 @@ double plgndr(int l,int m,double x)
 }
 
 //Calculation of the set of normalized associated Legendre polynomials for l = 0 to l_max and m = -l_max to l_max 
-// This function returns a pointer to an array of the normalized associated Legendre polynomials
+// This function returns a pointer to an array of the normalized associated Legendre polynomials in the [n] composit basis
 double* normAssocLegendrePoly(int **qNum, int length, double x){
 	//Storage arrays
 	double *legendre, **legenArr;
@@ -407,7 +407,7 @@ double* normAssocLegendrePoly(int **qNum, int length, double x){
 	return legendre;
 }
 
-double* tesseralTrigTerm(int **qNum, int length, double phi){
+double* tesseralTrigTerm(int **qNum, int length, double phi) {
 	//Index variables
 	int m, n;
 	
@@ -916,7 +916,217 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	
 }
 	
+//This calculates the vector multiplied by the potential, for a given xyz and either acos(cosPhiAbscissae) or 2PI - acos(cosPhiAbscissae)
+double* calc_ulm(double x, double y, double z, int l_max, int **qNum, int length, double *v_lpmp, quadStor *gaussQuad, pointPotentialStor *atomPotentials, tesseralStor *tesseralHarmonics, int rangeFlag) {
+	int l, lp, m, mp, n, a, b;
+	int anmp, nmp, nm, bna, anb, mna;
+	
+	nmp = 2*l_max + 1;
+	nm = 2*l_max + 1;
+	
+	//Quadrature Variables
+	double *cosThetaAbscissae, *cosPhiAbscissae, *wa, *wb;
+	int na, nb;
+	
+	cosThetaAbscissae = gaussQuad->GLabscissae;
+	wa = gaussQuad->GLweights;
+	na = gaussQuad->GLnum;
+	
+	cosPhiAbscissae = gaussQuad->GCabscissae;
+	wb = gaussQuad->GCweights;
+	nb = gaussQuad->GCnum;
+	//
+	
+	//Potential Variables
+	double *CMpotential, *H_potential; 
+	universeProp *point_universe;
+	
+	CMpotential = atomPotentials->CMpotential;
+	H_potential = atomPotentials->H_potential;
+	point_universe = atomPotentials->point_universe;
+	//
+	
+	//Tesseral Harmonics Variables
+	double **L_lpmp, **S_mp, **S_m, **L_lm;
+	
+	L_lpmp = tesseralHarmonics->L_lpmp;
+	S_mp = tesseralHarmonics->S_mp;
+	S_m = tesseralHarmonics->S_m;
+	L_lm = tesseralHarmonics->L_lm;
+	//
+	
+	//Loop 1 - vt_mpa = L_lpmp(q_a) * v_lpmp; FLOPS = na * length = na * (l_max+1)^2
+	double *vt_mpa;
+	vt_mpa = new double [na*nmp];
+	
+	for (a = 0; a<na; a++) {
+		for (mp=-l_max; mp<=l_max; mp++) {
+			anmp = a * nmp;			
+			vt_mpa[anmp + m_shift(mp)] = 0.0; //Initialize vector
+			
+			for (n=0; n<length; n++) {
+				vt_mpa[anmp + m_shift(mp)] += L_lpmp[a][n] * v_lpmp[n];
+			}
+		}
+	}
+	
+	//Loop 2 - u_ab = S_mp(Pb) * vt_mpa; FLOPS = na * nb * nm = na * nb * (2l_max+1)
+	double	*u_ab;
+	u_ab = new double [na*nb];
+	
+	for (b=0; b<nb; b++) {
+		bna = b * na;			
+		
+		for  (a=0; a<na; a++){
+			anmp = a * nmp;			
+			u_ab[bna + a] = 0.0;
+			
+			for (mp=-l_max; mp<=l_max; mp++) {
+				u_ab[bna + a] += S_mp[b][m_shift(mp)] * vt_mpa[anmp + m_shift(mp)]; //Pb------------------------------
+			}
+		}
+	}
+	
+	//Loop 3 - ut_ab = V_ab(xyz, Qa, Pb) * u_ab; FLOPS = na * nb
+	double *ut_ab;
+	ut_ab = new double [na*nb];
+	
+	VECT CMpos(3);
+	
+	CMpos.COOR(0) = x;
+	CMpos.COOR(1) = y;
+	CMpos.COOR(2) = z;
+		
+	H2_orient H2_molecule;	
+	H2_molecule.CM = &CMpos;
+	
+	double V_ab;
+	
+	for (b=0; b<nb; b++) {
+		bna = b * na;
+		for (a=0; a<na; a++) {
+			anb = a * nb;
+			
+			H2_molecule.theta = acos(cosThetaAbscissae[a]);
+			//Determine whether I am calculating phi = acos(cosPhiAbscissae) or phi = 2PI - acos(cosPhiAbscissae) //Pb------------------------------
+			if (rangeFlag == 0) { //This if statement may be SLOW!!!!!!!!!!!!!
+				H2_molecule.phi = acos(cosPhiAbscissae[b]); 
+			}
+			else {
+				H2_molecule.phi = 2*PI - acos(cosPhiAbscissae[b]);
+			}
 
+			//Calculate potential at x, y, z, theta, phi 
+			V_ab = Alavi_H2_Eng_Point(CMpotential, H_potential, &H2_molecule, point_universe);
+			
+			ut_ab[anb + b] = V_ab * u_ab[bna + a];
+		}
+	}
+	
+	//Loop 4 - ut_ma = wb * S_m(Pb) * ut_ab; FLOPS = na * nb * nm = na * nb * (2l_max+1)
+	double *ut_ma;
+	ut_ma = new double [nm*na];
+	
+	for (m=-l_max; m<=l_max; m++) {
+		mna = m_shift(m) * na;
+		
+		for (a=0; a<na; a++) {
+			ut_ma[mna + a] = 0.0;
+			anb = a * nb;
+			
+			for (b=0; b<nb; b++) {
+				ut_ma[mna + a] += wb[b] * S_m[m][b] * ut_ab[anb + b]; //Pb------------------------------
+			}
+		}
+	}
+	
+	//Loop 5 - u_lm = wa * L_lm(Qa) * ut_ma; FLOPS = na * length = na * (l_max+1)^2
+	double *u_lm;
+	u_lm = new double [length];
+	
+	for (n=0; n<length; n++) {
+		u_lm[n] = 0.0;
+		
+		m = qNum[n][1];
+		mna = m * na;
+		
+		for (a=0; a<na; a++) {
+			u_lm[n] = wa[a] * L_lm[n][a] * ut_ma[mna + a];
+		}
+	}
+	
+	return u_lm;
+	
+}
+	
+void HvPrep_Internal(int nx, int ny, int nz, int x_max, int y_max, int z_max, int l_max, int thetaPoints, int phiPoints, double momentOfInertia, string filename) {
+	int a, b, na, nb, nm, n, m, l;
+	
+	nm = 2*l_max + 1;
+		
+	//Generate the |lm> basis
+	int **qNum, length, **index, dims[2];
+	genIndices_lm(l_max, &qNum, &length, &index, dims);
+	
+	//Calculate the rotational Kinetic Energy operator
+	double *rotKinEngOp;
+	
+	rotKinEngOp = rotKinEng(qNum, length, momentOfInertia); //This vector is based on the [n] composite basis
+	
+	//Pre-compute everything required for the potential
+	
+	//Calculate abscissae and weights for the quadratures
+	//Gauss-Legendre
+	double minVal, maxVal, *cosThetaAbscissae, *cosThetaWeights;
+	minVal = -1.0;
+	maxVal = 1.0;
+	
+	cosThetaAbscissae = new double [l_max];
+	cosThetaWeights = new double [l_max];
+	na = l_max;
+	nb = l_max;
+	
+	gauleg(minVal, maxVal, cosThetaAbscissae, cosThetaWeights, thetaPoints);
+	
+	//Gauss-Chebyshev
+	double *cosPhiAbscissae, *cosPhiWeights;
+	
+	gaussChebyshev(phiPoints, &cosPhiAbscissae, &cosPhiWeights);
+	
+	
+	//Calculate the Tesseral Harmonics terms and rearrange appropriately
+	tesseralStor tessHarmonics;
+	double *stor;
+	
+	tessHarmonics.L_lpmp = new double* [na];
+	
+	for (a=0; a<na; a++) {
+		 tessHarmonics.L_lpmp[a] = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
+	}
+	
+	tessHarmonics.S_mp = new double* [nb];
+
+	
+	for (b=0; b<nb; b++) {
+		tessHarmonics.S_mp[b] = new double [nm];
+		
+		stor = tesseralTrigTerm(qNum, length, acos(cosPhiAbscissae[b]));
+		
+		for (m=-l_max; m<=l_max; m++) { //Reshift indices around
+			l=l_max;
+			n = index[l][m_shift(m)];
+			
+			if (n<0) {
+				cerr << "Error in finding the index within HvPrep_Internal for S_mp" << endl;
+				exit(1);
+			}
+					
+			tessHarmonics.S_mp[b][m_shift(m)] = stor[n];			
+		}
+		
+		
+	}
+}
 	
 	
 				  

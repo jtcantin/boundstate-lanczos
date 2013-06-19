@@ -28,4 +28,44 @@ struct sysAtoms {
 	int nAtoms;
 };
 
+struct quadStor {
+	double *GCabscissae;
+	double *GCweights;
+	int GCnum;
+	double *GLabscissae;
+	double *GLweights;
+	int GLnum;
+};
+
+struct fiveDGrid {
+	double *x_points;
+	int nx;
+	int x_max;
+	double *y_points;
+	int ny;
+	int y_max;
+	double *z_points;
+	int nz;
+	int z_max;
+	double *theta_points;
+	int ntheta;
+	int theta_max;
+	double *phi_points;
+	int nphi;
+	int phi_max;
+};
+
+struct pointPotentialStor {
+	double *CMpotential;
+	double *H_potential;
+	universeProp *point_universe;
+};
+
+struct tesseralStor {
+	double **L_lpmp; //[a][n]
+	double **S_mp; //[b][m]
+	double **L_lm; //[n][a]
+	double **S_m; //[m][b]
+};
+
 #endif
