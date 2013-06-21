@@ -32,33 +32,51 @@ struct quadStor {
 	double *GCabscissae;
 	double *GCweights;
 	int GCnum;
+	
 	double *GLabscissae;
 	double *GLweights;
 	int GLnum;
 };
 
 struct fiveDGrid {
-	double *x_points;
+	double *x_Grid;
 	int nx;
 	int x_max;
-	double *y_points;
+	double *xKinMat;
+	
+	double *y_Grid;
 	int ny;
 	int y_max;
-	double *z_points;
+	double *yKinMat;
+	
+	double *z_Grid;
 	int nz;
 	int z_max;
-	double *theta_points;
+	double *zKinMat;
+	
+	double *theta_Grid;
 	int ntheta;
-	int theta_max;
-	double *phi_points;
+	
+	double *phi_Grid;
 	int nphi;
-	int phi_max;
 };
 
-struct pointPotentialStor {
+struct lmFBR {
+	int lmax;
+	
+	int **qNum;
+	int length;
+	
+	int **index;
+	int *dims;
+	
+	double *rotKinMat;
+};
+
+struct pointPotentialStorH2 {
 	double *CMpotential;
 	double *H_potential;
-	universeProp *point_universe;
+	universeProp *potentialUniverse;
 };
 
 struct tesseralStor {
@@ -66,6 +84,15 @@ struct tesseralStor {
 	double **S_mp; //[b][m]
 	double **L_lm; //[n][a]
 	double **S_m; //[m][b]
+};
+
+struct interfaceStor {
+	quadStor *quadrature;
+	fiveDGrid *grids;
+	pointPotentialStorH2 *potential;
+	tesseralStor *tesseral;
+	tesseralStor *tesseral2PI;
+	lmFBR *lmBasis;
 };
 
 #endif

@@ -40,7 +40,7 @@ void genIndices_lm(int l_max, int ***qNum, int *length, int ***index, int *dims)
 	//dims stores the length of each dimension of index; ie. dims[0] = l_max+1 and dims[1] = 2*l_max+1
 	
 	int l, m, i;
-
+	
 	//Get size of basis; length = (l_max + 1) ^ 2
 	*length = (int) pow(double(l_max+1),2);	
 	*qNum = new int* [*length];
@@ -67,7 +67,7 @@ void genIndices_lm(int l_max, int ***qNum, int *length, int ***index, int *dims)
 			(*qNum)[i] = new int [2];
 			(*qNum)[i][0] = l;
 			(*qNum)[i][1] = m;
-
+			
 			//Add in n for a given l,m; l,m to n map
 			(*index)[l][m_shift(m)] = i;
 			
@@ -358,7 +358,7 @@ double* normAssocLegendrePoly(int **qNum, int length, double x){
 			
 			//Recursion relation: P^(l+1)_m = [(2l+1)*x*P^l_m - (l+m)*P^(l-1)_m] / [l-m+1], where P^(l-1)_m = 0 if l-1 < m
 			legenArr[l+1][m] = ( ( (2.0*ld+1.0) * x * legenArr[l][m] ) - ( (ld+md)*legenRecFactor ) ) / (ld-md+1.0);
-
+			
 		}
 	}
 	
@@ -396,7 +396,7 @@ double* normAssocLegendrePoly(int **qNum, int length, double x){
 			m *= -1; //Make m positive to effectively take the absolute value of m.
 			legendre[n] = legenArr[l][m];
 		}
-
+		
 	}
 	
 	for (l=0; l<=l_max; l++) {
@@ -439,7 +439,7 @@ double* tesseralTrigTerm(int **qNum, int length, double phi) {
 
 // !Make sure to delete (ie. dealloc) legendre and trig!
 void tesseralHarmonicsTerms(int **qNum, int length, double **legendre, double **trig, double cosTheta, double phi) {
-
+	
 	//Calculate the trigonometric portion of the tesseral harmonics, which are a function of m and phi only and include the factors sqrt(2) * sqrt(1/2pi)
 	(*trig) = tesseralTrigTerm(qNum, length, phi);
 	
@@ -501,7 +501,7 @@ void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, d
 			else {
 				(*kinMat)[i*nPoints + j] *= 2.0/double( ((i+1)-(j+1)) * ((i+1)-(j+1)) );
 			}
-
+			
 		}
 	}
 }
@@ -542,9 +542,9 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	
 	double ***Llma, ***resMatLegendre_m;
 	
-	double const_lFactor, const_mFactor;
+	//double const_lFactor, const_mFactor;
 	
-	double normConst;
+	//double normConst;
 	
 	double ***trigMat, ***trigResMat, ***trigMat2;
 	
@@ -562,7 +562,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	
 	//Get the lm basis indices
 	genIndices_lm(l_max, &qNum, &length, &index, dims);
-		
+	
 	//Calculate the Legendre polynomials for each of the Gauss-Legendre Abscissae (cosThetaAbscissae) 
 	legendreGrid = new double* [thetaPoints];
 	
@@ -571,30 +571,30 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 		legendreGrid[a] = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
 	}
 	
-//	for (a=0; a<thetaPoints; a++) {
-//		legendreGrid[a] = new double [length];
-//		for (n=0; n<length; n++) {
-//			l = qNum[n][0];
-//			m = qNum[n][1];
-//			
-//			normConst = sqrt(double (2*l+1) * double (factorial(l-m)) / 2.0 / double (factorial(l+m)));
-//		
-//			if (m<0) {
-//				m = -m;
-//				legendreGrid[a][n] = pow(-1.0, m) * double (factorial(l-m)) / double (factorial(l+m)) * normConst * plgndr(l, m, cosThetaAbscissae[a]);
-//			}
-//			else {
-//				legendreGrid[a][n] = normConst * plgndr(l, m, cosThetaAbscissae[a]);
-//			}
-//
-//		}
-//	}
+	//	for (a=0; a<thetaPoints; a++) {
+	//		legendreGrid[a] = new double [length];
+	//		for (n=0; n<length; n++) {
+	//			l = qNum[n][0];
+	//			m = qNum[n][1];
+	//			
+	//			normConst = sqrt(double (2*l+1) * double (factorial(l-m)) / 2.0 / double (factorial(l+m)));
+	//		
+	//			if (m<0) {
+	//				m = -m;
+	//				legendreGrid[a][n] = pow(-1.0, m) * double (factorial(l-m)) / double (factorial(l+m)) * normConst * plgndr(l, m, cosThetaAbscissae[a]);
+	//			}
+	//			else {
+	//				legendreGrid[a][n] = normConst * plgndr(l, m, cosThetaAbscissae[a]);
+	//			}
+	//
+	//		}
+	//	}
 	
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Calculate the L_la^m matrix elements (ie. constant m)
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
-									 
+	
 	// Allocate memory for the matrix elements
 	Lmla = new double** [2*l_max+1]; //Outer Loop is m
 	
@@ -654,15 +654,15 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 		for (m=-l_max; m<=l_max; m++) {
 			Llma[l][m_shift(m)] = new double [thetaPoints];
 			
-				for (a=0; a<thetaPoints; a++) {
-					Llma[l][m_shift(m)][a] = 0.0;
-				}
+			for (a=0; a<thetaPoints; a++) {
+				Llma[l][m_shift(m)][a] = 0.0;
+			}
 		}
 	}
 	
 	//for (a=0; a<thetaPoints; a++) {
-//		legendreGrid[a] = normAssocLegendrePoly(qNum, length, cos(cosThetaAbscissae[a]));
-//	}
+	//		legendreGrid[a] = normAssocLegendrePoly(qNum, length, cos(cosThetaAbscissae[a]));
+	//	}
 	
 	//Calculate elements, which is sqrt(gaussLegendreWeights(a)) * ~P_lm(x_a), where x_a = cos(theta_a), ~ means normalized
 	for (n=0; n<length; n++) {
@@ -676,8 +676,8 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 			}
 			
 			Llma[l][m_shift(m)][a] = sqrt(double (2*mp) / double (2*l+1)) * sqrt(cosThetaWeights[a]) * legendreGrid[a][index[l][m_shift(m)]] / sqrt(1.0-(cosThetaAbscissae[a]*cosThetaAbscissae[a]));
-
-
+			
+			
 		}
 	}
 	
@@ -770,26 +770,26 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	//Print out the results
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-//	width = 10;
-//	cout << scientific;
+	//	width = 10;
+	//	cout << scientific;
 	
 	width = 6;
 	cout << fixed;
 	
 	//Print out Legendre Polynomial matrices
-//	cout << fixed << setprecision(3);
-//	cout << "Legendre Polynomial matrices" << endl;
-//	for (m=-l_max; m<=l_max; m++) {
-//		cout << "m = " << m << endl;
-//		
-//		for (l=0; l<=l_max; l++) {
-//			
-//			for (a=0; a<thetaPoints; a++) {
-//				cout << setw(width) << Lmla[m_shift(m)][l][a] << " ";
-//			}
-//			cout << endl;
-//		}
-//	}
+	//	cout << fixed << setprecision(3);
+	//	cout << "Legendre Polynomial matrices" << endl;
+	//	for (m=-l_max; m<=l_max; m++) {
+	//		cout << "m = " << m << endl;
+	//		
+	//		for (l=0; l<=l_max; l++) {
+	//			
+	//			for (a=0; a<thetaPoints; a++) {
+	//				cout << setw(width) << Lmla[m_shift(m)][l][a] << " ";
+	//			}
+	//			cout << endl;
+	//		}
+	//	}
 	
 	//Print out Legendre Polynomial result matrices for fixed m
 	cout << setprecision(3);
@@ -823,35 +823,35 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	
 	//Print out the normalization constants
 	//cout << setprecision(3);
-//	cout << "Legendre Polynomial Fixed l - Expected Values" << endl;
-//	for (l=0; l<=l_max; l++) {
-//		cout << "l = " << l << endl;
-//		
-//		for (m=-l_max; m<=l_max; m++) {
-//			
-//			for (mp=-l_max; mp<=l_max; mp++) {
-//				if ((m==mp)&&(m!=0)) {
-//					//const_lFactor = double (factorial(l+m)) / double (m) / double (factorial(l-m));
-//					//const_mFactor = double (factorial(l+m)) * 2.0 / (double (2*l+1)) / (double (factorial(l-m)));
-//					//cout << const_lFactor/const_mFactor << " ";
-//					
-//					cout << setw(width) << double (2*l+1) / double (2*m) << " ";
-//				}
-//				else if ((m==mp)&&(m==0)) {
-//					cout << setw(width) << "Inf" << " ";
-//				}
-//				else if ((m!=mp)) {
-//					cout << setw(width) << 0.0 << " ";
-//				}
-//				else {
-//					cerr << "Error!" << endl;
-//					exit(1);
-//				}
-//
-//			}
-//			cout << endl;
-//		}
-//	}
+	//	cout << "Legendre Polynomial Fixed l - Expected Values" << endl;
+	//	for (l=0; l<=l_max; l++) {
+	//		cout << "l = " << l << endl;
+	//		
+	//		for (m=-l_max; m<=l_max; m++) {
+	//			
+	//			for (mp=-l_max; mp<=l_max; mp++) {
+	//				if ((m==mp)&&(m!=0)) {
+	//					//const_lFactor = double (factorial(l+m)) / double (m) / double (factorial(l-m));
+	//					//const_mFactor = double (factorial(l+m)) * 2.0 / (double (2*l+1)) / (double (factorial(l-m)));
+	//					//cout << const_lFactor/const_mFactor << " ";
+	//					
+	//					cout << setw(width) << double (2*l+1) / double (2*m) << " ";
+	//				}
+	//				else if ((m==mp)&&(m==0)) {
+	//					cout << setw(width) << "Inf" << " ";
+	//				}
+	//				else if ((m!=mp)) {
+	//					cout << setw(width) << 0.0 << " ";
+	//				}
+	//				else {
+	//					cerr << "Error!" << endl;
+	//					exit(1);
+	//				}
+	//
+	//			}
+	//			cout << endl;
+	//		}
+	//	}
 	
 	//Print out Trig Term result matrices for fixed l
 	cout << setprecision(3);
@@ -874,7 +874,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	
 	delete [] cosThetaAbscissae;
 	delete [] cosThetaWeights;
-
+	
 	//Deallocate legendre polynomials
 	for (a=0; a<thetaPoints; a++) {
 		delete [] legendreGrid[a];
@@ -915,12 +915,37 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	
 	
 }
-	
+
 //This calculates the vector multiplied by the potential, for a given xyz and either acos(cosPhiAbscissae) or 2PI - acos(cosPhiAbscissae)
-double* calc_ulm(double x, double y, double z, int l_max, int **qNum, int length, double *v_lpmp, quadStor *gaussQuad, pointPotentialStor *atomPotentials, tesseralStor *tesseralHarmonics, int rangeFlag) {
-	int l, lp, m, mp, n, a, b;
+double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *interface, int rangeFlag) {
+	int m, mp, n, a, b;
 	int anmp, nmp, nm, bna, anb, mna;
 	
+	//Extract out desired variables from the interface storage structure
+	quadStor *gaussQuad;
+	pointPotentialStorH2 *atomPotentials;
+	tesseralStor *tesseralHarmonics;
+	lmFBR *lmBasis;
+	
+	int l_max, **qNum, length;
+	
+	gaussQuad = interface->quadrature;
+	atomPotentials = interface->potential;
+	lmBasis = interface->lmBasis;
+	
+	l_max = lmBasis->lmax;
+	qNum = lmBasis->qNum;
+	length = lmBasis->length;
+	
+	//Determine whether I am calculating phi = acos(cosPhiAbscissae) or phi = 2PI - acos(cosPhiAbscissae)
+	if (rangeFlag == 0) {
+		tesseralHarmonics = interface->tesseral;
+	}
+	else {
+		tesseralHarmonics = interface->tesseral2PI;
+	}
+	
+	//Get number of m values
 	nmp = 2*l_max + 1;
 	nm = 2*l_max + 1;
 	
@@ -943,7 +968,7 @@ double* calc_ulm(double x, double y, double z, int l_max, int **qNum, int length
 	
 	CMpotential = atomPotentials->CMpotential;
 	H_potential = atomPotentials->H_potential;
-	point_universe = atomPotentials->point_universe;
+	point_universe = atomPotentials->potentialUniverse;
 	//
 	
 	//Tesseral Harmonics Variables
@@ -996,9 +1021,9 @@ double* calc_ulm(double x, double y, double z, int l_max, int **qNum, int length
 	CMpos.COOR(0) = x;
 	CMpos.COOR(1) = y;
 	CMpos.COOR(2) = z;
-		
-	H2_orient H2_molecule;	
-	H2_molecule.CM = &CMpos;
+	
+	H2_orient linearMolecule;	
+	linearMolecule.CM = &CMpos;
 	
 	double V_ab;
 	
@@ -1007,17 +1032,17 @@ double* calc_ulm(double x, double y, double z, int l_max, int **qNum, int length
 		for (a=0; a<na; a++) {
 			anb = a * nb;
 			
-			H2_molecule.theta = acos(cosThetaAbscissae[a]);
+			linearMolecule.theta = acos(cosThetaAbscissae[a]);
 			//Determine whether I am calculating phi = acos(cosPhiAbscissae) or phi = 2PI - acos(cosPhiAbscissae) //Pb------------------------------
 			if (rangeFlag == 0) { //This if statement may be SLOW!!!!!!!!!!!!!
-				H2_molecule.phi = acos(cosPhiAbscissae[b]); 
+				linearMolecule.phi = acos(cosPhiAbscissae[b]); 
 			}
 			else {
-				H2_molecule.phi = 2*PI - acos(cosPhiAbscissae[b]);
+				linearMolecule.phi = 2*PI - acos(cosPhiAbscissae[b]);
 			}
-
+			
 			//Calculate potential at x, y, z, theta, phi 
-			V_ab = Alavi_H2_Eng_Point(CMpotential, H_potential, &H2_molecule, point_universe);
+			V_ab = Alavi_H2_Eng_Point(CMpotential, H_potential, &linearMolecule, point_universe);
 			
 			ut_ab[anb + b] = V_ab * u_ab[bna + a];
 		}
@@ -1058,12 +1083,163 @@ double* calc_ulm(double x, double y, double z, int l_max, int **qNum, int length
 	return u_lm;
 	
 }
-	
-void HvPrep_Internal(int nx, int ny, int nz, int x_max, int y_max, int z_max, int l_max, int thetaPoints, int phiPoints, double momentOfInertia, string filename) {
+
+void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	int a, b, na, nb, nm, n, m, l;
 	
-	nm = 2*l_max + 1;
+	cout << endl;
+	cout << "Hv Preparation STARTED." << endl;
+	cout << "////////////////////////////////////////////////////////////////////////////" << endl;
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Get required information from input file 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	string inputFilename;
+	ifstream inputFile;
+	
+	int nx, ny, nz, l_max, thetaPoints, phiPoints, pnx, pny, pnz;
+	double x_max, y_max, z_max, px_max, py_max, pz_max;
+	double momentOfInertia, totalMass;
+	string geometryFilename, line, junk;
+	
+	inputFilename = argv[1];
+	
+	inputFile.open(inputFilename.c_str(), ios::in);
+	if (inputFile.is_open()) {
+		//Get rid of comment lines;
+		getline(inputFile, line);
+		getline(inputFile, line);
 		
+		//Gather data for input; each line has the name of the value separate from the value with a space
+		//Always ignore the name of the value.
+		inputFile >> junk;
+		inputFile >> nx;		
+		
+		inputFile >> junk;
+		inputFile >> x_max;
+		
+		inputFile >> junk;
+		inputFile >> ny;
+		
+		inputFile >> junk;
+		inputFile >> y_max;
+		
+		inputFile >> junk;
+		inputFile >> nz;
+		
+		inputFile >> junk;
+		inputFile >> z_max;
+		
+		inputFile >> junk;
+		inputFile >> l_max;
+		
+		inputFile >> junk;
+		inputFile >> thetaPoints;
+		
+		inputFile >> junk;
+		inputFile >> phiPoints;
+		
+		inputFile >> junk;
+		inputFile >> pnx;
+		
+		inputFile >> junk;
+		inputFile >> px_max;
+		
+		inputFile >> junk;
+		inputFile >> pny;
+		
+		inputFile >> junk;
+		inputFile >> py_max;
+		
+		inputFile >> junk;
+		inputFile >> pnz;
+		
+		inputFile >> junk;
+		inputFile >> pz_max;
+		
+		inputFile >> junk;
+		inputFile >> totalMass;
+		
+		inputFile >> junk;
+		inputFile >> momentOfInertia;
+		
+		inputFile >> junk;
+		inputFile >> geometryFilename;
+	}
+	else {
+		cerr << "Input file '" << inputFilename << "' could not be opened." << endl;
+		exit(1);
+	}
+	
+	inputFile.close();
+	
+	//Check to ensure the geometry file can be opened before doing the rest of the calculations
+	inputFile.open(geometryFilename.c_str(), ios::in);
+	if (!(inputFile.is_open())) {
+		cerr << "Atom geometry file '" << geometryFilename << "' could not be opened." << endl;
+		exit(1);
+	}
+	inputFile.close();
+	
+	cout << "Input file parameters read." << endl;
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Generate the x, y, and z bases and Kinetic Energy Operators
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	double *xKinmat, *xGrid;
+	
+	cartKinGrid(x_max, nx, totalMass, &xKinmat, &xGrid); //grid[i], kinMat[(i*nx) + j]
+	
+	double *yKinmat, *yGrid;
+	
+	if (((y_max-x_max)<DBL_EPSILON) && (ny==nx)) { //If the y-grid is the same as the x-grid, reuse the matrix and save memory and time
+		yKinmat = xKinmat;
+		yGrid = xGrid;
+	}
+	else {
+		cartKinGrid(y_max, ny, totalMass, &yKinmat, &yGrid); //grid[i], kinMat[(i*ny) + j]
+	}
+	
+	double *zKinmat, *zGrid;
+	
+	if (((z_max-x_max)<DBL_EPSILON) && (nz==nx)) { //If the z-grid is the same as the x-grid or the y-grid, reuse the matrix and save memory and time
+		zKinmat = xKinmat;
+		zGrid = xGrid;
+	}
+	else if (((z_max-y_max)<DBL_EPSILON) && (nz==ny)) {
+		zKinmat = yKinmat;
+		zGrid = yGrid;
+	}
+	else {
+		cartKinGrid(z_max, nz, totalMass, &zKinmat, &zGrid); //grid[i], kinMat[(i*nz) + j]
+	}
+	
+	//Store everything for interface
+	fiveDGrid *gridStor = new fiveDGrid();
+	
+	gridStor->x_Grid = xGrid;
+	gridStor->nx = nx;
+	gridStor->x_max = x_max;
+	gridStor->xKinMat = xKinmat;
+	
+	gridStor->y_Grid = yGrid;
+	gridStor->ny = ny;
+	gridStor->y_max = y_max;
+	gridStor->yKinMat = yKinmat;
+	
+	gridStor->z_Grid = zGrid;
+	gridStor->nz = nz;
+	gridStor->z_max = z_max;
+	gridStor->zKinMat = zKinmat;	
+
+	cout << "Cartesian grid and Kinetic Energy Operators generated." << endl;
+	
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Generate the |lm> basis and Rotational Kinetic Energy Operator
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	nm = 2*l_max + 1;
+	
 	//Generate the |lm> basis
 	int **qNum, length, **index, dims[2];
 	genIndices_lm(l_max, &qNum, &length, &index, dims);
@@ -1073,18 +1249,37 @@ void HvPrep_Internal(int nx, int ny, int nz, int x_max, int y_max, int z_max, in
 	
 	rotKinEngOp = rotKinEng(qNum, length, momentOfInertia); //This vector is based on the [n] composite basis
 	
-	//Pre-compute everything required for the potential
+	//Store everything for interface
+	lmFBR *lmBasis = new lmFBR();
 	
+	lmBasis->lmax = l_max;
+	
+	lmBasis->qNum = qNum;
+	lmBasis->length = length;
+	
+	lmBasis->index = index;
+	lmBasis->dims = dims;
+	
+	lmBasis->rotKinMat = rotKinEngOp;
+	
+	cout << "|lm> basis and Rotational Kinetic Energy Operator generated." << endl;
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Pre-compute everything required for the potential
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Calculate abscissae and weights for the quadratures
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Gauss-Legendre
 	double minVal, maxVal, *cosThetaAbscissae, *cosThetaWeights;
 	minVal = -1.0;
 	maxVal = 1.0;
 	
-	cosThetaAbscissae = new double [l_max];
-	cosThetaWeights = new double [l_max];
-	na = l_max;
-	nb = l_max;
+	cosThetaAbscissae = new double [thetaPoints];
+	cosThetaWeights = new double [thetaPoints];
+	na = thetaPoints;
+	nb = phiPoints;
 	
 	gauleg(minVal, maxVal, cosThetaAbscissae, cosThetaWeights, thetaPoints);
 	
@@ -1093,24 +1288,36 @@ void HvPrep_Internal(int nx, int ny, int nz, int x_max, int y_max, int z_max, in
 	
 	gaussChebyshev(phiPoints, &cosPhiAbscissae, &cosPhiWeights);
 	
+	//Store everything for interface
+	quadStor *quadrature = new quadStor();
 	
-	//Calculate the Tesseral Harmonics terms and rearrange appropriately
-	tesseralStor tessHarmonics;
+	quadrature->GCabscissae = cosPhiAbscissae;
+	quadrature->GCweights = cosPhiWeights;
+	quadrature->GCnum = phiPoints;
+	
+	quadrature->GLabscissae = cosThetaAbscissae;
+	quadrature->GLweights = cosThetaWeights;
+	quadrature->GLnum = thetaPoints;	
+	
+	cout << "Gauss-Legendre and Gauss-Chebyshev quadrature weights and abscissae calculated." << endl;
+	
+	//Calculate the Tesseral Harmonics terms and rearrange appropriately for phi = acos(cosPhiAbscissae)
+	tesseralStor *tessHarmonics = new tesseralStor();
 	double *stor;
 	
-	tessHarmonics.L_lpmp = new double* [na];
+	tessHarmonics->L_lpmp = new double* [na];
 	
 	for (a=0; a<na; a++) {
-		 tessHarmonics.L_lpmp[a] = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
+		tessHarmonics->L_lpmp[a] = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
 	}
 	
-	tessHarmonics.S_mp = new double* [nb];
-
+	tessHarmonics->S_mp = new double* [nb];
+	
 	
 	for (b=0; b<nb; b++) {
-		tessHarmonics.S_mp[b] = new double [nm];
+		tessHarmonics->S_mp[b] = new double [nm];
 		
-		stor = tesseralTrigTerm(qNum, length, acos(cosPhiAbscissae[b]));
+		stor = tesseralTrigTerm(qNum, length, acos(cosPhiAbscissae[b])); //Phi --------------------------------------------------------
 		
 		for (m=-l_max; m<=l_max; m++) { //Reshift indices around
 			l=l_max;
@@ -1120,98 +1327,235 @@ void HvPrep_Internal(int nx, int ny, int nz, int x_max, int y_max, int z_max, in
 				cerr << "Error in finding the index within HvPrep_Internal for S_mp" << endl;
 				exit(1);
 			}
-					
-			tessHarmonics.S_mp[b][m_shift(m)] = stor[n];			
+			
+			tessHarmonics->S_mp[b][m_shift(m)] = stor[n];			
+		}
+	}
+	
+	tessHarmonics->L_lm = new double* [length];
+	
+	for (n=0; n<length; n++) {
+		tessHarmonics->L_lm[n] = new double [na];
+	}
+	
+	for (a=0; a<na; a++) {
+		stor = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
+		
+		for (n=0; n<length; n++) {
+			tessHarmonics->L_lm[n][a] = stor[n];
+		}
+	}
+	
+	tessHarmonics->S_m = new double* [nm];
+	
+	for (m=-l_max; m<=l_max; m++) {
+		tessHarmonics->S_m[m_shift(m)] = new double [nb];
+	}
+	
+	for (b=0; b<nb; b++) {
+		stor = tesseralTrigTerm(qNum, length, acos(cosPhiAbscissae[b])); //Phi --------------------------------------------------------
+		
+		for (m=-l_max; m<=l_max; m++) {
+			l=l_max;
+			n = index[l][m_shift(m)];
+			
+			if (n<0) {
+				cerr << "Error in finding the index within HvPrep_Internal for S_m" << endl;
+				exit(1);
+			}
+			
+			tessHarmonics->S_m[m_shift(m)][b] = stor[n];
 		}
 		
+	}
+	
+	//Calculate the Tesseral Harmonics terms and rearrange appropriately for phi = 2PI - acos(cosPhiAbscissae)
+	tesseralStor *tessHarmonics2PI = new tesseralStor();
+	//double *stor;
+	
+	tessHarmonics2PI->L_lpmp = new double* [na];
+	
+	for (a=0; a<na; a++) {
+		tessHarmonics2PI->L_lpmp[a] = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
+	}
+	
+	tessHarmonics2PI->S_mp = new double* [nb];
+	
+	
+	for (b=0; b<nb; b++) {
+		tessHarmonics2PI->S_mp[b] = new double [nm];
+		
+		stor = tesseralTrigTerm(qNum, length, 2.0*PI - acos(cosPhiAbscissae[b])); //Phi --------------------------------------------------------
+		
+		for (m=-l_max; m<=l_max; m++) { //Reshift indices around
+			l=l_max;
+			n = index[l][m_shift(m)];
+			
+			if (n<0) {
+				cerr << "Error in finding the index within HvPrep_Internal for S_mp" << endl;
+				exit(1);
+			}
+			
+			tessHarmonics2PI->S_mp[b][m_shift(m)] = stor[n];			
+		}
+	}
+	
+	tessHarmonics2PI->L_lm = new double* [length];
+	
+	for (n=0; n<length; n++) {
+		tessHarmonics2PI->L_lm[n] = new double [na];
+	}
+	
+	for (a=0; a<na; a++) {
+		stor = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
+		
+		for (n=0; n<length; n++) {
+			tessHarmonics2PI->L_lm[n][a] = stor[n];
+		}
+	}
+	
+	tessHarmonics2PI->S_m = new double* [nm];
+	
+	for (m=-l_max; m<=l_max; m++) {
+		tessHarmonics2PI->S_m[m_shift(m)] = new double [nb];
+	}
+	
+	for (b=0; b<nb; b++) {
+		stor = tesseralTrigTerm(qNum, length, 2.0*PI - acos(cosPhiAbscissae[b])); //Phi --------------------------------------------------------
+		
+		for (m=-l_max; m<=l_max; m++) {
+			l=l_max;
+			n = index[l][m_shift(m)];
+			
+			if (n<0) {
+				cerr << "Error in finding the index within HvPrep_Internal for S_m" << endl;
+				exit(1);
+			}
+			
+			tessHarmonics2PI->S_m[m_shift(m)][b] = stor[n];
+		}
 		
 	}
+	
+	//Everything already stored for interface in tessHarmonics2PI and tessHarmonics
+	
+	
+	cout << "Tesseral Harmonics terms calculated." << endl;
+	
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Pre-Calculate the Potential
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	cout << "Pre-calculating the partial potentials:" << endl;
+	cout << "----------------------------------------------------------------------------" << endl;
+	
+	//Get the grid for the potential
+	universeProp *potentialUniverse = new universeProp();
+	int numDim = 3; //There are 3 spatial dimensions
+	double gridMax[3];
+	int gridPoints[3];
+	
+	gridMax[0] = px_max;
+	gridPoints[0] = pnx;
+	
+	gridMax[1] = py_max;
+	gridPoints[1] = pny;
+	
+	gridMax[2] = pz_max;
+	gridPoints[2] = pnz;
+	
+	(*potentialUniverse) = generateGrid(numDim, gridMax, gridPoints);
+	
+	//Get the system geometry for TIP4P molecules
+	sysAtoms *atomGeo = new sysAtoms();
+	
+	getTIP4Patoms(&(atomGeo->atomType), &(atomGeo->atomPos), &(atomGeo->nAtoms), geometryFilename);
+	
+	//Get the partial potentials
+	double *CMpotential, *Hpotential;
+	
+	CMpotential = new double [potentialUniverse->sysSize];
+	Hpotential = new double [potentialUniverse->sysSize];
+	
+	Alavi_point_Eng(CMpotential, Hpotential, potentialUniverse, atomGeo);
+	
+	cout << "----------------------------------------------------------------------------" << endl;
+	
+	//Store everything for interface
+	pointPotentialStorH2 *partialPotential = new pointPotentialStorH2();
+	
+	partialPotential->CMpotential = CMpotential;
+	partialPotential->H_potential = Hpotential;
+	partialPotential->potentialUniverse = potentialUniverse;	
+	
+	cout << "Partial potentials calculated." << endl;
+	
+	cout << "////////////////////////////////////////////////////////////////////////////" << endl;
+	
+	
+	//Put everything in the interface sructure
+	interface->grids = gridStor;
+	interface->lmBasis = lmBasis;
+	interface->quadrature = quadrature;
+	interface->tesseral = tessHarmonics;
+	interface->tesseral2PI = tessHarmonics2PI;
+	interface->potential = partialPotential;
+
+	cout << "Hv Preparation FINISHED." << endl;
 }
-	
-	
-				  
+
+
 int main(int argc, char** argv) {
-	int l_max;
-	//int length;
-	//int **qNum, **index, dims[2];
-//	int l, m, n;
+		
+	interfaceStor *interface = new interfaceStor();
 	
-	//int i, j;
+	HvPrep_Internal(argc, argv, interface);
 	
-	//double *trig, *legendre;
-	//double theta, phi, sphereHarm; 
+	double *v_lpmp;
+	double *ulm1, *ulm2, *ulm;
+	int n;
 	
-	int thetaPoints, phiPoints;
-//	
-//	double max_absError, *roots;
-//	int rootCount;
-//	
-//	double *roots_pn, *weights_pn;
-//	
-//	int numPointsCheby;
-//	double *abscissaeCheby, *weightsCheby;
+	int l_max, length;
 	
-	//double *kinMat, *grid, x_max;
-//	int nPoints;
+	l_max = interface->lmBasis->lmax;
+	length = interface->lmBasis->length;
 	
-	//double *rotEng, momentOfInertia;
+	cout << interface->lmBasis->qNum[1][1] << endl;
+	
+	v_lpmp = new double [length];
 	
 	
-	//numPointsCheby = atoi(argv[1]);
-	l_max = atoi(argv[1]);
-//	theta = atof(argv[2]);
-//	phi = atof(argv[3]);
-	//l = atoi(argv[4]);
-	//m = atoi(argv[5]);
-	//max_absError = atof(argv[4]);
+	for (n=0; n<length; n++) {
+		v_lpmp[n] = 1.0 / sqrt(double(length));
+	}
 	
-	thetaPoints = atoi(argv[2]);
-	phiPoints = atoi(argv[3]);
+	ulm1 = calc_ulm(0.0, 0.0, 0.0, v_lpmp, interface, 0);
+	ulm2 = calc_ulm(0.0, 0.0, 0.0, v_lpmp, interface, 1);
 	
-//	x_max = atof(argv[1]);
-//	nPoints = atof(argv[2]);
+	ulm = new double [length];
 	
-//	genIndices_lm(l_max, &qNum, &length, &index, dims);
-//	
-//	tesseralHarmonicsTerms(qNum, length, &legendre, &trig, theta, phi);
-//	
-//	cout << fixed << setprecision(15);
-//	
-//	
-//	roots = legendreRoots(l_max, &rootCount);
-//	
-//	
-//	roots_pn = new double [l_max];
-//	weights_pn = new double [l_max];
-//	
-//	gauleg(-1.0, 1.0,roots_pn,weights_pn,l_max);
-	
-
-//	gaussChebyshev(numPointsCheby, &abscissaeCheby, &weightsCheby);
-	
-//	momentOfInertia = 2.0*1.0*2.0*2.0; //2mr^2 in amu.nm^2
-//	
-//	rotEng = rotKinEng(qNum, length, momentOfInertia);
-	
-//	cout << scientific << setprecision(15);
-
-	tesseralTest(l_max, thetaPoints, phiPoints);
+	for (n=0; n<length; n++) {
+		ulm[n] = ulm1[n] + ulm2[n];
+		
+		cout << ulm[n];
+	}
 	
 	
 	//for (i=0 ; i<length; i++) {		
-//		delete [] qNum[i];
-//	}
-//	delete [] qNum;
-//	
-//	for (i=0; i<l_max; i++) {
-//		delete [] index[i];
-//	}
-//	delete [] index;
-//	delete [] legendre;
-//	delete [] trig;
-//	delete [] roots_pn;
-//	delete [] weights_pn;
-//	delete [] roots;
+	//		delete [] qNum[i];
+	//	}
+	//	delete [] qNum;
+	//	
+	//	for (i=0; i<l_max; i++) {
+	//		delete [] index[i];
+	//	}
+	//	delete [] index;
+	//	delete [] legendre;
+	//	delete [] trig;
+	//	delete [] roots_pn;
+	//	delete [] weights_pn;
+	//	delete [] roots;
 	
 	
 	return 0;
