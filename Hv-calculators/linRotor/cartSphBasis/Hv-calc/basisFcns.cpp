@@ -1060,7 +1060,7 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 			anb = a * nb;
 			
 			for (b=0; b<nb; b++) {
-				ut_ma[mna + a] += wb[b] * S_m[m][b] * ut_ab[anb + b]; //Pb------------------------------
+				ut_ma[mna + a] += wb[b] * S_m[m_shift(m)][b] * ut_ab[anb + b]; //Pb------------------------------
 			}
 		}
 	}
@@ -1073,12 +1073,17 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 		u_lm[n] = 0.0;
 		
 		m = qNum[n][1];
-		mna = m * na;
+		mna = m_shift(m) * na;
 		
 		for (a=0; a<na; a++) {
 			u_lm[n] = wa[a] * L_lm[n][a] * ut_ma[mna + a];
 		}
 	}
+	
+	delete [] ut_ma;
+	delete [] u_ab;
+	delete [] ut_ab;
+	delete [] vt_mpa;
 	
 	return u_lm;
 	
@@ -1191,7 +1196,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	
 	double *yKinmat, *yGrid;
 	
-	if (((y_max-x_max)<DBL_EPSILON) && (ny==nx)) { //If the y-grid is the same as the x-grid, reuse the matrix and save memory and time
+	if ((fabs(y_max-x_max)<DBL_EPSILON) && (ny==nx)) { //If the y-grid is the same as the x-grid, reuse the matrix and save memory and time
 		yKinmat = xKinmat;
 		yGrid = xGrid;
 	}
@@ -1201,11 +1206,11 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	
 	double *zKinmat, *zGrid;
 	
-	if (((z_max-x_max)<DBL_EPSILON) && (nz==nx)) { //If the z-grid is the same as the x-grid or the y-grid, reuse the matrix and save memory and time
+	if ((fabs(z_max-x_max)<DBL_EPSILON) && (nz==nx)) { //If the z-grid is the same as the x-grid or the y-grid, reuse the matrix and save memory and time
 		zKinmat = xKinmat;
 		zGrid = xGrid;
 	}
-	else if (((z_max-y_max)<DBL_EPSILON) && (nz==ny)) {
+	else if ((fabs(z_max-y_max)<DBL_EPSILON) && (nz==ny)) {
 		zKinmat = yKinmat;
 		zGrid = yGrid;
 	}
@@ -1241,7 +1246,8 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	nm = 2*l_max + 1;
 	
 	//Generate the |lm> basis
-	int **qNum, length, **index, dims[2];
+	int **qNum, length, **index, *dims;
+	dims = new int [2];
 	genIndices_lm(l_max, &qNum, &length, &index, dims);
 	
 	//Calculate the rotational Kinetic Energy operator
@@ -1305,6 +1311,10 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	tesseralStor *tessHarmonics = new tesseralStor();
 	double *stor;
 	
+	tessHarmonics->na = na;
+	tessHarmonics->nb = nb;
+	tessHarmonics->lmax = l_max;
+	
 	tessHarmonics->L_lpmp = new double* [na];
 	
 	for (a=0; a<na; a++) {
@@ -1330,6 +1340,8 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 			
 			tessHarmonics->S_mp[b][m_shift(m)] = stor[n];			
 		}
+		
+		delete [] stor;
 	}
 	
 	tessHarmonics->L_lm = new double* [length];
@@ -1344,6 +1356,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 		for (n=0; n<length; n++) {
 			tessHarmonics->L_lm[n][a] = stor[n];
 		}
+		delete [] stor;
 	}
 	
 	tessHarmonics->S_m = new double* [nm];
@@ -1366,12 +1379,16 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 			
 			tessHarmonics->S_m[m_shift(m)][b] = stor[n];
 		}
-		
+		delete [] stor;
 	}
 	
 	//Calculate the Tesseral Harmonics terms and rearrange appropriately for phi = 2PI - acos(cosPhiAbscissae)
 	tesseralStor *tessHarmonics2PI = new tesseralStor();
 	//double *stor;
+	
+	tessHarmonics2PI->na = na;
+	tessHarmonics2PI->nb = nb;
+	tessHarmonics2PI->lmax = l_max;
 	
 	tessHarmonics2PI->L_lpmp = new double* [na];
 	
@@ -1398,6 +1415,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 			
 			tessHarmonics2PI->S_mp[b][m_shift(m)] = stor[n];			
 		}
+		delete [] stor;
 	}
 	
 	tessHarmonics2PI->L_lm = new double* [length];
@@ -1412,6 +1430,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 		for (n=0; n<length; n++) {
 			tessHarmonics2PI->L_lm[n][a] = stor[n];
 		}
+		delete [] stor;
 	}
 	
 	tessHarmonics2PI->S_m = new double* [nm];
@@ -1434,6 +1453,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 			
 			tessHarmonics2PI->S_m[m_shift(m)][b] = stor[n];
 		}
+		delete [] stor;
 		
 	}
 	
@@ -1451,10 +1471,10 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	cout << "----------------------------------------------------------------------------" << endl;
 	
 	//Get the grid for the potential
-	universeProp *potentialUniverse = new universeProp();
+	universeProp *potentialUniverse;
 	int numDim = 3; //There are 3 spatial dimensions
-	double gridMax[3];
-	int gridPoints[3];
+	double *gridMax = new double [3];
+	int *gridPoints = new int [3];
 	
 	gridMax[0] = px_max;
 	gridPoints[0] = pnx;
@@ -1465,7 +1485,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	gridMax[2] = pz_max;
 	gridPoints[2] = pnz;
 	
-	(*potentialUniverse) = generateGrid(numDim, gridMax, gridPoints);
+	potentialUniverse = generateGrid(numDim, gridMax, gridPoints);
 	
 	//Get the system geometry for TIP4P molecules
 	sysAtoms *atomGeo = new sysAtoms();
@@ -1489,6 +1509,10 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	partialPotential->H_potential = Hpotential;
 	partialPotential->potentialUniverse = potentialUniverse;	
 	
+	//delete [] atomGeo->atomType;
+//	delete [] atomGeo->atomPos;
+	delete atomGeo;
+	
 	cout << "Partial potentials calculated." << endl;
 	
 	cout << "////////////////////////////////////////////////////////////////////////////" << endl;
@@ -1501,6 +1525,8 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	interface->tesseral = tessHarmonics;
 	interface->tesseral2PI = tessHarmonics2PI;
 	interface->potential = partialPotential;
+	
+	
 
 	cout << "Hv Preparation FINISHED." << endl;
 }
@@ -1521,7 +1547,7 @@ int main(int argc, char** argv) {
 	l_max = interface->lmBasis->lmax;
 	length = interface->lmBasis->length;
 	
-	cout << interface->lmBasis->qNum[1][1] << endl;
+	//cout << interface->lmBasis->qNum[1][1] << endl;
 	
 	v_lpmp = new double [length];
 	
@@ -1535,12 +1561,19 @@ int main(int argc, char** argv) {
 	
 	ulm = new double [length];
 	
+	cout << scientific << setprecision(6);
 	for (n=0; n<length; n++) {
 		ulm[n] = ulm1[n] + ulm2[n];
 		
-		cout << ulm[n];
+		cout << ulm[n] << endl;
 	}
 	
+	delete [] v_lpmp;
+	delete [] ulm1;
+	delete [] ulm2;
+	delete [] ulm;
+	
+	delete interface;
 	
 	//for (i=0 ; i<length; i++) {		
 	//		delete [] qNum[i];

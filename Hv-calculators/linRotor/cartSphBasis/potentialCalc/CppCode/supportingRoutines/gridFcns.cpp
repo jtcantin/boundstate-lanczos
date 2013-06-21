@@ -2,31 +2,31 @@
 
 using namespace std;
 
-universeProp generateGrid(int numDim, double *gridMax, int *gridPoints) {
-	universeProp universe;
+universeProp* generateGrid(int numDim, double *gridMax, int *gridPoints) {
+	universeProp *universe = new universeProp();
 	int chunk, thread, nthreads, i, j;
 	
-	universe.numDim = numDim;
-	universe.grid_max = gridMax;
-	universe.grid_num = gridPoints;
+	universe->numDim = numDim;
+	universe->grid_max = gridMax;
+	universe->grid_num = gridPoints;
 	
-	universe.d_i = new double [universe.numDim];
+	universe->d_i = new double [universe->numDim];
 	
-	universe.sysSize = 1;
-	for (i=0; i<universe.numDim; i++) {
-		universe.d_i[i] = (universe.grid_max[i]) / ((double) universe.grid_num[i]);
-		universe.sysSize *= universe.grid_num[i];
+	universe->sysSize = 1;
+	for (i=0; i<universe->numDim; i++) {
+		universe->d_i[i] = (universe->grid_max[i]) / ((double) universe->grid_num[i]);
+		universe->sysSize *= universe->grid_num[i];
 	}
 	
-	universe.grid = new VECT [universe.sysSize];
+	universe->grid = new VECT [universe->sysSize];
 	
 	
 	//Determine for-loop chunk for OpenMP
-	if (universe.sysSize > CHUNK_RATIO) {
-		chunk = (int) (universe.sysSize/CHUNK_RATIO);
+	if (universe->sysSize > CHUNK_RATIO) {
+		chunk = (int) (universe->sysSize/CHUNK_RATIO);
 	}
-	else if (universe.sysSize > (CHUNK_RATIO/10)){
-		chunk = (int) (universe.sysSize/(CHUNK_RATIO/10));
+	else if (universe->sysSize > (CHUNK_RATIO/10)){
+		chunk = (int) (universe->sysSize/(CHUNK_RATIO/10));
 	}
 	else {
 		chunk = 1;
@@ -42,11 +42,11 @@ universeProp generateGrid(int numDim, double *gridMax, int *gridPoints) {
 	}
 	
 #pragma omp for schedule(dynamic, chunk) 
-	for (i=0; i<universe.sysSize; i++) {
-		universe.grid[i].DIM(universe.numDim);
-		for (j=0; j<universe.numDim; j++) {
-			//universe.grid[i].COOR(j) = indexDim(j, i, universe.numDim, universe.grid_num)*universe.d_i[j]; //Seems to work, but not fully tested.
-			universe.grid[i].COOR(j) = (indexDim(j, i, universe.numDim, universe.grid_num)*universe.d_i[j]) - (universe.grid_max[j]/2.0); //Seems to work, but not fully tested.; subtract 1/2*box_i_max to centre origin
+	for (i=0; i<universe->sysSize; i++) {
+		universe->grid[i].DIM(universe->numDim);
+		for (j=0; j<universe->numDim; j++) {
+			//universe->grid[i].COOR(j) = indexDim(j, i, universe->numDim, universe->grid_num)*universe->d_i[j]; //Seems to work, but not fully tested.
+			universe->grid[i].COOR(j) = (indexDim(j, i, universe->numDim, universe->grid_num)*universe->d_i[j]) - (universe->grid_max[j]/2.0); //Seems to work, but not fully tested.; subtract 1/2*box_i_max to centre origin
 		}		
 	}
 	}

@@ -19,6 +19,6 @@ int indexDim(int dim, int disp, int dim_num, int *dim_size);
 
 void writeCubeFile(int nDim, int *dimSize, VECT *dimGenerator, double *data, int dataSize, int nAtoms, int *atomNum, double *atomCharge, VECT *atomPos, const VECT& origin, string *comments, int unitFlag, string filename);
 
-universeProp generateGrid(int numDim, double *gridMax, int *gridPoints);
+universeProp* generateGrid(int numDim, double *gridMax, int *gridPoints);
 
 #endif

@@ -20,12 +20,24 @@ struct universeProp {
 	int *grid_num;
 	int numDim;
 	int sysSize;
+	
+	~universeProp() {
+		delete [] grid;
+		delete [] grid_max;
+		delete [] d_i;
+		delete [] grid_num;
+	};
 };
 
 struct sysAtoms {
 	char *atomType;
 	VECT *atomPos;
 	int nAtoms;
+	
+	~sysAtoms() {
+		delete [] atomPos;
+		delete [] atomType;
+	};
 };
 
 struct quadStor {
@@ -36,6 +48,14 @@ struct quadStor {
 	double *GLabscissae;
 	double *GLweights;
 	int GLnum;
+	
+	~quadStor() {
+		delete [] GCabscissae;
+		delete [] GCweights;
+		
+		delete [] GLabscissae;
+		delete [] GLweights;
+	};
 };
 
 struct fiveDGrid {
@@ -54,11 +74,39 @@ struct fiveDGrid {
 	int z_max;
 	double *zKinMat;
 	
-	double *theta_Grid;
-	int ntheta;
+	//double *theta_Grid;
+	//int ntheta;
 	
-	double *phi_Grid;
-	int nphi;
+	//double *phi_Grid;
+	//int nphi;
+	
+	~fiveDGrid() { //DO A BUNCH OF IF STATEMENTS ON THE POINTER VALUE
+		if ((x_Grid==y_Grid) && (x_Grid==z_Grid)) {
+			;
+		}
+		else if ((x_Grid==y_Grid) && (x_Grid!=z_Grid)) {
+			delete [] z_Grid;
+			delete [] zKinMat;
+		}
+		else if ((x_Grid!=y_Grid) && (y_Grid==z_Grid)) {
+			delete [] y_Grid;
+			delete [] yKinMat;
+		}
+		else if ((x_Grid!=y_Grid) && (y_Grid!=z_Grid) && (x_Grid==z_Grid)){
+			delete [] y_Grid;
+			delete [] yKinMat;
+		}
+		else if ((x_Grid!=y_Grid) && (y_Grid!=z_Grid) && (x_Grid!=z_Grid)){
+			delete [] y_Grid;
+			delete [] yKinMat;
+			
+			delete [] z_Grid;
+			delete [] zKinMat;
+		}
+		
+		delete [] x_Grid;
+		delete [] xKinMat;
+	};
 };
 
 struct lmFBR {
@@ -71,19 +119,70 @@ struct lmFBR {
 	int *dims;
 	
 	double *rotKinMat;
+	
+	~lmFBR() {
+		int i;
+		
+		for (i=0; i<length; i++) {
+			delete [] qNum[i];
+		}
+		delete [] qNum;
+		
+		for (i=0; i<=lmax; i++) {
+			delete [] index[i];
+		}
+		delete [] index;
+		
+		delete [] dims;
+		delete [] rotKinMat;
+	};
 };
 
 struct pointPotentialStorH2 {
 	double *CMpotential;
 	double *H_potential;
 	universeProp *potentialUniverse;
+	
+	~pointPotentialStorH2() {
+		delete [] CMpotential;
+		delete [] H_potential;
+		delete potentialUniverse;
+	};
 };
 
 struct tesseralStor {
+	int na;
+	int nb;
+	int lmax; //These three integers are here only to know the array sizes for the destructor
+	
 	double **L_lpmp; //[a][n]
 	double **S_mp; //[b][m]
 	double **L_lm; //[n][a]
 	double **S_m; //[m][b]
+	
+	~tesseralStor() {
+		int i;
+		
+		for (i=0; i<na; i++) {
+			delete [] L_lpmp[i];
+		}
+		delete [] L_lpmp;
+		
+		for (i=0; i<nb; i++) {
+			delete [] S_mp[i];
+		}
+		delete [] S_mp;
+		
+		for (i=0; i<((lmax+1)*(lmax+1)); i++) {
+			delete [] L_lm[i];
+		}
+		delete [] L_lm;
+		
+		for (i=-lmax; i<=lmax; i++) {
+			delete [] S_m[i + lmax];
+		}
+		delete [] S_m;
+	};
 };
 
 struct interfaceStor {
@@ -93,6 +192,15 @@ struct interfaceStor {
 	tesseralStor *tesseral;
 	tesseralStor *tesseral2PI;
 	lmFBR *lmBasis;
+	
+	~interfaceStor() {
+		delete quadrature;
+		delete grids;
+		delete potential;
+		delete tesseral;
+		delete tesseral2PI;
+		delete lmBasis;
+	};
 };
 
 #endif

@@ -3,7 +3,7 @@
 nx= 10
 x_max(nm)= 1.0
 ny= 10
-y_max(nm)= 1.0
+y_max(nm)= 1.2
 nz= 10
 z_max(nm)= 1.0
 l_max= 6
