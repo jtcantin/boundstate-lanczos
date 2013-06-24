@@ -5,7 +5,7 @@ SUP_PATH3= ../potentialCalc/CppCode/supportingRoutines/
 INCLUDES= -I $(SUP_PATH1) -I $(SUP_PATH2) -I $(SUP_PATH3) 
 CFLAGS=-c -Wall -fopenmp -DLINUX -ggdb -O0 $(INCLUDES)
 LIB_SOURCES= $(SUP_PATH2)matvec2.cpp $(SUP_PATH3)Alavi_H2_Routines.cpp $(SUP_PATH2)Cvectors.cpp $(SUP_PATH3)gridFcns.cpp $(SUP_PATH3)energyRoutines.cpp $(SUP_PATH3)TIP4P_AH2_EngRoutines_Calc.cpp $(SUP_PATH3)rotmat.cpp
-LDFLAGS=-fopenmp -lgfortran -llapack
+LDFLAGS=-fopenmp -framework Accelerate
 SOURCES=basisFcns.cpp $(LIB_SOURCES)
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=BasisTest

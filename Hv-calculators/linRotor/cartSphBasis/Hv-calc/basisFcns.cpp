@@ -61,6 +61,7 @@ void genIndices_lm(int l_max, int ***qNum, int *length, int ***index, int *dims)
 	
 	//Populate both maps
 	i = 0;
+
 	for (m=(-1*l_max); m<=l_max; m++) {
 		for (l=abs(m); l<=l_max; l++) {
 			
@@ -382,6 +383,8 @@ double* normAssocLegendrePoly(int **qNum, int length, double x){
 	
 	//Now, the associated Legendre Polynomials have been calculated and will be converted into a form for all lm, not just m>=0, and stored in legendre.
 	legendre = new double [length];
+	
+#pragma omp parallel for default(shared) private (l,m,n) schedule(guided)
 	for (n=0; n<length; n++) {
 		l = qNum[n][0];
 		m = qNum[n][1];
@@ -420,6 +423,7 @@ double* tesseralTrigTerm(int **qNum, int length, double phi) {
 	//Calculate the trigonometric portion of the tesseral harmonics, which are a function of m and phi only and include the factors sqrt(2) * sqrt(1/2pi) = sqrt(1/pi);
 	trig = new double [length];
 	
+#pragma omp parallel for default(shared) private (n,m) schedule(guided)
 	for (n=0; n<length; n++) {
 		m = qNum[n][1];
 		
@@ -459,6 +463,8 @@ void gaussChebyshev(int numPoints, double **abscissae, double **weights){
 	//Calculate the abscissae x_i = cos[pi(2i-1)/2n]
 	(*abscissae) = new double [n];
 	(*weights) = new double	[n];
+	
+#pragma omp parallel for default(shared) private (i) schedule(guided)
 	for (i=0; i<n; i++) {
 		(*abscissae)[i] = cos(PI * (2.0*double(i+1) - 1.0) /(2.0 * double(n)));
 		(*weights)[i] = PI / double(n);
@@ -513,7 +519,7 @@ void gaussLegendre(int numPoints, double **abscissae, double **weights){
 //The grid spans [-x_max/2, x_max/2]
 // !Make sure to delete (ie. dealloc) kinMat and grid!
 void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, double **grid) {
-	int i, j, chunk;
+	int i, j;
 	double d_x;
 	
 	d_x = x_max / double(nPoints);
@@ -522,12 +528,9 @@ void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, d
 	(*kinMat) = new double [nPoints*nPoints];
 	
 	
-	
-#pragma omp parallel default(shared) private (i,j,chunk)
+#pragma omp parallel default(shared) private (i,j)
 	{
-	chunk = 1;
-	
-#pragma omp for schedule(dynamic, chunk) collapse(2)
+#pragma omp for schedule(guided) collapse(2) //"guided" schedule means that the iterations are dynamically dispersed to each thread dependent on the number of threads and the number of iterations remaining
 	for (i=0; i<nPoints; i++) {		
 		for (j=0; j<nPoints; j++) {
 			(*kinMat)[i*nPoints + j] = (H_BAR*H_BAR) / (2.0 * totalMass * d_x * d_x) * pow(-1.0, (i+1)-(j+1));
@@ -542,7 +545,7 @@ void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, d
 		
 	}
 	
-#pragma omp for schedule(dynamic, chunk)
+#pragma omp for schedule(guided)
 	for (i=0; i<nPoints; i++) {	//This loop separated out of the above for better parallelization
 		(*grid)[i] = double(i)*d_x - x_max/2.0;
 	}
@@ -561,6 +564,7 @@ double* rotKinEng(int **qNum, int length, double momentOfInertia) {
 	
 	B = H_BAR*H_BAR / 2.0 / momentOfInertia;
 	
+#pragma omp parallel for default(shared) private (i,l) schedule(guided)
 	for (i=0; i<length; i++) {
 		l = double(qNum[i][0]);
 		rotEng[i] = B * l * (l+1.0);
