@@ -1228,6 +1228,17 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	}
 	inputFile.close();
 	
+	//Check that the system dimensions are reasonable
+	if (x_max > px_max || y_max > py_max || z_max > pz_max) {
+		cerr << "Error, the system dimensions must be the same size or smaller than the potential universe dimensions." << endl;
+		exit(1);
+	}
+	
+	if (x_max*px_max*y_max*py_max*z_max*pz_max < DBL_EPSILON || nx*ny*nz*pnx*pny*pnz == 0) {
+		cerr << "Error, none of the system dimensions nor the number of points can be zero and none should be smaller than the machine epsilon: " << DBL_EPSILON << endl;
+		exit(1);
+	}
+	
 	cout << "Input file parameters read." << endl;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

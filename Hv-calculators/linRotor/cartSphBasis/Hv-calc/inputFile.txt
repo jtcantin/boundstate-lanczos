@@ -1,18 +1,18 @@
 #
 #Make sure that there is no space before the equals sign and only one after; you will get an error or weird results otherwise
 nx= 10
-x_max(nm)= 1.1
+x_max(nm)= 1.0
 ny= 10
-y_max(nm)= 1.2
+y_max(nm)= 1.0
 nz= 10
 z_max(nm)= 1.0
 l_max= 6
 thetaPoints= 10
 phiPoints= 10
 pointPotential_nx= 10
-pointPotential_x_max(nm)= 5
+pointPotential_x_max(nm)= 1.0
 pointPotential_ny= 10
-pointPotential_y_max(nm)= 1.2
+pointPotential_y_max(nm)= 1.0
 pointPotential_nz= 10
 pointPotential_z_max(nm)= 1.0
 totalMass(g/mol)= 2.0
