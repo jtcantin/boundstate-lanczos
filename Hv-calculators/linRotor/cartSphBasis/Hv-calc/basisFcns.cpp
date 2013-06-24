@@ -930,6 +930,7 @@ cout << setprecision(3);
 }
 
 //This calculates the vector multiplied by the potential, for a given xyz and either acos(cosPhiAbscissae) or 2PI - acos(cosPhiAbscissae)
+//Test this with both a potential = 1 and potential = cos(theta) or cos(phi)
 double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *interface, int rangeFlag) {
 	int m, mp, n, a, b;
 	int anmp, nmp, nm, bna, anb, mna;
@@ -1551,24 +1552,14 @@ double* Mv_5D_oneCompositeIndex(double *v_ipjkn, double *mat_iip, int ni, int nj
 	double *v_ijkn = new double [ni*nj*nk*nn];
 	
 	for (n=0; n<nn; n++) {
-		disp = n*nk;
-		
-		for (k=0; k<nk; k++) {
-			disp += k;
-			disp *= nj;
-			
-			for (j=0; j<nj; j++) {
-				disp += j;
-				disp *= ni; //Pre-calculate this to reduce the number of flops
-				
+		for (k=0; k<nk; k++) {			
+			for (j=0; j<nj; j++) {			
 				for (i=0; i<ni; i++) {
-					dispMat = i*ni;
 					
-					v_ijkn[disp + i] = 0.0;
+					v_ijkn[((n*nk + k)*nj + j)*ni + i] = 0.0;
 					
 					for (ip=0; ip<ni; ip++) {
-						//The below quivalent to v_ijkn[((n*nk + k)*nj + j)*ni + i] = mat_iip[i*ni + ip] * v_ipjkn[((n*nk + k)*nj + j)*ni + ip];
-						v_ijkn[disp + i] += mat_iip[dispMat + ip] * v_ipjkn[disp + ip];
+						v_ijkn[((n*nk + k)*nj + j)*ni + i] += mat_iip[i*ni + ip] * v_ipjkn[((n*nk + k)*nj + j)*ni + ip];
 					}
 				}
 			}
@@ -1578,7 +1569,7 @@ double* Mv_5D_oneCompositeIndex(double *v_ipjkn, double *mat_iip, int ni, int nj
 	return v_ijkn;
 }
 
-double* diagMv_5D_oneCompositeIndex(double *v_npijk, double *mat_n, int ni, int nj, int nk, int nn) { 
+double* diagMv_5D_oneCompositeIndex(double *v_npijk, double *mat_n, int nn, int ni, int nj, int nk) { 
 	int i, j, k, n;
 	
 	double *v_nijk = new double [ni*nj*nk*nn];
@@ -1593,29 +1584,22 @@ double* diagMv_5D_oneCompositeIndex(double *v_npijk, double *mat_n, int ni, int 
 			}
 		}
 	}
+	
+	return v_nijk;
 }
 
 //This function rotates the indices of a vector (1D array with multiple, nested quantum numbers) left one; ie. v_ijkn -> v_jkni
 double* reshuffleIndices_5D_oneCompositeIndex(double *v_ijkn, int ni, int nj, int nk, int nn) {
 	int i, j, k, n;
-	int disp;
 	
 	double *v_jkni = new double [ni*nj*nk*nn];
 	
 	for (n=0; n<nn; n++) {
-		disp = n*nk;
-		
-		for (k=0; k<nk; k++) {	
-			disp += k;
-			disp *= nj;
-			
-			for (j=0; j<nj; j++) {
-				disp += j;
-				disp *= ni; //Pre-calculate this to reduce the number of flops
-				
+		for (k=0; k<nk; k++) {			
+			for (j=0; j<nj; j++) {				
 				for (i=0; i<ni; i++) {
 					//The below equivalent to v_jkni[((i*nn + n)*nk + k)*nj + j] = v_ijkn[((n*nk + k)*nj + j)*ni + i];
-					v_jkni[((i*nn + n)*nk + k)*nj + j] = v_ijkn[disp + i]; 
+					v_jkni[((i*nn + n)*nk + k)*nj + j] = v_ijkn[((n*nk + k)*nj + j)*ni + i]; 
 				}
 			}
 		}
@@ -1624,58 +1608,175 @@ double* reshuffleIndices_5D_oneCompositeIndex(double *v_ijkn, int ni, int nj, in
 	return v_jkni;
 }
 
+//This function calculates the Kinetic Energy terms of the Hamiltonian multiplied by the vector
+double* Tv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
+	int p;
+	int ni, nj, nk, nn;
+	
+	double *Tx, *Ty, *Tz, *Trot;
+	
+	ni = interface->grids->nx;
+	nj = interface->grids->ny;
+	nk = interface->grids->nz;
+	
+	nn = interface->lmBasis->length;
+	
+	int basis_size = ni*nj*nk*nn;
+	
+	//////////////////////////////////////
+	//Calculate T_x * v_ipjkn
+	//////////////////////////////////////
+	double *v_ijkn, *v_jkni_TxTerm, *v_jpkni;
+	
+	Tx = interface->grids->xKinMat;
+	v_ijkn = Mv_5D_oneCompositeIndex(v_ipjkn, Tx, ni, nj, nk, nn);
+	
+	//Reshuffle indices
+	v_jkni_TxTerm = reshuffleIndices_5D_oneCompositeIndex(v_ijkn, ni, nj, nk, nn);
+	v_jpkni = reshuffleIndices_5D_oneCompositeIndex(v_ipjkn, ni, nj, nk, nn);
+	
+	delete [] v_ijkn; //Remove redundant memory (NOTE: can't delete v_ipjkn as it is needed elsewhere in Hv)
+	
+	
+	//////////////////////////////////////
+	//Calculate T_y * v_jpkni
+	//////////////////////////////////////
+	double *v_jkni, *v_knij_TyTerm, *v_kpnij;
+	
+	Ty = interface->grids->yKinMat;
+	v_jkni = Mv_5D_oneCompositeIndex(v_jpkni, Ty, nj, nk, nn, ni);
+	
+	//Perform the sum Tx*v + Ty*v = v_jkni_TxTerm + v_jkni
+	for (p=0; p<basis_size; p++) {
+		v_jkni[p] += v_jkni_TxTerm[p];
+	}
+	delete [] v_jkni_TxTerm; //Don't need this anymore
+	
+	//Reshuffle indices
+	v_knij_TyTerm = reshuffleIndices_5D_oneCompositeIndex(v_jkni, nj, nk, nn, ni);
+	v_kpnij = reshuffleIndices_5D_oneCompositeIndex(v_jpkni, nj, nk, nn, ni);
+	
+	delete [] v_jkni;
+	delete [] v_jpkni; //Only need v_ipjkn, not its reshuffled forms elsewhere in Hv
+	
+	
+	//////////////////////////////////////
+	//Calculate T_z * v_kpnij
+	//////////////////////////////////////
+	double *v_knij, *v_nijk_TzTerm, *v_npijk;
+	
+	Tz = interface->grids->zKinMat;
+	v_knij = Mv_5D_oneCompositeIndex(v_kpnij, Tz, nk, nn, ni, nj);
+	
+	//Perform the sum (Tx*v + Ty*v) + Tz*v = v_knij_TyTerm + v_knij
+	for (p=0; p<basis_size; p++) {
+		v_knij[p] += v_knij_TyTerm[p];
+	}
+	delete [] v_knij_TyTerm;
+	
+	//Reshuffle Indices
+	v_nijk_TzTerm = reshuffleIndices_5D_oneCompositeIndex(v_knij, nk, nn, ni, nj);
+	v_npijk = reshuffleIndices_5D_oneCompositeIndex(v_kpnij, nk, nn, ni, nj);
+	
+	delete [] v_knij;
+	delete [] v_kpnij;
+	
+	//////////////////////////////////////
+	//Calculate T_rot * v_npijk
+	//////////////////////////////////////
+	double *v_nijk;
+	
+	Trot = interface->lmBasis->rotKinMat;
+	v_nijk = diagMv_5D_oneCompositeIndex(v_npijk, Trot, nn, ni, nj, nk);
+	
+	//Perform the sum (Tx*v + Ty*v + Tz*v) + Trot*v = v_nijk_TzTerm + v_nijk
+	for (p=0; p<basis_size; p++) {
+		cout << v_nijk_TzTerm[p] << endl;
+		cout << v_nijk[p] << endl;
+		v_nijk[p] += v_nijk_TzTerm[p];
+	}
+	delete [] v_nijk_TzTerm;
+	
+	//Reshuffle Indices back to original state
+	v_ijkn = reshuffleIndices_5D_oneCompositeIndex(v_nijk, nn, ni, nj, nk);
+	
+	delete [] v_npijk;
+	delete [] v_nijk;
+	
+	return v_ijkn;
+}
 
 int main(int argc, char** argv) {
-	int l_max, thetaPoints, phiPoints;
-	
-	l_max = atoi(argv[1]);
-	thetaPoints = atoi(argv[2]);
-	phiPoints = atoi(argv[3]);
-	
-	tesseralTest(l_max, thetaPoints, phiPoints);
 	
 	
+	interfaceStor *interface = new interfaceStor();
 	
-	//interfaceStor *interface = new interfaceStor();
-//	
-//	HvPrep_Internal(argc, argv, interface);
-//	
-//	double *v_lpmp;
-//	double *ulm1, *ulm2, *ulm;
-//	int n;
-//	
-//	int l_max, length;
-//	
-//	l_max = interface->lmBasis->lmax;
-//	length = interface->lmBasis->length;
-//	
-//	//cout << interface->lmBasis->qNum[1][1] << endl;
-//	
-//	v_lpmp = new double [length];
-//	
-//	
-//	for (n=0; n<length; n++) {
-//		v_lpmp[n] = 1.0 / sqrt(double(length));
-//	}
-//	
-//	ulm1 = calc_ulm(0.0, 0.0, 0.0, v_lpmp, interface, 0);
-//	ulm2 = calc_ulm(0.0, 0.0, 0.0, v_lpmp, interface, 1);
-//	
-//	ulm = new double [length];
-//	
-//	cout << scientific << setprecision(6);
-//	for (n=0; n<length; n++) {
-//		ulm[n] = ulm1[n] + ulm2[n];
-//		
-//		cout << ulm[n] << endl;
-//	}
-//	
-//	delete [] v_lpmp;
-//	delete [] ulm1;
-//	delete [] ulm2;
-//	delete [] ulm;
-//	
-//	delete interface;
+	HvPrep_Internal(argc, argv, interface);
+	
+	double *v_lpmp;
+	double *ulm1, *ulm2, *ulm;
+	int n;
+	
+	int l_max, length;
+	
+	l_max = interface->lmBasis->lmax;
+	length = interface->lmBasis->length;
+	
+	//Tv
+	int ni, nj, nk, nn;
+	
+	
+	ni = interface->grids->nx;
+	nj = interface->grids->ny;
+	nk = interface->grids->nz;
+	
+	nn = interface->lmBasis->length;
+	
+	double *v_ijkn;
+	double *v_ipjkn = new double [ni*nj*nk*nn];
+	
+	for (n=0; n<(ni*nj*nk*nn); n++) {
+		v_ipjkn[n] = 1.0 / sqrt(double(ni*nj*nk*nn));
+	}
+	
+	v_ijkn = Tv_5D_oneCompositeIndex(interface, v_ipjkn);
+	
+	cout << scientific << setprecision(6);
+	for (n=0; n<(ni*nj*nk*nn); n++) {
+		cout << v_ijkn[n] << endl;
+	}
+	
+	//cout << interface->lmBasis->qNum[1][1] << endl;
+	
+	//Vv_lm
+	v_lpmp = new double [length];
+	
+	
+	for (n=0; n<length; n++) {
+		v_lpmp[n] = 1.0 / sqrt(double(length));
+	}
+	
+	ulm1 = calc_ulm(0.0, 0.0, 0.0, v_lpmp, interface, 0);
+	ulm2 = calc_ulm(0.0, 0.0, 0.0, v_lpmp, interface, 1);
+	
+	ulm = new double [length];
+	
+	cout << scientific << setprecision(6);
+	for (n=0; n<length; n++) {
+		ulm[n] = ulm1[n] + ulm2[n];
+		
+		cout << ulm[n] << endl;
+	}
+	
+	delete [] v_lpmp;
+	delete [] ulm1;
+	delete [] ulm2;
+	delete [] ulm;
+	
+	delete interface;
+	
+	delete [] v_ijkn;
+	delete [] v_ipjkn;
 	
 	//for (i=0 ; i<length; i++) {		
 	//		delete [] qNum[i];
