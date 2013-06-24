@@ -5,6 +5,7 @@
 #include <string.h>
 #include <iomanip>
 #include <cfloat>
+#include <omp.h>
 #include "lanczosUnits.h"
 #include "vectClass.h"
 #include "boundStateContainers.h"
@@ -512,16 +513,22 @@ void gaussLegendre(int numPoints, double **abscissae, double **weights){
 //The grid spans [-x_max/2, x_max/2]
 // !Make sure to delete (ie. dealloc) kinMat and grid!
 void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, double **grid) {
-	int i, j;
+	int i, j, chunk;
 	double d_x;
 	
 	d_x = x_max / double(nPoints);
 	
 	(*grid) = new double [nPoints];
 	(*kinMat) = new double [nPoints*nPoints];
-	for (i=0; i<nPoints; i++) {
-		(*grid)[i] = double(i)*d_x - x_max/2.0;
-		
+	
+	
+	
+#pragma omp parallel default(shared) private (i,j,chunk)
+	{
+	chunk = 1;
+	
+#pragma omp for schedule(dynamic, chunk) collapse(2)
+	for (i=0; i<nPoints; i++) {		
 		for (j=0; j<nPoints; j++) {
 			(*kinMat)[i*nPoints + j] = (H_BAR*H_BAR) / (2.0 * totalMass * d_x * d_x) * pow(-1.0, (i+1)-(j+1));
 			if (i==j) {
@@ -532,6 +539,14 @@ void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, d
 			}
 			
 		}
+		
+	}
+	
+#pragma omp for schedule(dynamic, chunk)
+	for (i=0; i<nPoints; i++) {	//This loop separated out of the above for better parallelization
+		(*grid)[i] = double(i)*d_x - x_max/2.0;
+	}
+	
 	}
 }
 

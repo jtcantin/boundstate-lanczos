@@ -13,6 +13,7 @@
 #define ANG_PER_BOHR 0.52918
 #define NM_PER_ANG 0.1
 
+#define CHUNK_RATIO 100 //How large the chunks should be relative to the total data size; 10 or 100 seem to be reasonable values.
 
 
 #endif
