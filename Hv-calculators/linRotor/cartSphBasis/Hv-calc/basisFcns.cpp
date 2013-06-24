@@ -479,19 +479,48 @@ void gaussLegendre(int numPoints, double **abscissae, double **weights){
 	(*weights) = legendreWeights(n, (*abscissae));
 }
 
+/*
+ //Cartesian Kinetic Energy operator and grid
+ //The grid spans [-x_max, x_max]
+ // !Make sure to delete (ie. dealloc) kinMat and grid!
+ void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, double **grid) {
+ int i, j;
+ double d_x;
+ 
+ d_x = 2.0*x_max/(nPoints + 1.0);
+ 
+ (*grid) = new double [nPoints];
+ (*kinMat) = new double [nPoints*nPoints];
+ for (i=0; i<nPoints; i++) {
+ (*grid)[i] = double(i+1)*d_x - x_max;
+ 
+ for (j=0; j<nPoints; j++) {
+ (*kinMat)[i*nPoints + j] = (H_BAR*H_BAR) / (2.0 * totalMass * d_x * d_x) * pow(-1.0, (i+1)-(j+1));
+ if (i==j) {
+ (*kinMat)[i*nPoints + j] *= (PI*PI)/3.0;
+ }
+ else {
+ (*kinMat)[i*nPoints + j] *= 2.0/double( ((i+1)-(j+1)) * ((i+1)-(j+1)) );
+ }
+ 
+ }
+ }
+ }*/
+
+
 //Cartesian Kinetic Energy operator and grid
-//The grid spans [-x_max, x_max]
+//The grid spans [-x_max/2, x_max/2]
 // !Make sure to delete (ie. dealloc) kinMat and grid!
 void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, double **grid) {
 	int i, j;
 	double d_x;
 	
-	d_x = 2.0*x_max/(nPoints + 1.0);
+	d_x = x_max / double(nPoints);
 	
 	(*grid) = new double [nPoints];
 	(*kinMat) = new double [nPoints*nPoints];
 	for (i=0; i<nPoints; i++) {
-		(*grid)[i] = double(i+1)*d_x - x_max;
+		(*grid)[i] = double(i)*d_x - x_max/2.0;
 		
 		for (j=0; j<nPoints; j++) {
 			(*kinMat)[i*nPoints + j] = (H_BAR*H_BAR) / (2.0 * totalMass * d_x * d_x) * pow(-1.0, (i+1)-(j+1));
@@ -778,16 +807,16 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	//Print out the results
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-		//width = 10;
-//		cout << scientific;
-//	cout << setprecision(15);
+	//width = 10;
+	//		cout << scientific;
+	//	cout << setprecision(15);
 	
 	//cout << factorial(170) << endl; //170 is the max possible l value, given limitation of double format (170! = 7.257416e+306), max double = 1.797693e+308
 	//cout << DBL_MAX << endl;
 	
 	width = 6;
 	cout << fixed;
-cout << setprecision(3);
+	cout << setprecision(3);
 	
 	//Print out Legendre Polynomial matrices
 	//	cout << fixed << setprecision(3);
@@ -820,7 +849,7 @@ cout << setprecision(3);
 	}
 	
 	//Print out Legendre Polynomial result matrices for fixed l
-
+	
 	cout << "Legendre Polynomial Fixed l - Result matrices" << endl;
 	for (l=0; l<=l_max; l++) {
 		cout << "l = " << l << endl;
@@ -835,7 +864,7 @@ cout << setprecision(3);
 	}
 	
 	//Print out the normalization constants
-
+	
 	//	cout << "Legendre Polynomial Fixed l - Expected Values" << endl;
 	//	for (l=0; l<=l_max; l++) {
 	//		cout << "l = " << l << endl;
@@ -867,7 +896,7 @@ cout << setprecision(3);
 	//	}
 	
 	//Print out Trig Term result matrices for fixed l
-
+	
 	cout << "Trig Term Fixed l - Result matrices" << endl;
 	for (l=0; l<=l_max; l++) {
 		cout << "l = " << l << endl;
@@ -1249,7 +1278,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	gridStor->nz = nz;
 	gridStor->z_max = z_max;
 	gridStor->zKinMat = zKinmat;	
-
+	
 	cout << "Cartesian grid and Kinetic Energy Operators generated." << endl;
 	
 	
@@ -1524,7 +1553,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	partialPotential->potentialUniverse = potentialUniverse;	
 	
 	//delete [] atomGeo->atomType;
-//	delete [] atomGeo->atomPos;
+	//	delete [] atomGeo->atomPos;
 	delete atomGeo;
 	
 	cout << "Partial potentials calculated." << endl;
@@ -1541,13 +1570,12 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	interface->potential = partialPotential;
 	
 	
-
+	
 	cout << "Hv Preparation FINISHED." << endl;
 }
 
 double* Mv_5D_oneCompositeIndex(double *v_ipjkn, double *mat_iip, int ni, int nj, int nk, int nn) { 
 	int i, ip, j, k, n;
-	int disp, dispMat;
 	
 	double *v_ijkn = new double [ni*nj*nk*nn];
 	
@@ -1574,7 +1602,7 @@ double* diagMv_5D_oneCompositeIndex(double *v_npijk, double *mat_n, int nn, int 
 	
 	double *v_nijk = new double [ni*nj*nk*nn];
 	
-
+	
 	for (k=0; k<nk; k++) {
 		for (j=0; j<nj; j++) {
 			for (i=0; i<ni; i++) {
@@ -1691,8 +1719,6 @@ double* Tv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	
 	//Perform the sum (Tx*v + Ty*v + Tz*v) + Trot*v = v_nijk_TzTerm + v_nijk
 	for (p=0; p<basis_size; p++) {
-		cout << v_nijk_TzTerm[p] << endl;
-		cout << v_nijk[p] << endl;
 		v_nijk[p] += v_nijk_TzTerm[p];
 	}
 	delete [] v_nijk_TzTerm;
@@ -1706,6 +1732,92 @@ double* Tv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	return v_ijkn;
 }
 
+//This function calculates the potential multiplied by the vector
+double* Vv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
+	int i, j, k, n;
+	
+	int ni, nj, nk, nn, basis_size;	
+	ni = interface->grids->nx;
+	nj = interface->grids->ny;
+	nk = interface->grids->nz;
+	
+	nn = interface->lmBasis->length;
+	
+	basis_size = ni*nj*nk*nn;
+	
+	double *v_np = new double [nn];
+	
+	double *ulm1, *ulm2, *ulm;
+	
+	ulm = new double [basis_size];
+	
+	double *x_grid, *y_grid, *z_grid;
+	
+	x_grid = interface->grids->x_Grid;
+	y_grid = interface->grids->y_Grid;
+	z_grid = interface->grids->z_Grid;
+	
+	for (i=0; i<ni; i++) {
+		for (j=0; j<nj; j++) {
+			for (k=0; k<nk; k++) {
+				for (n=0; n<nn; n++) {
+					v_np[n] = v_ipjkn[((n*nk + k)*nj + j)*ni + i];
+				}
+				
+				ulm1 = calc_ulm(x_grid[i], y_grid[j], z_grid[k], v_np, interface, 0); //phi = acos(cos phi)
+				ulm2 = calc_ulm(x_grid[i], y_grid[j], z_grid[k], v_np, interface, 1); //phi = 2PI - acos(cos phi)
+				
+				for (n=0; n<nn; n++) {
+					ulm[((n*nk + k)*nj + j)*ni + i] = ulm1[n] + ulm2[n];
+				}
+				delete [] ulm1;
+				delete [] ulm2;
+			}
+		}
+	}
+	
+	delete [] v_np;
+	
+	return ulm;
+}
+
+double* Hv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
+	int p;
+	
+	int ni, nj, nk, nn, basis_size;	
+	ni = interface->grids->nx;
+	nj = interface->grids->ny;
+	nk = interface->grids->nz;
+	
+	nn = interface->lmBasis->length;
+	
+	basis_size = ni*nj*nk*nn;	
+	
+	double *Tv_ijkn;
+	double *Vv_ijkn;
+	double *Hv_ijkn = new double [basis_size];
+	
+	//Calculate the kinetic energy terms
+	Tv_ijkn = Tv_5D_oneCompositeIndex(interface, v_ipjkn);
+	
+	cout << "Tv finished" << endl;
+	
+	//Calculate the potential energy terms
+	Vv_ijkn = Vv_5D_oneCompositeIndex(interface, v_ipjkn);
+	
+	cout << "Vv finished" << endl;
+	
+	//Sum Tv_ijkn and Vv_ijkn to get Hv_ijkn
+	for (p=0; p<basis_size; p++) {
+		Hv_ijkn[p] = Tv_ijkn[p] + Vv_ijkn[p];
+	}
+	
+	delete [] Tv_ijkn;
+	delete [] Vv_ijkn;
+	
+	return Hv_ijkn;
+}
+
 int main(int argc, char** argv) {
 	
 	
@@ -1713,18 +1825,10 @@ int main(int argc, char** argv) {
 	
 	HvPrep_Internal(argc, argv, interface);
 	
-	double *v_lpmp;
-	double *ulm1, *ulm2, *ulm;
 	int n;
 	
-	int l_max, length;
-	
-	l_max = interface->lmBasis->lmax;
-	length = interface->lmBasis->length;
-	
-	//Tv
+	//Hv
 	int ni, nj, nk, nn;
-	
 	
 	ni = interface->grids->nx;
 	nj = interface->grids->ny;
@@ -1732,50 +1836,24 @@ int main(int argc, char** argv) {
 	
 	nn = interface->lmBasis->length;
 	
-	double *v_ijkn;
+	double *Hv_ijkn;
 	double *v_ipjkn = new double [ni*nj*nk*nn];
 	
 	for (n=0; n<(ni*nj*nk*nn); n++) {
 		v_ipjkn[n] = 1.0 / sqrt(double(ni*nj*nk*nn));
 	}
 	
-	v_ijkn = Tv_5D_oneCompositeIndex(interface, v_ipjkn);
+	Hv_ijkn =  Hv_5D_oneCompositeIndex(interface, v_ipjkn);
 	
-	cout << scientific << setprecision(6);
+	cout << "Hv finished" << endl;
+	
 	for (n=0; n<(ni*nj*nk*nn); n++) {
-		cout << v_ijkn[n] << endl;
+		//cout <<	Hv_ijkn[n] << endl;
 	}
-	
-	//cout << interface->lmBasis->qNum[1][1] << endl;
-	
-	//Vv_lm
-	v_lpmp = new double [length];
-	
-	
-	for (n=0; n<length; n++) {
-		v_lpmp[n] = 1.0 / sqrt(double(length));
-	}
-	
-	ulm1 = calc_ulm(0.0, 0.0, 0.0, v_lpmp, interface, 0);
-	ulm2 = calc_ulm(0.0, 0.0, 0.0, v_lpmp, interface, 1);
-	
-	ulm = new double [length];
-	
-	cout << scientific << setprecision(6);
-	for (n=0; n<length; n++) {
-		ulm[n] = ulm1[n] + ulm2[n];
-		
-		cout << ulm[n] << endl;
-	}
-	
-	delete [] v_lpmp;
-	delete [] ulm1;
-	delete [] ulm2;
-	delete [] ulm;
 	
 	delete interface;
 	
-	delete [] v_ijkn;
+	delete [] Hv_ijkn;
 	delete [] v_ipjkn;
 	
 	//for (i=0 ; i<length; i++) {		
