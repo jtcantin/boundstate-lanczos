@@ -15,12 +15,12 @@ using namespace std;
 #define m_shift(X) (X+l_max)
 
 //Algorithm from http://www.livephysics.com/computational-physics/fortran/fortran-subroutines-functions/
-int factorial(int num) {
-	int fact = 1;
+double factorial(int num) {
+	double fact = 1.0;
 	int i;
 	
 	for (i=2; i<=num; i++) {
-		fact *= i;
+		fact *= double (i);
 	}
 	
 	return fact;
@@ -372,7 +372,7 @@ double* normAssocLegendrePoly(int **qNum, int length, double x){
 			ld = double(l);
 			md = double(m);
 			
-			partialNormFactor = double(factorial(l-m)) * (2.0*ld+1.0) / (2.0*double(factorial(l+m)));
+			partialNormFactor = factorial(l-m) * (2.0*ld+1.0) / (2.0* factorial(l+m));
 			legenArr[l][m] *= phaseFactor * sqrt(partialNormFactor);
 			phaseFactor *= -1.0;
 		}
@@ -526,6 +526,14 @@ double* rotKinEng(int **qNum, int length, double momentOfInertia) {
 }
 
 //This tests the orthonormality of the Tesseral Harmonics terms
+//To do this test, add the following to "main" and comment out all else:
+//int l_max, thetaPoints, phiPoints;
+//
+//l_max = atoi(argv[1]);
+//thetaPoints = atoi(argv[2]);
+//phiPoints = atoi(argv[3]);
+//
+//tesseralTest(l_max, thetaPoints, phiPoints);
 void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	int m, l, a, b, n, i, lp, mp;
 	int **qNum, length, **index, dims[2];
@@ -577,11 +585,11 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	//			l = qNum[n][0];
 	//			m = qNum[n][1];
 	//			
-	//			normConst = sqrt(double (2*l+1) * double (factorial(l-m)) / 2.0 / double (factorial(l+m)));
+	//			normConst = sqrt(double (2*l+1) * factorial(l-m) / 2.0 / factorial(l+m));
 	//		
 	//			if (m<0) {
 	//				m = -m;
-	//				legendreGrid[a][n] = pow(-1.0, m) * double (factorial(l-m)) / double (factorial(l+m)) * normConst * plgndr(l, m, cosThetaAbscissae[a]);
+	//				legendreGrid[a][n] = pow(-1.0, m) * factorial(l-m) / factorial(l+m) * normConst * plgndr(l, m, cosThetaAbscissae[a]);
 	//			}
 	//			else {
 	//				legendreGrid[a][n] = normConst * plgndr(l, m, cosThetaAbscissae[a]);
@@ -770,11 +778,16 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	//Print out the results
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	//	width = 10;
-	//	cout << scientific;
+		//width = 10;
+//		cout << scientific;
+//	cout << setprecision(15);
+	
+	//cout << factorial(170) << endl; //170 is the max possible l value, given limitation of double format (170! = 7.257416e+306), max double = 1.797693e+308
+	//cout << DBL_MAX << endl;
 	
 	width = 6;
 	cout << fixed;
+cout << setprecision(3);
 	
 	//Print out Legendre Polynomial matrices
 	//	cout << fixed << setprecision(3);
@@ -792,7 +805,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	//	}
 	
 	//Print out Legendre Polynomial result matrices for fixed m
-	cout << setprecision(3);
+	
 	cout << "Legendre Polynomial Fixed m - Result matrices" << endl;
 	for (m=-l_max; m<=l_max; m++) {
 		cout << "m = " << m << endl;
@@ -807,7 +820,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	}
 	
 	//Print out Legendre Polynomial result matrices for fixed l
-	cout << setprecision(3);
+
 	cout << "Legendre Polynomial Fixed l - Result matrices" << endl;
 	for (l=0; l<=l_max; l++) {
 		cout << "l = " << l << endl;
@@ -822,7 +835,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	}
 	
 	//Print out the normalization constants
-	//cout << setprecision(3);
+
 	//	cout << "Legendre Polynomial Fixed l - Expected Values" << endl;
 	//	for (l=0; l<=l_max; l++) {
 	//		cout << "l = " << l << endl;
@@ -831,8 +844,8 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	//			
 	//			for (mp=-l_max; mp<=l_max; mp++) {
 	//				if ((m==mp)&&(m!=0)) {
-	//					//const_lFactor = double (factorial(l+m)) / double (m) / double (factorial(l-m));
-	//					//const_mFactor = double (factorial(l+m)) * 2.0 / (double (2*l+1)) / (double (factorial(l-m)));
+	//					//const_lFactor = factorial(l+m) / double (m) / factorial(l-m);
+	//					//const_mFactor = factorial(l+m) * 2.0 / (double (2*l+1)) / factorial(l-m));
 	//					//cout << const_lFactor/const_mFactor << " ";
 	//					
 	//					cout << setw(width) << double (2*l+1) / double (2*m) << " ";
@@ -854,7 +867,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	//	}
 	
 	//Print out Trig Term result matrices for fixed l
-	cout << setprecision(3);
+
 	cout << "Trig Term Fixed l - Result matrices" << endl;
 	for (l=0; l<=l_max; l++) {
 		cout << "l = " << l << endl;
@@ -1531,49 +1544,138 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	cout << "Hv Preparation FINISHED." << endl;
 }
 
+double* Mv_5D_oneCompositeIndex(double *v_ipjkn, double *mat_iip, int ni, int nj, int nk, int nn) { 
+	int i, ip, j, k, n;
+	int disp, dispMat;
+	
+	double *v_ijkn = new double [ni*nj*nk*nn];
+	
+	for (n=0; n<nn; n++) {
+		disp = n*nk;
+		
+		for (k=0; k<nk; k++) {
+			disp += k;
+			disp *= nj;
+			
+			for (j=0; j<nj; j++) {
+				disp += j;
+				disp *= ni; //Pre-calculate this to reduce the number of flops
+				
+				for (i=0; i<ni; i++) {
+					dispMat = i*ni;
+					
+					v_ijkn[disp + i] = 0.0;
+					
+					for (ip=0; ip<ni; ip++) {
+						//The below quivalent to v_ijkn[((n*nk + k)*nj + j)*ni + i] = mat_iip[i*ni + ip] * v_ipjkn[((n*nk + k)*nj + j)*ni + ip];
+						v_ijkn[disp + i] += mat_iip[dispMat + ip] * v_ipjkn[disp + ip];
+					}
+				}
+			}
+		}
+	}
+	
+	return v_ijkn;
+}
+
+double* diagMv_5D_oneCompositeIndex(double *v_npijk, double *mat_n, int ni, int nj, int nk, int nn) { 
+	int i, j, k, n;
+	
+	double *v_nijk = new double [ni*nj*nk*nn];
+	
+
+	for (k=0; k<nk; k++) {
+		for (j=0; j<nj; j++) {
+			for (i=0; i<ni; i++) {
+				for (n=0; n<nn; n++) {
+					v_nijk[((k*nj + j)*ni + i)*nn + n] = mat_n[n] * v_npijk[((k*nj + j)*ni + i)*nn + n];
+				}
+			}
+		}
+	}
+}
+
+//This function rotates the indices of a vector (1D array with multiple, nested quantum numbers) left one; ie. v_ijkn -> v_jkni
+double* reshuffleIndices_5D_oneCompositeIndex(double *v_ijkn, int ni, int nj, int nk, int nn) {
+	int i, j, k, n;
+	int disp;
+	
+	double *v_jkni = new double [ni*nj*nk*nn];
+	
+	for (n=0; n<nn; n++) {
+		disp = n*nk;
+		
+		for (k=0; k<nk; k++) {	
+			disp += k;
+			disp *= nj;
+			
+			for (j=0; j<nj; j++) {
+				disp += j;
+				disp *= ni; //Pre-calculate this to reduce the number of flops
+				
+				for (i=0; i<ni; i++) {
+					//The below equivalent to v_jkni[((i*nn + n)*nk + k)*nj + j] = v_ijkn[((n*nk + k)*nj + j)*ni + i];
+					v_jkni[((i*nn + n)*nk + k)*nj + j] = v_ijkn[disp + i]; 
+				}
+			}
+		}
+	}
+	
+	return v_jkni;
+}
+
 
 int main(int argc, char** argv) {
-		
-	interfaceStor *interface = new interfaceStor();
+	int l_max, thetaPoints, phiPoints;
 	
-	HvPrep_Internal(argc, argv, interface);
+	l_max = atoi(argv[1]);
+	thetaPoints = atoi(argv[2]);
+	phiPoints = atoi(argv[3]);
 	
-	double *v_lpmp;
-	double *ulm1, *ulm2, *ulm;
-	int n;
-	
-	int l_max, length;
-	
-	l_max = interface->lmBasis->lmax;
-	length = interface->lmBasis->length;
-	
-	//cout << interface->lmBasis->qNum[1][1] << endl;
-	
-	v_lpmp = new double [length];
+	tesseralTest(l_max, thetaPoints, phiPoints);
 	
 	
-	for (n=0; n<length; n++) {
-		v_lpmp[n] = 1.0 / sqrt(double(length));
-	}
 	
-	ulm1 = calc_ulm(0.0, 0.0, 0.0, v_lpmp, interface, 0);
-	ulm2 = calc_ulm(0.0, 0.0, 0.0, v_lpmp, interface, 1);
-	
-	ulm = new double [length];
-	
-	cout << scientific << setprecision(6);
-	for (n=0; n<length; n++) {
-		ulm[n] = ulm1[n] + ulm2[n];
-		
-		cout << ulm[n] << endl;
-	}
-	
-	delete [] v_lpmp;
-	delete [] ulm1;
-	delete [] ulm2;
-	delete [] ulm;
-	
-	delete interface;
+	//interfaceStor *interface = new interfaceStor();
+//	
+//	HvPrep_Internal(argc, argv, interface);
+//	
+//	double *v_lpmp;
+//	double *ulm1, *ulm2, *ulm;
+//	int n;
+//	
+//	int l_max, length;
+//	
+//	l_max = interface->lmBasis->lmax;
+//	length = interface->lmBasis->length;
+//	
+//	//cout << interface->lmBasis->qNum[1][1] << endl;
+//	
+//	v_lpmp = new double [length];
+//	
+//	
+//	for (n=0; n<length; n++) {
+//		v_lpmp[n] = 1.0 / sqrt(double(length));
+//	}
+//	
+//	ulm1 = calc_ulm(0.0, 0.0, 0.0, v_lpmp, interface, 0);
+//	ulm2 = calc_ulm(0.0, 0.0, 0.0, v_lpmp, interface, 1);
+//	
+//	ulm = new double [length];
+//	
+//	cout << scientific << setprecision(6);
+//	for (n=0; n<length; n++) {
+//		ulm[n] = ulm1[n] + ulm2[n];
+//		
+//		cout << ulm[n] << endl;
+//	}
+//	
+//	delete [] v_lpmp;
+//	delete [] ulm1;
+//	delete [] ulm2;
+//	delete [] ulm;
+//	
+//	delete interface;
 	
 	//for (i=0 ; i<length; i++) {		
 	//		delete [] qNum[i];
