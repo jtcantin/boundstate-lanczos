@@ -61,7 +61,7 @@ void genIndices_lm(int l_max, int ***qNum, int *length, int ***index, int *dims)
 	
 	//Populate both maps
 	i = 0;
-
+	
 	for (m=(-1*l_max); m<=l_max; m++) {
 		for (l=abs(m); l<=l_max; l++) {
 			
@@ -622,7 +622,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	//Calculate the Legendre polynomials for each of the Gauss-Legendre Abscissae (cosThetaAbscissae) 
 	legendreGrid = new double* [thetaPoints];
 	
-	
+//#pragma omp parallel for default(shared) private (a) schedule(guided)
 	for (a=0; a<thetaPoints; a++) {
 		legendreGrid[a] = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
 	}
@@ -659,7 +659,12 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 		
 		for (l=0; l<=l_max; l++) {
 			Lmla[m_shift(m)][l] = new double [thetaPoints];
-			
+		}
+	}
+	
+//#pragma omp parallel for default(shared) private (m,l,a) schedule(guided) collapse(3)
+	for (m=-l_max; m<=l_max; m++) {		
+		for (l=0; l<=l_max; l++) {			
 			for (a=0; a<thetaPoints; a++) {
 				Lmla[m_shift(m)][l][a] = 0.0;
 			}
@@ -668,11 +673,11 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	}
 	
 	//Calculate elements, which is sqrt(gaussLegendreWeights(a)) * ~P_lm(x_a), where x_a = cos(theta_a), ~ means normalized
+//#pragma omp parallel for default(shared) private (n,a,l,m) schedule(guided) collapse(2)
 	for (n=0; n<length; n++) {
-		l = qNum[n][0];
-		m = qNum[n][1];
-		
 		for (a=0; a<thetaPoints; a++) {
+			l = qNum[n][0];
+			m = qNum[n][1];
 			Lmla[m_shift(m)][l][a] = sqrt(cosThetaWeights[a]) * legendreGrid[a][index[l][m_shift(m)]];
 		}
 	}
@@ -688,7 +693,14 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 			
 			for (lp=0; lp<=l_max; lp++) {
 				resMatLegendre[m_shift(m)][l][lp] = 0.0; //Initialize matrix value
-				
+			}
+		}
+	}
+	
+//#pragma omp parallel for default(shared) private (m,l,lp,a) schedule(guided) collapse(4)
+	for (m=-l_max; m<=l_max; m++) {		
+		for (l=0; l<=l_max; l++) {			
+			for (lp=0; lp<=l_max; lp++) {				
 				for (a=0; a<thetaPoints; a++) {
 					resMatLegendre[m_shift(m)][l][lp] += Lmla[m_shift(m)][l][a] * Lmla[m_shift(m)][lp][a];
 				}
@@ -709,7 +721,12 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 		
 		for (m=-l_max; m<=l_max; m++) {
 			Llma[l][m_shift(m)] = new double [thetaPoints];
-			
+		}
+	}
+	
+//#pragma omp parallel for default(shared) private (l,m,a) schedule(guided) collapse(3)
+	for (l=0; l<=l_max; l++) {		
+		for (m=-l_max; m<=l_max; m++) {			
 			for (a=0; a<thetaPoints; a++) {
 				Llma[l][m_shift(m)][a] = 0.0;
 			}
@@ -721,12 +738,14 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	//	}
 	
 	//Calculate elements, which is sqrt(gaussLegendreWeights(a)) * ~P_lm(x_a), where x_a = cos(theta_a), ~ means normalized
+//#pragma omp parallel for default(shared) private (n,a,l,m,mp) schedule(guided) collapse(2)
 	for (n=0; n<length; n++) {
-		l = qNum[n][0];
-		m = qNum[n][1];
-		
 		for (a=0; a<thetaPoints; a++) { //Add sqrt(1.0-(cosThetaAbscissae[a]*cosThetaAbscissae[a])) for the othogonality condition shown at http://en.wikipedia.org/wiki/Associated_Legendre_polynomials#Orthogonality
+			l = qNum[n][0];
+			m = qNum[n][1];
+			
 			mp = m;
+			
 			if (m<0) {
 				mp *= -1.0;
 			}
@@ -748,7 +767,14 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 			
 			for (mp=-l_max; mp<=l_max; mp++) {
 				resMatLegendre_m[l][m_shift(m)][m_shift(mp)] = 0.0; //Initialize matrix value
-				
+			}
+		}
+	}
+	
+//#pragma omp parallel for default(shared) private (l,m,mp,a) schedule(guided) collapse(4)
+	for (l=0; l<=l_max; l++) {		
+		for (m=-l_max; m<=l_max; m++) {			
+			for (mp=-l_max; mp<=l_max; mp++) {				
 				for (a=0; a<thetaPoints; a++) {
 					resMatLegendre_m[l][m_shift(m)][m_shift(mp)] += Llma[l][m_shift(m)][a] * Llma[l][m_shift(mp)][a];
 				}
@@ -763,7 +789,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	//Calculate the trigonometric term of the tesseral harmonics
 	trigGrid = new double* [phiPoints];
 	trigGrid2 = new double* [phiPoints];
-	for (b=0; b<phiPoints; b++) {
+	for (b=0; b<phiPoints; b++) { //Don't parallelize as the internal functions already are parallelized
 		trigGrid[b] = tesseralTrigTerm(qNum, length, acos(phiAbscissae[b]));
 		
 		trigGrid2[b] = tesseralTrigTerm(qNum, length, (2.0*PI - acos(phiAbscissae[b])));
@@ -790,11 +816,11 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	}
 	
 	//Calculate the matrix elements T^l_mb = sqrt(w^GC_b) * [sqrt(2.0*PI) / sqrt(2.0)] * trig(l,m,b); [sqrt(2.0*PI) / sqrt(2.0)] is to renormalize the functions
+//#pragma omp parallel for default(shared) private (n,b,l,m) schedule(guided) collapse(2)
 	for (n=0; n<length; n++) {
-		l = qNum[n][0];
-		m = qNum[n][1];
-		
 		for (b=0; b<phiPoints; b++) { 
+			l = qNum[n][0];
+			m = qNum[n][1];
 			
 			trigMat[l][m_shift(m)][b] = trigGrid[b][index[l][m_shift(m)]];
 			trigMat2[l][m_shift(m)][b] = trigGrid2[b][index[l][m_shift(m)]];
@@ -814,9 +840,27 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 			
 			for (mp=-l_max; mp<=l_max; mp++) {
 				trigResMat[l][m_shift(m)][m_shift(mp)] = 0.0; //Initialize values
-				
+			}
+		}
+	}
+	
+//#pragma omp parallel for default(shared) private (l,m,mp,b) schedule(guided) collapse(4)
+//	for (l=0; l<=l_max; l++) {
+//		for (m=-l_max; m<=l_max; m++) {
+//			for (mp=-l_max; mp<=l_max; mp++) {				
+//				for (b=0; b<phiPoints; b++) {
+//					trigResMat[l][m_shift(m)][m_shift(mp)] += phiWeights[b] * ((trigMat[l][m_shift(m)][b] * trigMat[l][m_shift(mp)][b]) + (trigMat2[l][m_shift(m)][b] * trigMat2[l][m_shift(mp)][b]));
+//				}
+//			}
+//		}
+//	}
+	
+#pragma omp parallel for default(shared) private (l,m,mp,b) schedule(guided) collapse(4)
+	for (l=0; l<(l_max+1); l++) {
+		for (m=0; m<(2*l_max+1); m++) {
+			for (mp=0; mp<(2*l_max+1); mp++) {				
 				for (b=0; b<phiPoints; b++) {
-					trigResMat[l][m_shift(m)][m_shift(mp)] += phiWeights[b] * ((trigMat[l][m_shift(m)][b] * trigMat[l][m_shift(mp)][b]) + (trigMat2[l][m_shift(m)][b] * trigMat2[l][m_shift(mp)][b]));
+					trigResMat[l][m][mp] += phiWeights[b] * ((trigMat[l][m][b] * trigMat[l][mp][b]) + (trigMat2[l][m][b] * trigMat2[l][mp][b]));
 				}
 			}
 		}
@@ -1849,42 +1893,48 @@ double* Hv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 }
 
 int main(int argc, char** argv) {
+	int l_max, thetaPoints, phiPoints;
 	
+	l_max = atoi(argv[1]);
+	thetaPoints = atoi(argv[2]);
+	phiPoints = atoi(argv[3]);
 	
-	interfaceStor *interface = new interfaceStor();
+	tesseralTest(l_max, thetaPoints, phiPoints);
 	
-	HvPrep_Internal(argc, argv, interface);
-	
-	int n;
-	
-	//Hv
-	int ni, nj, nk, nn;
-	
-	ni = interface->grids->nx;
-	nj = interface->grids->ny;
-	nk = interface->grids->nz;
-	
-	nn = interface->lmBasis->length;
-	
-	double *Hv_ijkn;
-	double *v_ipjkn = new double [ni*nj*nk*nn];
-	
-	for (n=0; n<(ni*nj*nk*nn); n++) {
-		v_ipjkn[n] = 1.0 / sqrt(double(ni*nj*nk*nn));
-	}
-	
-	Hv_ijkn =  Hv_5D_oneCompositeIndex(interface, v_ipjkn);
-	
-	cout << "Hv finished" << endl;
-	
-	for (n=0; n<(ni*nj*nk*nn); n++) {
-		//cout <<	Hv_ijkn[n] << endl;
-	}
-	
-	delete interface;
-	
-	delete [] Hv_ijkn;
-	delete [] v_ipjkn;
+	//interfaceStor *interface = new interfaceStor();
+	//	
+	//	HvPrep_Internal(argc, argv, interface);
+	//	
+	//	int n;
+	//	
+	//	//Hv
+	//	int ni, nj, nk, nn;
+	//	
+	//	ni = interface->grids->nx;
+	//	nj = interface->grids->ny;
+	//	nk = interface->grids->nz;
+	//	
+	//	nn = interface->lmBasis->length;
+	//	
+	//	double *Hv_ijkn;
+	//	double *v_ipjkn = new double [ni*nj*nk*nn];
+	//	
+	//	for (n=0; n<(ni*nj*nk*nn); n++) {
+	//		v_ipjkn[n] = 1.0 / sqrt(double(ni*nj*nk*nn));
+	//	}
+	//	
+	//	Hv_ijkn =  Hv_5D_oneCompositeIndex(interface, v_ipjkn);
+	//	
+	//	cout << "Hv finished" << endl;
+	//	
+	//	for (n=0; n<(ni*nj*nk*nn); n++) {
+	//		//cout <<	Hv_ijkn[n] << endl;
+	//	}
+	//	
+	//	delete interface;
+	//	
+	//	delete [] Hv_ijkn;
+	//	delete [] v_ipjkn;
 	
 	//for (i=0 ; i<length; i++) {		
 	//		delete [] qNum[i];
