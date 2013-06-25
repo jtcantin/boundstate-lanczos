@@ -1,4 +1,4 @@
-CC=g++
+CC=/home/pnroy/Dev/bin/g++
 SUP_PATH1= ../librarySources/general/
 SUP_PATH2= ../librarySources/vectorClasses/
 SUP_PATH3= ../potentialCalc/CppCode/supportingRoutines/

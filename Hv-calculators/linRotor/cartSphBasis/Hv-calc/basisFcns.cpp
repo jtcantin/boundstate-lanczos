@@ -855,7 +855,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 //		}
 //	}
 	
-#pragma omp parallel for default(shared) private (l,m,mp,b) schedule(guided) collapse(4)
+#pragma omp parallel for default(shared) private (l,m,mp,b) schedule(guided) //collapse(4)
 	for (l=0; l<(l_max+1); l++) {
 		for (m=0; m<(2*l_max+1); m++) {
 			for (mp=0; mp<(2*l_max+1); mp++) {				
