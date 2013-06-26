@@ -367,7 +367,9 @@ double* normAssocLegendrePoly(int **qNum, int length, double x){
 	//At this point, the Legendre Polynomials have been calculated (except for a phase factor (-1)^m).
 	//Now, the acquired polynomials are going to be renormalized, with:
 	//    N_lm = (-1)^m * sqrt[ (l-m)! * (2l+1) / (2(l+m)!) ]
-	
+#pragma omp parallel default(shared) private (l,m,ld,md, phaseFactor, partialNormFactor, n) 
+	{
+#pragma omp for schedule(guided)
 	for (l=0; l<=l_max; l++) {
 		phaseFactor = 1.0;
 		for (m=0; m<=l; m++) {
@@ -380,11 +382,14 @@ double* normAssocLegendrePoly(int **qNum, int length, double x){
 		}
 	}
 	
-	
+#pragma omp master
+	{
 	//Now, the associated Legendre Polynomials have been calculated and will be converted into a form for all lm, not just m>=0, and stored in legendre.
 	legendre = new double [length];
+	}
+#pragma omp barrier
 	
-#pragma omp parallel for default(shared) private (l,m,n) schedule(guided)
+#pragma omp for schedule(guided)
 	for (n=0; n<length; n++) {
 		l = qNum[n][0];
 		m = qNum[n][1];
@@ -401,6 +406,7 @@ double* normAssocLegendrePoly(int **qNum, int length, double x){
 			legendre[n] = legenArr[l][m];
 		}
 		
+	}
 	}
 	
 	for (l=0; l<=l_max; l++) {
@@ -662,7 +668,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 		}
 	}
 	
-//#pragma omp parallel for default(shared) private (m,l,a) schedule(guided) collapse(3)
+#pragma omp parallel for default(shared) private (m,l,a) schedule(guided) collapse(3)
 	for (m=-l_max; m<=l_max; m++) {		
 		for (l=0; l<=l_max; l++) {			
 			for (a=0; a<thetaPoints; a++) {
@@ -673,7 +679,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	}
 	
 	//Calculate elements, which is sqrt(gaussLegendreWeights(a)) * ~P_lm(x_a), where x_a = cos(theta_a), ~ means normalized
-//#pragma omp parallel for default(shared) private (n,a,l,m) schedule(guided) collapse(2)
+#pragma omp parallel for default(shared) private (n,a,l,m) schedule(guided) collapse(2)
 	for (n=0; n<length; n++) {
 		for (a=0; a<thetaPoints; a++) {
 			l = qNum[n][0];
@@ -697,7 +703,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 		}
 	}
 	
-//#pragma omp parallel for default(shared) private (m,l,lp,a) schedule(guided) collapse(4)
+#pragma omp parallel for default(shared) private (m,l,lp,a) schedule(guided) collapse(3) //Can only be at most collapse(3) and not collapse(4), because of resMatLegendre[m_shift(m)][l][lp] (ie. it is not dependent on a, so two processors may write to the same memory location)
 	for (m=-l_max; m<=l_max; m++) {		
 		for (l=0; l<=l_max; l++) {			
 			for (lp=0; lp<=l_max; lp++) {				
@@ -724,7 +730,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 		}
 	}
 	
-//#pragma omp parallel for default(shared) private (l,m,a) schedule(guided) collapse(3)
+#pragma omp parallel for default(shared) private (l,m,a) schedule(guided) collapse(3)
 	for (l=0; l<=l_max; l++) {		
 		for (m=-l_max; m<=l_max; m++) {			
 			for (a=0; a<thetaPoints; a++) {
@@ -738,7 +744,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	//	}
 	
 	//Calculate elements, which is sqrt(gaussLegendreWeights(a)) * ~P_lm(x_a), where x_a = cos(theta_a), ~ means normalized
-//#pragma omp parallel for default(shared) private (n,a,l,m,mp) schedule(guided) collapse(2)
+#pragma omp parallel for default(shared) private (n,a,l,m,mp) schedule(guided) collapse(2)
 	for (n=0; n<length; n++) {
 		for (a=0; a<thetaPoints; a++) { //Add sqrt(1.0-(cosThetaAbscissae[a]*cosThetaAbscissae[a])) for the othogonality condition shown at http://en.wikipedia.org/wiki/Associated_Legendre_polynomials#Orthogonality
 			l = qNum[n][0];
@@ -771,7 +777,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 		}
 	}
 	
-//#pragma omp parallel for default(shared) private (l,m,mp,a) schedule(guided) collapse(4)
+#pragma omp parallel for default(shared) private (l,m,mp,a) schedule(guided) collapse(3) //Can only be at most collapse(3) and not collapse(4), because of resMatLegendre_m[l][m_shift(m)][m_shift(mp)] (ie. it is not dependent on a, so two processors may write to the same memory location)
 	for (l=0; l<=l_max; l++) {		
 		for (m=-l_max; m<=l_max; m++) {			
 			for (mp=-l_max; mp<=l_max; mp++) {				
@@ -816,7 +822,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	}
 	
 	//Calculate the matrix elements T^l_mb = sqrt(w^GC_b) * [sqrt(2.0*PI) / sqrt(2.0)] * trig(l,m,b); [sqrt(2.0*PI) / sqrt(2.0)] is to renormalize the functions
-//#pragma omp parallel for default(shared) private (n,b,l,m) schedule(guided) collapse(2)
+#pragma omp parallel for default(shared) private (n,b,l,m) schedule(guided) collapse(2)
 	for (n=0; n<length; n++) {
 		for (b=0; b<phiPoints; b++) { 
 			l = qNum[n][0];
@@ -830,7 +836,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	
 	
 	
-	//Calculate the T^l_mb(T^l_m'b)T = delta_mm'
+	//Calculate T^l_mb(T^l_m'b)T = delta_mm'
 	trigResMat = new double** [l_max+1];
 	for (l=0; l<=l_max; l++) {
 		trigResMat[l] = new double* [2*l_max+1];
@@ -844,27 +850,27 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 		}
 	}
 	
-//#pragma omp parallel for default(shared) private (l,m,mp,b) schedule(guided) collapse(4)
-//	for (l=0; l<=l_max; l++) {
-//		for (m=-l_max; m<=l_max; m++) {
-//			for (mp=-l_max; mp<=l_max; mp++) {				
-//				for (b=0; b<phiPoints; b++) {
-//					trigResMat[l][m_shift(m)][m_shift(mp)] += phiWeights[b] * ((trigMat[l][m_shift(m)][b] * trigMat[l][m_shift(mp)][b]) + (trigMat2[l][m_shift(m)][b] * trigMat2[l][m_shift(mp)][b]));
-//				}
-//			}
-//		}
-//	}
-	
-#pragma omp parallel for default(shared) private (l,m,mp,b) schedule(guided) //collapse(4)
-	for (l=0; l<(l_max+1); l++) {
-		for (m=0; m<(2*l_max+1); m++) {
-			for (mp=0; mp<(2*l_max+1); mp++) {				
+#pragma omp parallel for default(shared) private (l,m,mp,b) schedule(guided) collapse(3) //Can't have collapse(4) as this allows two different CPUs to access the same memory location as trigResMat does not depend on b, only l, m, and mp.
+	for (l=0; l<=l_max; l++) {
+		for (m=-l_max; m<=l_max; m++) {
+			for (mp=-l_max; mp<=l_max; mp++) {				
 				for (b=0; b<phiPoints; b++) {
-					trigResMat[l][m][mp] += phiWeights[b] * ((trigMat[l][m][b] * trigMat[l][mp][b]) + (trigMat2[l][m][b] * trigMat2[l][mp][b]));
+					trigResMat[l][m_shift(m)][m_shift(mp)] += phiWeights[b] * ((trigMat[l][m_shift(m)][b] * trigMat[l][m_shift(mp)][b]) + (trigMat2[l][m_shift(m)][b] * trigMat2[l][m_shift(mp)][b]));
 				}
 			}
 		}
 	}
+	
+//#pragma omp parallel for default(shared) private (l,m,mp,b) schedule(guided) collapse(3)
+//	for (l=0; l<(l_max+1); l++) {
+//		for (m=0; m<(2*l_max+1); m++) {
+//			for (mp=0; mp<(2*l_max+1); mp++) {				
+//				for (b=0; b<phiPoints; b++) {
+//					trigResMat[l][m][mp] += phiWeights[b] * ((trigMat[l][m][b] * trigMat[l][mp][b]) + (trigMat2[l][m][b] * trigMat2[l][mp][b]));
+//				}
+//			}
+//		}
+//	}
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Print out the results
