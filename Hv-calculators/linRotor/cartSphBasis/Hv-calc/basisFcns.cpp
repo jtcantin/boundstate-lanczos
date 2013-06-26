@@ -113,11 +113,11 @@ double* legendreRoots(int l) {
 	double *legendre, *legendreDeriv, *roots;
 	double oldRoot, newRoot;
 	double absError, absError2, max_absError, d_x;
-	int i, j, numRoots, n, rootCount, found;
+	int i, j, /*numRoots,*/ n, rootCount, found;
 	
 	int iteration, max_iterations;
 	
-	numRoots = l; //There are l roots for a Legendre polynomial of degree l.
+	//numRoots = l; //There are l roots for a Legendre polynomial of degree l.
 	
 	max_absError = DBL_EPSILON;
 	absError = max_absError + 1000000;
@@ -364,6 +364,8 @@ double* normAssocLegendrePoly(int **qNum, int length, double x){
 		}
 	}
 	
+	legendre = new double [length];
+	
 	//At this point, the Legendre Polynomials have been calculated (except for a phase factor (-1)^m).
 	//Now, the acquired polynomials are going to be renormalized, with:
 	//    N_lm = (-1)^m * sqrt[ (l-m)! * (2l+1) / (2(l+m)!) ]
@@ -382,13 +384,7 @@ double* normAssocLegendrePoly(int **qNum, int length, double x){
 		}
 	}
 	
-#pragma omp master
-	{
-	//Now, the associated Legendre Polynomials have been calculated and will be converted into a form for all lm, not just m>=0, and stored in legendre.
-	legendre = new double [length];
-	}
-#pragma omp barrier
-	
+	//Now, the associated Legendre Polynomials have been calculated and will be converted into a form for all lm, not just m>=0, and stored in legendre.	
 #pragma omp for schedule(guided)
 	for (n=0; n<length; n++) {
 		l = qNum[n][0];
@@ -628,7 +624,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	//Calculate the Legendre polynomials for each of the Gauss-Legendre Abscissae (cosThetaAbscissae) 
 	legendreGrid = new double* [thetaPoints];
 	
-//#pragma omp parallel for default(shared) private (a) schedule(guided)
+	//#pragma omp parallel for default(shared) private (a) schedule(guided)
 	for (a=0; a<thetaPoints; a++) {
 		legendreGrid[a] = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
 	}
@@ -861,16 +857,16 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 		}
 	}
 	
-//#pragma omp parallel for default(shared) private (l,m,mp,b) schedule(guided) collapse(3)
-//	for (l=0; l<(l_max+1); l++) {
-//		for (m=0; m<(2*l_max+1); m++) {
-//			for (mp=0; mp<(2*l_max+1); mp++) {				
-//				for (b=0; b<phiPoints; b++) {
-//					trigResMat[l][m][mp] += phiWeights[b] * ((trigMat[l][m][b] * trigMat[l][mp][b]) + (trigMat2[l][m][b] * trigMat2[l][mp][b]));
-//				}
-//			}
-//		}
-//	}
+	//#pragma omp parallel for default(shared) private (l,m,mp,b) schedule(guided) collapse(3)
+	//	for (l=0; l<(l_max+1); l++) {
+	//		for (m=0; m<(2*l_max+1); m++) {
+	//			for (mp=0; mp<(2*l_max+1); mp++) {				
+	//				for (b=0; b<phiPoints; b++) {
+	//					trigResMat[l][m][mp] += phiWeights[b] * ((trigMat[l][m][b] * trigMat[l][mp][b]) + (trigMat2[l][m][b] * trigMat2[l][mp][b]));
+	//				}
+	//			}
+	//		}
+	//	}
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Print out the results
@@ -1092,10 +1088,35 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 	L_lm = tesseralHarmonics->L_lm;
 	//
 	
-	//Loop 1 - vt_mpa = L_lpmp(q_a) * v_lpmp; FLOPS = na * length = na * (l_max+1)^2
+	//Memory allocation and assignment
+	//Loop 1
 	double *vt_mpa;
 	vt_mpa = new double [na*nmp];
 	
+	//Loop 2
+	double	*u_ab;
+	u_ab = new double [na*nb];
+	
+	//Loop 3
+	double *ut_ab;
+	ut_ab = new double [na*nb];
+	VECT CMpos(3);
+	H2_orient linearMolecule;	
+	double V_ab;
+	
+	//Loop 4
+	double *ut_ma;
+	ut_ma = new double [nm*na];
+	
+	//Loop 5
+	double *u_lm;
+	u_lm = new double [length];
+	
+#pragma omp parallel default(shared) private (a,mp,anmp,n,b,bna,m,mna,anb,linearMolecule,CMpos,V_ab)
+	{
+	
+	//Loop 1 - vt_mpa = L_lpmp(q_a) * v_lpmp; FLOPS = na * length = na * (l_max+1)^2
+#pragma omp for schedule(guided) collapse(2)
 	for (a = 0; a<na; a++) {
 		for (mp=-l_max; mp<=l_max; mp++) {
 			anmp = a * nmp;			
@@ -1108,13 +1129,10 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 	}
 	
 	//Loop 2 - u_ab = S_mp(Pb) * vt_mpa; FLOPS = na * nb * nm = na * nb * (2l_max+1)
-	double	*u_ab;
-	u_ab = new double [na*nb];
-	
+#pragma omp for schedule(guided) collapse(2)
 	for (b=0; b<nb; b++) {
-		bna = b * na;			
-		
 		for  (a=0; a<na; a++){
+			bna = b * na;
 			anmp = a * nmp;			
 			u_ab[bna + a] = 0.0;
 			
@@ -1124,24 +1142,19 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 		}
 	}
 	
+	
 	//Loop 3 - ut_ab = V_ab(xyz, Qa, Pb) * u_ab; FLOPS = na * nb
-	double *ut_ab;
-	ut_ab = new double [na*nb];
-	
-	VECT CMpos(3);
-	
+	CMpos.DIM(3);
 	CMpos.COOR(0) = x;
 	CMpos.COOR(1) = y;
 	CMpos.COOR(2) = z;
 	
-	H2_orient linearMolecule;	
 	linearMolecule.CM = &CMpos;
 	
-	double V_ab;
-	
+#pragma omp for schedule(guided) collapse(2)
 	for (b=0; b<nb; b++) {
-		bna = b * na;
 		for (a=0; a<na; a++) {
+			bna = b * na;
 			anb = a * nb;
 			
 			linearMolecule.theta = acos(cosThetaAbscissae[a]);
@@ -1161,13 +1174,10 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 	}
 	
 	//Loop 4 - ut_ma = wb * S_m(Pb) * ut_ab; FLOPS = na * nb * nm = na * nb * (2l_max+1)
-	double *ut_ma;
-	ut_ma = new double [nm*na];
-	
+#pragma omp for schedule(guided) collapse(2)
 	for (m=-l_max; m<=l_max; m++) {
-		mna = m_shift(m) * na;
-		
 		for (a=0; a<na; a++) {
+			mna = m_shift(m) * na;
 			ut_ma[mna + a] = 0.0;
 			anb = a * nb;
 			
@@ -1178,9 +1188,7 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 	}
 	
 	//Loop 5 - u_lm = wa * L_lm(Qa) * ut_ma; FLOPS = na * length = na * (l_max+1)^2
-	double *u_lm;
-	u_lm = new double [length];
-	
+#pragma omp for schedule(guided)
 	for (n=0; n<length; n++) {
 		u_lm[n] = 0.0;
 		
@@ -1190,6 +1198,7 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 		for (a=0; a<na; a++) {
 			u_lm[n] = wa[a] * L_lm[n][a] * ut_ma[mna + a];
 		}
+	}
 	}
 	
 	delete [] ut_ma;
@@ -1438,18 +1447,75 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	tessHarmonics->nb = nb;
 	tessHarmonics->lmax = l_max;
 	
+	//Memory allocation
+	
+	//Sec 1	
 	tessHarmonics->L_lpmp = new double* [na];
 	
+	//Sec 2
+	tessHarmonics->S_mp = new double* [nb];
+	
+	for (b=0; b<nb; b++) {
+		tessHarmonics->S_mp[b] = new double [nm];
+	}
+	
+	//Sec3
+	tessHarmonics->L_lm = new double* [length];
+	
+	for (n=0; n<length; n++) {
+		tessHarmonics->L_lm[n] = new double [na];
+	}
+	
+	//Sec 4
+	tessHarmonics->S_m = new double* [nm];
+	
+	for (m=-l_max; m<=l_max; m++) {
+		tessHarmonics->S_m[m_shift(m)] = new double [nb];
+	}
+	
+	//Sec 5
+	tesseralStor *tessHarmonics2PI = new tesseralStor();
+	
+	tessHarmonics2PI->na = na;
+	tessHarmonics2PI->nb = nb;
+	tessHarmonics2PI->lmax = l_max;
+	
+	tessHarmonics2PI->L_lpmp = new double* [na];
+	
+	//Sec 6
+	tessHarmonics2PI->S_mp = new double* [nb];
+	
+	for (b=0; b<nb; b++) {
+		tessHarmonics2PI->S_mp[b] = new double [nm];
+	}
+	
+	//Sec 7
+	tessHarmonics2PI->L_lm = new double* [length];
+	
+	for (n=0; n<length; n++) {
+		tessHarmonics2PI->L_lm[n] = new double [na];
+	}
+	
+	//Sec 8
+	tessHarmonics2PI->S_m = new double* [nm];
+	
+	for (m=-l_max; m<=l_max; m++) {
+		tessHarmonics2PI->S_m[m_shift(m)] = new double [nb];
+	}
+	
+	
+#pragma omp parallel default(shared) private(a,b,m,l,n,stor)
+	{
+	
+	//Sec 1	
+#pragma omp for schedule(guided)
 	for (a=0; a<na; a++) {
 		tessHarmonics->L_lpmp[a] = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
 	}
 	
-	tessHarmonics->S_mp = new double* [nb];
-	
-	
-	for (b=0; b<nb; b++) {
-		tessHarmonics->S_mp[b] = new double [nm];
-		
+	//Sec 2
+#pragma omp for schedule(guided)
+	for (b=0; b<nb; b++) {		
 		stor = tesseralTrigTerm(qNum, length, acos(cosPhiAbscissae[b])); //Phi --------------------------------------------------------
 		
 		for (m=-l_max; m<=l_max; m++) { //Reshift indices around
@@ -1467,12 +1533,8 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 		delete [] stor;
 	}
 	
-	tessHarmonics->L_lm = new double* [length];
-	
-	for (n=0; n<length; n++) {
-		tessHarmonics->L_lm[n] = new double [na];
-	}
-	
+	//Sec3
+#pragma omp for schedule(guided)
 	for (a=0; a<na; a++) {
 		stor = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
 		
@@ -1482,12 +1544,8 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 		delete [] stor;
 	}
 	
-	tessHarmonics->S_m = new double* [nm];
-	
-	for (m=-l_max; m<=l_max; m++) {
-		tessHarmonics->S_m[m_shift(m)] = new double [nb];
-	}
-	
+	//Sec 4	
+#pragma omp for schedule(guided)
 	for (b=0; b<nb; b++) {
 		stor = tesseralTrigTerm(qNum, length, acos(cosPhiAbscissae[b])); //Phi --------------------------------------------------------
 		
@@ -1506,25 +1564,16 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	}
 	
 	//Calculate the Tesseral Harmonics terms and rearrange appropriately for phi = 2PI - acos(cosPhiAbscissae)
-	tesseralStor *tessHarmonics2PI = new tesseralStor();
-	//double *stor;
 	
-	tessHarmonics2PI->na = na;
-	tessHarmonics2PI->nb = nb;
-	tessHarmonics2PI->lmax = l_max;
-	
-	tessHarmonics2PI->L_lpmp = new double* [na];
-	
+	//Sec 5	
+#pragma omp for schedule(guided)
 	for (a=0; a<na; a++) {
 		tessHarmonics2PI->L_lpmp[a] = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
 	}
 	
-	tessHarmonics2PI->S_mp = new double* [nb];
-	
-	
-	for (b=0; b<nb; b++) {
-		tessHarmonics2PI->S_mp[b] = new double [nm];
-		
+	//Sec 6	
+#pragma omp for schedule(guided)
+	for (b=0; b<nb; b++) {		
 		stor = tesseralTrigTerm(qNum, length, 2.0*PI - acos(cosPhiAbscissae[b])); //Phi --------------------------------------------------------
 		
 		for (m=-l_max; m<=l_max; m++) { //Reshift indices around
@@ -1541,12 +1590,8 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 		delete [] stor;
 	}
 	
-	tessHarmonics2PI->L_lm = new double* [length];
-	
-	for (n=0; n<length; n++) {
-		tessHarmonics2PI->L_lm[n] = new double [na];
-	}
-	
+	//Sec 7
+#pragma omp for schedule(guided)
 	for (a=0; a<na; a++) {
 		stor = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
 		
@@ -1556,12 +1601,8 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 		delete [] stor;
 	}
 	
-	tessHarmonics2PI->S_m = new double* [nm];
-	
-	for (m=-l_max; m<=l_max; m++) {
-		tessHarmonics2PI->S_m[m_shift(m)] = new double [nb];
-	}
-	
+	//Sec 8
+#pragma omp for schedule(guided)
 	for (b=0; b<nb; b++) {
 		stor = tesseralTrigTerm(qNum, length, 2.0*PI - acos(cosPhiAbscissae[b])); //Phi --------------------------------------------------------
 		
@@ -1578,6 +1619,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 		}
 		delete [] stor;
 		
+	}
 	}
 	
 	//Everything already stored for interface in tessHarmonics2PI and tessHarmonics
@@ -1899,64 +1941,48 @@ double* Hv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 }
 
 int main(int argc, char** argv) {
-	int l_max, thetaPoints, phiPoints;
+	//int l_max, thetaPoints, phiPoints;
+	//	
+	//	l_max = atoi(argv[1]);
+	//	thetaPoints = atoi(argv[2]);
+	//	phiPoints = atoi(argv[3]);
+	//	
+	//	tesseralTest(l_max, thetaPoints, phiPoints);
 	
-	l_max = atoi(argv[1]);
-	thetaPoints = atoi(argv[2]);
-	phiPoints = atoi(argv[3]);
+	interfaceStor *interface = new interfaceStor();
 	
-	tesseralTest(l_max, thetaPoints, phiPoints);
+	HvPrep_Internal(argc, argv, interface);
 	
-	//interfaceStor *interface = new interfaceStor();
-	//	
-	//	HvPrep_Internal(argc, argv, interface);
-	//	
-	//	int n;
-	//	
-	//	//Hv
-	//	int ni, nj, nk, nn;
-	//	
-	//	ni = interface->grids->nx;
-	//	nj = interface->grids->ny;
-	//	nk = interface->grids->nz;
-	//	
-	//	nn = interface->lmBasis->length;
-	//	
-	//	double *Hv_ijkn;
-	//	double *v_ipjkn = new double [ni*nj*nk*nn];
-	//	
-	//	for (n=0; n<(ni*nj*nk*nn); n++) {
-	//		v_ipjkn[n] = 1.0 / sqrt(double(ni*nj*nk*nn));
-	//	}
-	//	
-	//	Hv_ijkn =  Hv_5D_oneCompositeIndex(interface, v_ipjkn);
-	//	
-	//	cout << "Hv finished" << endl;
-	//	
-	//	for (n=0; n<(ni*nj*nk*nn); n++) {
-	//		//cout <<	Hv_ijkn[n] << endl;
-	//	}
-	//	
-	//	delete interface;
-	//	
-	//	delete [] Hv_ijkn;
-	//	delete [] v_ipjkn;
+	int n;
 	
-	//for (i=0 ; i<length; i++) {		
-	//		delete [] qNum[i];
-	//	}
-	//	delete [] qNum;
-	//	
-	//	for (i=0; i<l_max; i++) {
-	//		delete [] index[i];
-	//	}
-	//	delete [] index;
-	//	delete [] legendre;
-	//	delete [] trig;
-	//	delete [] roots_pn;
-	//	delete [] weights_pn;
-	//	delete [] roots;
+	//Hv
+	int ni, nj, nk, nn;
 	
+	ni = interface->grids->nx;
+	nj = interface->grids->ny;
+	nk = interface->grids->nz;
+	
+	nn = interface->lmBasis->length;
+	
+	double *Hv_ijkn;
+	double *v_ipjkn = new double [ni*nj*nk*nn];
+	
+	for (n=0; n<(ni*nj*nk*nn); n++) {
+		v_ipjkn[n] = 1.0 / sqrt(double(ni*nj*nk*nn));
+	}
+	
+	Hv_ijkn =  Hv_5D_oneCompositeIndex(interface, v_ipjkn);
+	
+	cout << "Hv finished" << endl;
+	
+	for (n=(ni*nj*nk*nn-10); n<(ni*nj*nk*nn); n++) {
+		cout <<	Hv_ijkn[n] << endl;
+	}
+	
+	delete interface;
+	
+	delete [] Hv_ijkn;
+	delete [] v_ipjkn;
 	
 	return 0;
 }
