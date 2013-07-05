@@ -319,6 +319,19 @@ x_{i} &= \cos{\frac{(2i-1)\pi}{2n}}\\
 w_{i} &= \frac{\pi}{n}\\
 R_{n} &= \frac{\pi}{(2n)!2^{2n-1}}f^{(2n)}(\xi), (-1<\xi<1)
 \end{align}
+
+\subparagraph{$\ket{lm}$ Basis Notes}\label{S:LegPolyRecursive}
+
+The $\ket{lm}$ basis size can be enumerated as follows:
+\begin{align}
+Count  	&= \sum_{m=-l_{max}}^{l_{max}} \sum_{l=|m|}^{l_{max}}1 \\
+		&= \sum_{m=-l_{max}}^{l_{max}} (l_{max} - |m| + 1) \nonumber \\
+		&= 2 \sum_{m=1}^{l_{max}}(l_{max} - m + 1) + l_{max} + 1 \nonumber \\
+		&= 2l_{max}^{2} - l_{max}(l_{max} + 1) + 2l_{max} + l_{max} + 1 \nonumber \\
+		&= l_{max^{2}} - l_{max} + 3l_{max} + 1 \nonumber \\
+		&= l_{max}^{2} + 2l_{max} + 1 \nonumber \\
+		&= (l_{max} + 1)^{2}
+\end{align}
 												  
 												  
 \paragraph{Asymmetric Top}\label{S:AsRotBS} 
@@ -367,7 +380,22 @@ Now, the last sum in (\ref{E:GaussQuadLinRotPot}) can be broken apart and rearra
 \end{align}
 where $l_{max}$ is the highest $l$ incorporated in the numerical calculations.
 
-Now, though each of these forms has the same mathematical meaning, they may require a different number of FLOPS to actually be calculated. For (\ref{E:GaussQuadLinRotPotFullSum}), all of the terms are calculated at once within a double loop. The number of FLOPS for (\ref{E:GaussQuadLinRotPotFullSum}) is, however, twice the number of terms since the 
+Now, though each of these forms has the same mathematical meaning, they may require a different number of FLOPS to actually be calculated. 
+
+For (\ref{E:GaussQuadLinRotPotFullSum}), all of the terms are calculated at once within a double loop. The number of FLOPS for (\ref{E:GaussQuadLinRotPotFullSum}) is strictly, however, twice the number of terms since there are two multiplications within the equation. However, if (\ref{E:GaussQuadLinRotPotFullSum}) were to be calculated, $P_{lm}^{\alpha}$ and $N_{m}^{\beta}$ would be precomputed and combined, such that $Y_{lm}^{\alpha\beta} = P_{lm}^{\alpha}N_{m}^{\beta}$. This reduces the number of FLOPS \emph{within the on-the-fly Hv calculation} to one per term. Thus,
+\begin{align}
+\mbox{Terms}\!\left(\sum_{n'}Y_{lm\lbrack n'\rbrack}^{\alpha\beta}v_{n'}\right) 	&= \mbox{Terms}\!\left(\sum_{l=0}^{l_{max}}\sum_{m=-l}^{l}Y_{lm}^{\alpha\beta}v_{lm}\right) \\
+	&= \sum_{l=0}^{l_{max}}\sum_{m=-l}^{l} 1 \mbox{ for each }\alpha,\beta \nonumber \\
+	&= \sum_{l=0}^{l_{max}}(2l+1)n_{\alpha}n_{\beta} \nonumber \\
+	&= n_{\alpha}n_{\beta}\sum_{l=0}^{l_{max}}(2l+1) \nonumber \\
+	&= n_{\alpha}n_{\beta}[\sum_{l=1}^{l_{max}}(2l+1) + (2l+1)_{l=0}] \nonumber \\
+	&= n_{\alpha}n_{\beta}[2\frac{l_{max}(l_{max}+1)}{2} + l_{max} + 1] \nonumber \\
+	&= n_{\alpha}n_{\beta}[l_{max}(l_{max}+1) + l_{max} + 1] \nonumber \\
+	&= n_{\alpha}n_{\beta}[l_{max}^{2} + l_{max} + l_{max} + 1] \nonumber \\
+	&= n_{\alpha}n_{\beta}(l_{max} +1)^{2} \\
+	&= 
+\end{align}
+
 
 
 For (\ref{E:GaussQuadLinRotPotPartSum}), both the outer and inner sums should be treated separately, hence equation (\ref{E:GaussQuadLinRotPotPartSum}). Concentrating on the inner sum, the number of terms is
@@ -403,7 +431,35 @@ This leaves the total number of terms as
 																				&= n_{\alpha}\lbrack\left(l_{max}+1\right)^{2} + n_{\beta}\left(2l_{max}+1\right)\rbrack
 \end{align}
 
-Here, it can	be seen that though the $\alpha$ grid must be iterated through for the whole calculation, the $\beta$ grid need only be evaluated for the $2l_{max}+1$ terms. This may give a potential computational cost savings.
+Here, it can	be seen that though the $\alpha$ grid must be iterated through for the whole calculation, the $\beta$ grid need only be evaluated for the $2l_{max}+1$ terms. This may give a potential computational cost savings. Especially so, since $\beta$ is a large grid relative to the $\ket{lm}$ basis.
+
+
+
+\subparagraph{FLOPS for each section of the Quadrature}\label{S:QuadFLOPS}
+During the entire process of calculating $Vv$, the FLOPS, using partial summation, can be summarized as shown in table \ref{table:QuadFlops}.
+
+\newcounter{count}
+\begin{table}[h]
+\caption{FLOP Count for Potential Quadrature}
+\begin{tabular}{l|c|c}
+Step \# & \# FLOPS & Index Change for $v_{lm}$ \\
+\hline
+\addtocounter{count}{1} \arabic{count} & $n_{\alpha}(l_{max} + 1)^{2}$ & $lm \to \alpha m$ \\
+\addtocounter{count}{1} \arabic{count} & $n_{\alpha}n_{\beta}(2l_{max} + 1)$ & $ \alpha m \to \alpha \beta$ \\
+\addtocounter{count}{1} \arabic{count} & $n_{\alpha}n_{\beta}$ & $ V_{\alpha\beta} \cdot v_{\alpha \beta}$ \\
+\addtocounter{count}{1} \arabic{count} & $n_{\alpha}n_{\beta}(2l_{max} + 1)$ & $ \alpha \beta \to \alpha m$ \\
+\addtocounter{count}{1} \arabic{count} & $n_{\alpha}(l_{max} + 1)^{2}$ & $\alpha m \to lm$
+\end{tabular}
+\label{table:QuadFlops}
+\end{table}
+
+We should double check whether steps 4 and 5 can be reordered to reduce the number of FLOPS, though, at this point, I have a feeling not.
+
+%\begin{enumerate}
+%\item $n_{\alpha}(l_{max} + 1)^{2}$ for conversion from indices $lm \to \alpha m$
+%\item 
+%\end{enumerate}
+
 
 \subsection{Code Theory}\label{S:CodeTheory}
 For a linear array in a direct product basis, such as the eigenstates, the index of the basis, $p$ can be found as
@@ -416,5 +472,19 @@ p &= n_{i}n_{j}n_{k}n + n_{i}n_{j}k + n_{i}j + i\\
 where i is the inner most index and varies most rapidly as $p$ increases, while $n$ is the outer most index and varies most slowly. This would be useful for the $v$ or $u$ vectors, where each is represented in the basis $\ket{xyzn} = \ket{xyzlm}$, where $n[l,m]$ according to the ordering of $l$ and $m$ as determined by $\sum_{m=-l_{max}}^{l_{max}}\sum_{l=|m|}^{l_{max}}1$. The mapping of $n$ to $l,m$ and vice versa is given by the 1D and 2D arrays generated by the function {\em genIndices\_lm()}.
 													
 
+\section{Code}\label{S:code}
+The following contains documentation and notes about the code.
 
+\subsection{General Notes}\label{S:CodeNotes}
+
+If the potential changes:
+\begin{itemize}
+\item In basisFcns.cpp (which contains Hv\_prep and Hv), if it is to be changed for another potential, look in the Hv\_prep function in the potential calculation section for things to to change. 
+\item Look in ulm\_calc, loop 3, to find something else to change.
+\end{itemize}
+	
+If memory becomes an issue, these are areas that one can modify:
+\begin{itemize}
+\item One can reuse the Legendre Polynomials for both the $\phi = 2\pi - \arccos(\cos \phi)$ and $\phi = \arccos(\cos \phi)$ cases, since the Legendre Polynomials do not depend on $\phi$ and the program currently stores the polynomials twice them in Hv\_prep.
+\end{itemize}
 \end{document}

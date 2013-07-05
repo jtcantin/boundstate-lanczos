@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.3-1.40.12 (TeX Live 2011) (format=pdflatex 2011.7.3)  19 JUN 2013 11:55
+This is pdfTeX, Version 3.1415926-2.3-1.40.12 (TeX Live 2011) (format=pdflatex 2011.7.3)  5 JUL 2013 18:06
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -206,7 +206,11 @@ Class revtex4-1 Info: cite was not loaded (OK!) on input line 5.
 Class revtex4-1 Info: mcite was not loaded (OK!) on input line 5.
 Class revtex4-1 Info: multicol was not loaded (OK!) on input line 5.
 
-(./LanczosDocumentation.aux)
+(./LanczosDocumentation.aux
+
+LaTeX Warning: Label `S:LegPolyRecursive' multiply defined.
+
+)
 \openout1 = `LanczosDocumentation.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 5.
@@ -252,41 +256,62 @@ LaTeX Font Info:    Try loading font information for U+bbold on input line 149.
 
  (/usr/local/texlive/2011/texmf-dist/tex/latex/bbold/Ubbold.fd) [4] [5]
 [6] [7] [8] [9]
+\c@count=\count107
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[10]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 482.
+
+ (/usr/local/texlive/2011/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 482.
+
 No file LanczosDocumentation.bbl.
-[10] (./LanczosDocumentation.aux) ) 
+[11] (./LanczosDocumentation.aux)
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
 Here is how much of TeX's memory you used:
- 3175 strings out of 493633
- 40207 string characters out of 3143378
+ 3227 strings out of 493633
+ 40850 string characters out of 3143378
  126735 words of memory out of 3000000
- 6469 multiletter control sequences out of 15000+200000
- 8597 words of font info for 36 fonts, out of 3000000 for 9000
+ 6508 multiletter control sequences out of 15000+200000
+ 11979 words of font info for 51 fonts, out of 3000000 for 9000
  831 hyphenation exceptions out of 8191
- 27i,16n,22p,546b,197s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/local/texlive/2011/texmf-dist/fonts/ty
-pe1/public/bbold-type1/bbold10.pfb></usr/local/texlive/2011/texmf-dist/fonts/ty
-pe1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2011/texmf-dist/fonts/typ
-e1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2011/texmf-dist/fonts/type
-1/public/amsfonts/cm/cmbx9.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/p
-ublic/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/pu
-blic/amsfonts/cm/cmmi5.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/publ
-ic/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmr10.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/public/a
-msfonts/cm/cmr5.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmr7.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmr9.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/c
-m/cmsy10.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm
-/cmsy5.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/c
-msy7.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmt
-i10.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmti
-9.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10
-.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/symbols/ms
-am7.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/symbols
-/msbm10.pfb>
-Output written on LanczosDocumentation.pdf (10 pages, 245786 bytes).
+ 27i,16n,22p,633b,238s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/local/texlive/2011/texmf-dist/fonts/type1/public/bbold-type1/bbold10.pf
+b></usr/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
+></usr/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
+</usr/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></
+usr/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></u
+sr/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></us
+r/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/
+local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/lo
+cal/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/loca
+l/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/
+texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/te
+xlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texli
+ve/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/
+2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/201
+1/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2011/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2011/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2011/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2011/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2011/texmf-di
+st/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2011/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/local/texlive/2011/texmf-dist/
+fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2011/texmf-dist/f
+onts/type1/public/amsfonts/symbols/msam7.pfb></usr/local/texlive/2011/texmf-dis
+t/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on LanczosDocumentation.pdf (11 pages, 290392 bytes).
 PDF statistics:
- 117 PDF objects out of 1000 (max. 8388607)
- 84 compressed objects within 1 object stream
+ 136 PDF objects out of 1000 (max. 8388607)
+ 98 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
