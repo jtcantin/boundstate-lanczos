@@ -1701,6 +1701,7 @@ double* Mv_5D_oneCompositeIndex(double *v_ipjkn, double *mat_iip, int ni, int nj
 	
 	double *v_ijkn = new double [ni*nj*nk*nn];
 	
+#pragma omp parallel for default(shared) private(n,k,j,i,ip) schedule(guided) collapse(4)
 	for (n=0; n<nn; n++) {
 		for (k=0; k<nk; k++) {			
 			for (j=0; j<nj; j++) {			
@@ -1724,7 +1725,7 @@ double* diagMv_5D_oneCompositeIndex(double *v_npijk, double *mat_n, int nn, int 
 	
 	double *v_nijk = new double [ni*nj*nk*nn];
 	
-	
+#pragma omp parallel for default(shared) private(k,j,i,n) schedule(guided) collapse(4)
 	for (k=0; k<nk; k++) {
 		for (j=0; j<nj; j++) {
 			for (i=0; i<ni; i++) {
@@ -1744,6 +1745,7 @@ double* reshuffleIndices_5D_oneCompositeIndex(double *v_ijkn, int ni, int nj, in
 	
 	double *v_jkni = new double [ni*nj*nk*nn];
 	
+#pragma omp parallel for default(shared) private(n,k,j,i) schedule(guided) collapse(4)
 	for (n=0; n<nn; n++) {
 		for (k=0; k<nk; k++) {			
 			for (j=0; j<nj; j++) {				
@@ -1797,6 +1799,7 @@ double* Tv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	v_jkni = Mv_5D_oneCompositeIndex(v_jpkni, Ty, nj, nk, nn, ni);
 	
 	//Perform the sum Tx*v + Ty*v = v_jkni_TxTerm + v_jkni
+#pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
 	for (p=0; p<basis_size; p++) {
 		v_jkni[p] += v_jkni_TxTerm[p];
 	}
@@ -1819,6 +1822,7 @@ double* Tv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	v_knij = Mv_5D_oneCompositeIndex(v_kpnij, Tz, nk, nn, ni, nj);
 	
 	//Perform the sum (Tx*v + Ty*v) + Tz*v = v_knij_TyTerm + v_knij
+#pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
 	for (p=0; p<basis_size; p++) {
 		v_knij[p] += v_knij_TyTerm[p];
 	}
@@ -1840,6 +1844,7 @@ double* Tv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	v_nijk = diagMv_5D_oneCompositeIndex(v_npijk, Trot, nn, ni, nj, nk);
 	
 	//Perform the sum (Tx*v + Ty*v + Tz*v) + Trot*v = v_nijk_TzTerm + v_nijk
+#pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
 	for (p=0; p<basis_size; p++) {
 		v_nijk[p] += v_nijk_TzTerm[p];
 	}
@@ -1867,7 +1872,7 @@ double* Vv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	
 	basis_size = ni*nj*nk*nn;
 	
-	double *v_np = new double [nn];
+	double *v_np;
 	
 	double *ulm1, *ulm2, *ulm;
 	
@@ -1879,9 +1884,13 @@ double* Vv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	y_grid = interface->grids->y_Grid;
 	z_grid = interface->grids->z_Grid;
 	
+#pragma omp parallel for default(shared) private(i,j,k,n,ulm1,ulm2,v_np) schedule(guided) collapse(3)
 	for (i=0; i<ni; i++) {
 		for (j=0; j<nj; j++) {
 			for (k=0; k<nk; k++) {
+				
+				v_np = new double [nn];
+				
 				for (n=0; n<nn; n++) {
 					v_np[n] = v_ipjkn[((n*nk + k)*nj + j)*ni + i];
 				}
@@ -1892,13 +1901,15 @@ double* Vv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 				for (n=0; n<nn; n++) {
 					ulm[((n*nk + k)*nj + j)*ni + i] = ulm1[n] + ulm2[n];
 				}
+				
+				delete [] v_np;
 				delete [] ulm1;
 				delete [] ulm2;
 			}
 		}
 	}
 	
-	delete [] v_np;
+	
 	
 	return ulm;
 }
@@ -1930,6 +1941,7 @@ double* Hv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	cout << "Vv finished" << endl;
 	
 	//Sum Tv_ijkn and Vv_ijkn to get Hv_ijkn
+#pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
 	for (p=0; p<basis_size; p++) {
 		Hv_ijkn[p] = Tv_ijkn[p] + Vv_ijkn[p];
 	}
@@ -1975,7 +1987,11 @@ int main(int argc, char** argv) {
 	
 	cout << "Hv finished" << endl;
 	
-	for (n=(ni*nj*nk*nn-10); n<(ni*nj*nk*nn); n++) {
+//	for (n=(ni*nj*nk*nn-10); n<(ni*nj*nk*nn); n++) {
+//		cout <<	Hv_ijkn[n] << endl;
+//	}
+	
+	for (n=0; n<(ni*nj*nk*nn); n++) {
 		cout <<	Hv_ijkn[n] << endl;
 	}
 	
