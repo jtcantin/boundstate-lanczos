@@ -1933,12 +1933,12 @@ double* Hv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	//Calculate the kinetic energy terms
 	Tv_ijkn = Tv_5D_oneCompositeIndex(interface, v_ipjkn);
 	
-	cout << "Tv finished" << endl;
+	//cout << "Tv finished" << endl;
 	
 	//Calculate the potential energy terms
 	Vv_ijkn = Vv_5D_oneCompositeIndex(interface, v_ipjkn);
 	
-	cout << "Vv finished" << endl;
+	//cout << "Vv finished" << endl;
 	
 	//Sum Tv_ijkn and Vv_ijkn to get Hv_ijkn
 #pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
@@ -1976,7 +1976,7 @@ int main(int argc, char** argv) {
 	
 	nn = interface->lmBasis->length;
 	
-	double *Hv_ijkn;
+	double *Hv_ijkn, *Hv_temp;
 	double *v_ipjkn = new double [ni*nj*nk*nn];
 	
 	for (n=0; n<(ni*nj*nk*nn); n++) {
@@ -1985,15 +1985,22 @@ int main(int argc, char** argv) {
 	
 	Hv_ijkn =  Hv_5D_oneCompositeIndex(interface, v_ipjkn);
 	
+	for (n=0; n<atoi(argv[2]); n++) {
+		Hv_temp = Hv_ijkn;
+		Hv_ijkn =  Hv_5D_oneCompositeIndex(interface, Hv_ijkn);
+		
+		delete [] Hv_temp;
+	}
+	
 	cout << "Hv finished" << endl;
 	
 //	for (n=(ni*nj*nk*nn-10); n<(ni*nj*nk*nn); n++) {
 //		cout <<	Hv_ijkn[n] << endl;
 //	}
 	
-	for (n=0; n<(ni*nj*nk*nn); n++) {
-		cout <<	Hv_ijkn[n] << endl;
-	}
+//	for (n=0; n<(ni*nj*nk*nn); n++) {
+//		cout <<	Hv_ijkn[n] << endl;
+//	}
 	
 	delete interface;
 	
