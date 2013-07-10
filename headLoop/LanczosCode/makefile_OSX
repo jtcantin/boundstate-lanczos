@@ -1,0 +1,28 @@
+CC=/opt/local/bin/g++-mp-4.8
+FC=/opt/local/bin/gfortran-mp-4.8
+SUP_PATH1= ../../Hv-calculators/linRotor/cartSphBasis/librarySources/general/
+SUP_PATH2= ../../Hv-calculators/linRotor/cartSphBasis/librarySources/vectorClasses/
+SUP_PATH3= ../../Hv-calculators/linRotor/cartSphBasis/potentialCalc/CppCode/supportingRoutines/
+INCLUDES= -I $(SUP_PATH1) -I $(SUP_PATH2) -I $(SUP_PATH3) 
+CFLAGS=-c -Wall -fopenmp -DLINUX -ggdb -O0 $(INCLUDES)
+FCFLAGS=-DLINUX -ggdb -O0 $(INCLUDES)
+#LIB_SOURCES= $(SUP_PATH2)matvec2.cpp $(SUP_PATH3)Alavi_H2_Routines.cpp $(SUP_PATH2)Cvectors.cpp $(SUP_PATH3)gridFcns.cpp $(SUP_PATH3)energyRoutines.cpp $(SUP_PATH3)TIP4P_AH2_EngRoutines_Calc.cpp $(SUP_PATH3)rotmat.cpp
+LIB_SOURCES= $(SUP_PATH2)Cvectors.cpp  $(SUP_PATH2)matvec2.cpp
+LDFLAGS=-fopenmp -framework Accelerate
+SOURCES=lanczosEigenValuesVectors.cpp $(LIB_SOURCES)
+OBJECTS=$(SOURCES:.cpp=.o) $(SOURCES:.f=.o)
+EXECUTABLE=Lanczos
+
+all: $(SOURCES) $(EXECUTABLE)
+
+$(EXECUTABLE): $(OBJECTS)
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+
+.cpp.o:
+	$(CC) $(CFLAGS) $< -o $@
+
+.f.o:
+	$(FC) $(FCFLAGS) $< -o $@
+
+clean:
+	rm -f $(OBJECTS) $(EXECUTABLE)

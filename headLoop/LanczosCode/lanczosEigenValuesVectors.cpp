@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <ctime>
 #include "vectClass.h" //This is to select which linear algebra class should be used.
 
 #include "peckeris.h"
@@ -18,55 +19,156 @@ static const double MofH2 = 2.015650642; // nist value
 static const double MofD2 = 2.0141017780*2.;// nist
 static const double MofHe4 = 4.0026032497; // nist mass of He in amu
 
+void Hv_prep_lanczos(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_data) {
+	lanczos_data->total_basis_size = 2;
+	lanczos_data->sim_descr = "HELLO WORLD!";
+	lanczos_data->sim_descr_short = "HELLO WORLD!";
+}
+
+void Hv(argc, argv, general_data, lanczos_data, vec, uec){
+	
+	uec[0] = 0.1*vec[0] + 0.2*vec[1];
+	uec[1] = 0.3*vec[0] + 0.4*vec[1];
+	
+	//For H = [0.1, 0.2]
+	//		  [0.3, 0.4]
+	//eig[0] = 0.5372
+	//eig[1] = 0.03723
+	//v[0] = [0.457, 1]
+	//v[1] = [-1.457, 1]
+}
 
 int main(int argc,char **argv) {
-	int i,j,k,row,n;
+	int i,j,k,row,n,ib;
 	
-	int niter=atoi(argv[2]); //Number of iterations
+	int niter, numEigVec;
+	double emin, emax;
+	string	numEigVecWord, HvCalculatorSwitch;
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Get information from Lanczos Algorithm Input File
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	string lanczosInputFilename, junk, line;
+	ifstream lanczosInputFile;
+	
+	lanczosInputFile.open(lanczosInputFilename.c_str(), ios::in);
+	if (lanczosInputFile.is_open()) {
+		
+		//Get rid of comment lines;
+		getline(lanczosInputFile, line);
+		getline(lanczosInputFile, line);
+		
+		//Gather data for input; each line has the name of the value separated from the value with a space
+		//Always ignore the name of the value.
+		
+		//Number of Iterations
+		lanczosInputFile >> junk;
+		lanczosInputFile >> niter;
+		
+		//EigenvalueOpenLowerLimit(kJ/mol)
+		lanczosInputFile >> junk;
+		lanczosInputFile >> emin;
+		
+		//EigenvalueClosedUpperLimit(kJ/mol)
+		lanczosInputFile >> junk;
+		lanczosInputFile >> emax;
+		
+		//NumberOfEigenvectors(all/partial/none)
+		lanczosInputFile >> junk;
+		lanczosInputFile >> numEigVecWord;
+		
+		//NumberOfEigenvectors
+		lanczosInputFile >> junk;
+		lanczosInputFile >> numEigVec;
+		
+		//HvCalculator
+		lanczosInputFile >> junk;
+		lanczosInputFile >> HvCalculatorSwitch;
+
+	}
+	else {
+		cerr << "ERROR: Lanczos input file '" << lanczosInputFilename << "' could not be opened." << endl;
+		exit(1);
+	}
+	
+	if ((numEigVecWord != "all") && (numEigVecWord != "partial") && (numEigVecWord != "none")) {
+		cerr << "ERROR: Invalid value of " << numEigVecWord << " for NumberOfEigenvectors(all/partial/none) " << endl;
+		exit(1);
+	}
 	
 	
+	cout << "Eigenvalue and Eigenvector Lanczos calculator begun." << endl;
+	cout << "The number of Lanczos iterations will be: " << niter << endl;
 	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Run Hv_prep
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	lanczosStor *lanczos_data = new lanczosStor();
+	generalStor *general_data = new generalStor();
 	
 	//Set up what is needed for any Hv calculations, such as pre-calculating the potential and any other matricies
-	FORTRAN(prepare)(&numbas,icode,&maxj,&jmax,&Jbig,&ik,&ip,Kbgind,
-					 coriol,rotor,&Ah2o,&Bh2o,&Ch2o,&h2_2mu,ijcori,
-					 &ncorio,ijrot,&nrotor,&maxfac,fact,Tcos,Tsin,
-					 &nlgrid,&ncgrid,wgtgl,glgrid,gcgrid,&nchi,&nthe,
-					 &nrad,vpes,gchi,gthe,grad,&nrpont,&rsmall,&rlarge,
-					 rgrid,&nrgrid,vmat,rkin,&nKbig,&ib000,&ib100,&ib101,
-					 &ib110,&ib111,&jb111,potfil);
+	Hv_prep_lanczos(argc, argv, general_data, lanczos_data);
 	
+	int ntotbs = lanczos_data->total_basis_size;
+	string sim_descr = lanczos_data->sim_descr;
+	string sim_descr_short = lanczos_data->sim_descr_short;
 	
-	double* vec=new double[nrpont*numbas];
-	double* uec=new double[nrpont*numbas];
+	cout << "The total basis size is: " << ntotbs << endl;
+	cout << "The current simulation has been described as: " << sim_descr << endl;
 	
 	//test Hv
 	
-	double emin=-100.;
-	cout<<"emin= "<<emin<<endl;
-	double emax=200.;
-	//double emax=-emin;
+	cout << "Eigenvalues will be searched for in the interval (" << emin << ", " << emax << "]; all in kJ/mol." << endl;
 	
-	int ntotbs=nrpont*numbas;
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Create directory structure
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	int ngood;
+	//Make a directory to store the output files and copy over the input parameters
+	string sim_descr_short;
 	
-	VECT evalerr(niter);
+	//Get the current date and time (method from http://stackoverflow.com/questions/997946/c-get-current-time-and-date )
+	time_t t = time(0); //Get current time
+	struct tm *now = localtime(&t);
+	char time_charArray[80];
+	string time_string, commandString;
+	int retVal;
+	
+	strftime(time_charArray, sizeof(time_charArray), "%F_%T", now);
+	
+	time_string = time_charArray;
+	
+	commandString = "mkdir ./" + sim_descr_short + "_" + time_string;
+	
+	retVal = system(commandString.c_str());
+	
+	if (retVal!=0) {
+		cerr << "ERROR: Storage directory could not be created with the command: " << commandString << endl;
+		exit(1);
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Lanczos Loop 1 - Get Tm
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+	
+	int ngood; //Number of good eigenvalues
+	
+	//Vectors for the eigenvalues and their errors
 	VECT eval(niter);
+	VECT evalerr(niter);
+	
+	//Vectors for the Lanczos algorithm Tm elements
 	VECT alpha(niter);
 	VECT beta(niter+1);
 	VECT  beta2(niter+1);
 	
-	double* rvec=new double[nrpont*numbas];  
-	for (i=0;i<(nrpont*numbas);i++) rvec[i]=0.;
+	//Allocate r_j, v_j and u_j for the Lanczos Algorithm
+	double* rvec=new double[ntotbs];  	
+	double* vec=new double[ntotbs];
+	double* uec=new double[ntotbs];	
 	
-	
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//Lanczos Loop 1 - Get Tm
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	cout<<"Lanczos Loop 1 - Get Tm beginning."<<endl;
-	
 	
 	// Initialize Vectors
 	for (int ib=0;ib<ntotbs;ib++) {
@@ -74,6 +176,7 @@ int main(int argc,char **argv) {
 		vec[ib]=1./sqrt((double)ntotbs); //v_1 (normalized equal superposition)
 		rvec[ib]=0.;
 	}
+	
 	cout << "Lanczos Coefficients"<<endl;
 	cout<<"Iteration j"<<" "<<"alpha_j"<<" "<<"beta_j"<<endl;
 	
@@ -85,10 +188,7 @@ int main(int argc,char **argv) {
 			uec[ib]=0.;
 		
 		//u_j = u_j + H*v_j
-		FORTRAN(hv)(vec,uec,vmat,&ncgrid,&nlgrid,rgrid,
-					&nrpont,&numbas,&Jbig,&ip,Kbgind,icode,Tcos,
-					Tsin,&nKbig,coriol,ijcori,rotor,ijrot,
-					&ncorio,&nrotor,rkin); 
+		Hv(argc, argv, general_data, lanczos_data, vec, uec);
 		
 		//r_j = r_j + u_j; ; results in r_j = (-beta_(j-1) * v_(j-1)) + (H*v_j) = H*v_j - beta_(j-1) * v_(j-1)
 		for (int ib=0;ib<ntotbs;ib++) 
@@ -121,11 +221,13 @@ int main(int argc,char **argv) {
 		
 		//Swap vectors
 		for (int ib=0;ib<ntotbs;ib++) {
-			uec[ib]=vec[ib];	//u_(j+1) = v_j -> NOTE: u_(j+1) is set to zero every loop; this is a waste of time!
+			
+			//Swap r_j and v_j, using u_j as storage space
+			uec[ib]=vec[ib];	//u_(j+1) = v_j
 			vec[ib]=rvec[ib];	//v_(j+1) = r_j; results in v_(j+1) = r_j/beta_j
-			rvec[ib]=uec[ib];   //r_(j+1) = u_j = v_j; results in r_(j+1) = -beta_j * v_j -> NOTE: this indirect notation is a waste of computational time!
+			rvec[ib]=uec[ib];   //r_(j+1) = u_j = v_j; results in r_(j+1) = -beta_j * v_j
 		}
-		cout<<j<<" "<<alpha(j-1)<<" "<<beta(j)<<endl;
+		cout << j << " " << alpha(j-1) << " " << beta(j) << endl;
 		/*if (j%100 == 0)
 			cout<<"iteration "<<j<<endl;*/
 	}                  
@@ -179,23 +281,29 @@ int main(int argc,char **argv) {
 	cout << "The Relative Energies have been stored in " << "states_zpe.out" << endl;
 	cout << "--------------------------------------------------------------------------------" << endl;
 	
-	// If only the eigenvalues are wished to be calculated, end the program here.
-	if !(calcEigVec) {
-		cout << "LANCZOS ALGORITHM COMPLETED" << endl;
-		
-		exit(0);
-	}
-	
-	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Determine the Tm Eigenvectors
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	//If not all of the eigenvectors are desired, generate only the desired number.
-	if (numEigVecWord != "all") {
-		ngood = numEigVec;
+	//Determine how many, if any, eigenvectors are to be calculated
+	switch (numEigVecWord) {
+		
+		// If only the eigenvalues are wished to be calculated, end the program here.
+		case "none": 
+			cout << "LANCZOS ALGORITHM COMPLETED" << endl;
+			exit(0);
+			break;
+			
+		//If not all of the eigenvectors are desired, generate only the desired number.
+		case "partial":
+			ngood = numEigVec;
+			break;
+			
+		//Last option for numEigVecWord is "all", which means I leave ngood alone
+		case "all":
+			break;
 	}
-    
+	    
 	cout << endl;
 	cout << "Eigenvector calculation beginning." << endl;
 	
@@ -240,7 +348,7 @@ int main(int argc,char **argv) {
 	//Lanczos Loop 2 - Get Eigenvectors of H
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	cout<<"Lanczos Loop 2 - Get Eigenvectors of H beginning."<<endl;
+	cout << "Lanczos Loop 2 - Get Eigenvectors of H beginning." << endl;
 	
 	//Reinitialize u_j, v_j, and r_j
 	for (int ib=0;ib<ntotbs;ib++) {
@@ -256,7 +364,7 @@ int main(int argc,char **argv) {
 		beta2(j)=0.;
 		
 	}
-	beta(niter)=0.; //beta_j and beta2_j run up to niter+1
+	beta(niter)=0.; //beta_j and beta2_j are of length niter+1
 	beta2(niter)=0.;
 	
 	VECT ARvL(ntotbs*ngood); //This stores the final Eigenvectors (Ritz vectors)
@@ -268,7 +376,7 @@ int main(int argc,char **argv) {
 	double coeff;
 	
 	cout << "Lanczos Coefficients" << endl;
-	cout<<"Iteration j"<<" "<<"alpha_j"<<" "<<"beta_j"<<endl;
+	cout << "Iteration j" << " " << "alpha_j" << " " << "beta_j" << endl;
 	
 	//Begin the 2nd Lanczos Loop
 	for (j=1; j<=niter; j++) {	
@@ -295,10 +403,7 @@ int main(int argc,char **argv) {
 			uec[ib]=0.;
 		
 		//u_j = u_j + H*v_j
-		FORTRAN(hv)(vec,uec,vmat,&ncgrid,&nlgrid,rgrid,
-					&nrpont,&numbas,&Jbig,&ip,Kbgind,icode,Tcos,
-					Tsin,&nKbig,coriol,ijcori,rotor,ijrot,
-					&ncorio,&nrotor,rkin);
+		Hv(argc, argv, general_data, lanczos_data, vec, uec);
 		
 		//r_j = r_j + u_j; ; results in r_j = (-beta_(j-1) * v_(j-1)) + (H*v_j) = H*v_j - beta_(j-1) * v_(j-1)
 		for (int ib=0;ib<ntotbs;ib++) 
@@ -331,9 +436,11 @@ int main(int argc,char **argv) {
 		
 		//Swap vectors
 		for (int ib=0;ib<ntotbs;ib++) {
-			uec[ib]=vec[ib];	//u_(j+1) = v_j -> NOTE: u_(j+1) is set to zero every loop; this is a waste of time!
+			
+			//Swap r_j and v_j, using u_j as storage space
+			uec[ib]=vec[ib];	//u_(j+1) = v_j
 			vec[ib]=rvec[ib];	//v_(j+1) = r_j; results in v_(j+1) = r_j/beta_j
-			rvec[ib]=uec[ib];	//r_(j+1) = u_j = v_j; results in r_(j+1) = -beta_j * v_j -> NOTE: this indirect notation is a waste of computational time!
+			rvec[ib]=uec[ib];	//r_(j+1) = u_j = v_j; results in r_(j+1) = -beta_j * v_j 
 		}
 		
 		cout << j << " " << alpha(j-1) << " " << beta(j) << endl;
@@ -371,7 +478,7 @@ int main(int argc,char **argv) {
 	cout << "--------------------------------------------------------------------------------" << endl;
 	
 	cout << "Boundstate Lanczos Calculator has finished executing." << endl;
-	cout << "Have a nice day." << endl;
+	cout << "Have an exciting day." << endl;
 	
 	return 0;
 }
@@ -406,6 +513,5 @@ void lanczosvectors(VECT &alpha, VECT &beta, VECT &beta2, int niter, VECT &eval,
     for (i=0;i<niter;i++)
 		for (j=0;j<ngood;j++) 
 			evtr(i,j)=levtr[i+j*niter];
-    return;
 }
 
