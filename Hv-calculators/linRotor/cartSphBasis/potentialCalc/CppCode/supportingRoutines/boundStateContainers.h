@@ -203,4 +203,14 @@ struct interfaceStor {
 	};
 };
 
+struct lanczosStor {
+	int total_basis_size;
+	string sim_descr;
+	string sim_descr_short;
+};
+
+struct generalStor {
+	double dummy;
+}
+
 #endif

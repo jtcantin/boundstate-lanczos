@@ -1210,7 +1210,7 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 	
 }
 
-void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
+void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosStor *lanczos) {
 	int a, b, na, nb, nm, n, m, l;
 	
 	cout << endl;
@@ -1225,7 +1225,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	int nx, ny, nz, l_max, thetaPoints, phiPoints, pnx, pny, pnz;
 	double x_max, y_max, z_max, px_max, py_max, pz_max;
 	double momentOfInertia, totalMass;
-	string geometryFilename, line, junk;
+	string geometryFilename, line, junk, simulationFilename;
 	
 	inputFilename = argv[1];
 	
@@ -1290,6 +1290,9 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 		
 		inputFile >> junk;
 		inputFile >> geometryFilename;
+		
+		inputFile >> junk;
+		inputFile >> simulationFilename;
 	}
 	else {
 		cerr << "Input file '" << inputFilename << "' could not be opened." << endl;
@@ -1691,7 +1694,10 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface) {
 	interface->tesseral2PI = tessHarmonics2PI;
 	interface->potential = partialPotential;
 	
-	
+	//Put what is needed for the Lanczos algorithm in lanczos	
+	lanczos->total_basis_size = nx*ny*nz*length;
+	lanczos->sim_descr = simulationFilename; //Keep it at this for now.
+	lanczos->sim_descr_short = simulationFilename;
 	
 	cout << "Hv Preparation FINISHED." << endl;
 }
@@ -1962,6 +1968,7 @@ int main(int argc, char** argv) {
 	//	tesseralTest(l_max, thetaPoints, phiPoints);
 	
 	interfaceStor *interface = new interfaceStor();
+	lanczosStor *lanczos = new lanczosStor();
 	
 	HvPrep_Internal(argc, argv, interface);
 	

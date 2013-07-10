@@ -1,0 +1,15 @@
+#!/bin/csh
+#PBS -l nodes=1:ppn=1:serial
+
+# Some example feedback from the queue system environment
+echo "================================================="
+echo "Running job '${PBS_JOBNAME}' from '${PBS_O_WORKDIR}'"
+echo "My job ID is '${PBS_JOBID}'"
+echo "I ran on '${HOST}' from the '${PBS_O_QUEUE}' queue"
+echo "================================================="
+
+# NB:  This runs the rest of the script from the directory that the job 
+# NB:  was *submitted* from.  Any directory could be specified here.
+cd ${PBS_O_WORKDIR}
+
+./h2oh2.x 0 15 1 0 4 26 50 100 300 H2OH2_hind.pot 25 20 0 > log
