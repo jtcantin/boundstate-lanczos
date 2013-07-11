@@ -211,6 +211,6 @@ struct lanczosStor {
 
 struct generalStor {
 	double dummy;
-}
+};
 
 #endif

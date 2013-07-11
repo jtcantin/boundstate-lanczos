@@ -2,10 +2,11 @@
 #include <cmath>
 #include <ctime>
 #include "vectClass.h" //This is to select which linear algebra class should be used.
+#include "lanczos.h"
+#include "boundStateContainers.h"
 
-#include "peckeris.h"
+//#include "peckeris.h"
 
-static double betaGlobal;
 void lanczosvectors(VECT &alpha,VECT &beta,VECT &beta2,int niter,
 					VECT &eval,int ngood,MAT &evtr);
 
@@ -23,9 +24,9 @@ void Hv_prep_lanczos(int argc, char **argv, generalStor *general_data, lanczosSt
 	lanczos_data->total_basis_size = 2;
 	lanczos_data->sim_descr = "HELLO WORLD!";
 	lanczos_data->sim_descr_short = "HELLO WORLD!";
-}
+};
 
-void Hv(argc, argv, general_data, lanczos_data, vec, uec){
+void Hv(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_data, double *vec, double *uec){
 	
 	uec[0] = 0.1*vec[0] + 0.2*vec[1];
 	uec[1] = 0.3*vec[0] + 0.4*vec[1];
@@ -36,10 +37,10 @@ void Hv(argc, argv, general_data, lanczos_data, vec, uec){
 	//eig[1] = 0.03723
 	//v[0] = [0.457, 1]
 	//v[1] = [-1.457, 1]
-}
+};
 
 int main(int argc,char **argv) {
-	int i,j,k,row,n,ib;
+	int i,j,row,n;
 	
 	int niter, numEigVec;
 	double emin, emax;
@@ -126,7 +127,6 @@ int main(int argc,char **argv) {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	//Make a directory to store the output files and copy over the input parameters
-	string sim_descr_short;
 	
 	//Get the current date and time (method from http://stackoverflow.com/questions/997946/c-get-current-time-and-date )
 	time_t t = time(0); //Get current time
@@ -286,23 +286,26 @@ int main(int argc,char **argv) {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	//Determine how many, if any, eigenvectors are to be calculated
-	switch (numEigVecWord) {
-		
-		// If only the eigenvalues are wished to be calculated, end the program here.
-		case "none": 
+	
+	// If only the eigenvalues are wished to be calculated, end the program here.
+	if (numEigVecWord == "none") { 
 			cout << "LANCZOS ALGORITHM COMPLETED" << endl;
 			exit(0);
-			break;
-			
-		//If not all of the eigenvectors are desired, generate only the desired number.
-		case "partial":
-			ngood = numEigVec;
-			break;
-			
-		//Last option for numEigVecWord is "all", which means I leave ngood alone
-		case "all":
-			break;
 	}
+	
+	//If not all of the eigenvectors are desired, generate only the desired number.
+	else if (numEigVecWord == "partial") {	
+			ngood = numEigVec;
+	} 
+	
+	//Last option for numEigVecWord is "all", which means I leave ngood alone
+	else if (numEigVecWord == "all") {	
+	}
+	else {
+		cerr << "Unknown value for the Number of Eigenvectors to be calculated: " << numEigVecWord << endl;
+	}
+
+	
 	    
 	cout << endl;
 	cout << "Eigenvector calculation beginning." << endl;
@@ -456,7 +459,7 @@ int main(int argc,char **argv) {
 	//cout<<ARvL(0)<<" "<<ARvL(ntotbs*ngood-1)<<" "<<icode[0]<<" "<<icode[numbas-1]<<endl;
 	
 	//Output eigenvectors to file.	
-	ofstream eigVecFile("eigVecFile.out")
+	ofstream eigVecFile("eigVecFile.out");
 	
 	eigVecFile << "The following are the Ritz vectors of H for the simulation " << sim_descr << endl;
 	eigVecFile << "Number of Ritz vectors: " << ngood << endl;
@@ -485,7 +488,7 @@ int main(int argc,char **argv) {
 
 
 void lanczosvectors(VECT &alpha, VECT &beta, VECT &beta2, int niter, VECT &eval, int ngood, MAT &evtr) {
-	int i,j,ndis;
+	int i,j;
 	
     // copy stuff
     double* lalpha=new double[niter];
