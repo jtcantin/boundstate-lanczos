@@ -9,7 +9,7 @@
 
 void lanczosvectors(VECT &alpha,VECT &beta,VECT &beta2,int niter,
 					VECT &eval,int ngood,MAT &evtr);
-
+/*
 static const double amutoau=1./5.4857989586762187e-4; // amu to au
 static const double au_to_amu = 5.4857989586762187e-4; // au to amu
 static const double BohrToA=0.529177249; // Bohr to angstrom
@@ -19,24 +19,40 @@ static const double hatokJmol=2625.;
 static const double MofH2 = 2.015650642; // nist value
 static const double MofD2 = 2.0141017780*2.;// nist
 static const double MofHe4 = 4.0026032497; // nist mass of He in amu
-
+*/
 void Hv_prep_lanczos(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_data) {
 	lanczos_data->total_basis_size = 2;
-	lanczos_data->sim_descr = "HELLO WORLD!";
-	lanczos_data->sim_descr_short = "HELLO WORLD!";
+	lanczos_data->sim_descr = "HELLO_WORLD!";
+	lanczos_data->sim_descr_short = "HELLO_WORLD!";
 };
 
 void Hv(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_data, double *vec, double *uec){
 	
+	uec[0] = 100*vec[0] + 200*vec[1];
+	uec[1] = 300*vec[0] + 400*vec[1];
+	
+	//Python Solution:
+	//  >>> H = np.mat("100 200; 300 400")
+	//	>>> eVal,eVect = np.linalg.eig(H)
+	//	>>> eVal
+	//	array([ -37.22813233,  537.22813233])
+	//	>>> eVect[0,0]/eVect[1,0]
+	//	-1.4574271077563381
+	//	>>> eVect[0,1]/eVect[1,1]
+	//	0.45742710775633816
+	
+	
+	/*
 	uec[0] = 0.1*vec[0] + 0.2*vec[1];
 	uec[1] = 0.3*vec[0] + 0.4*vec[1];
 	
 	//For H = [0.1, 0.2]
 	//		  [0.3, 0.4]
 	//eig[0] = 0.5372
-	//eig[1] = 0.03723
+	//eig[1] = -0.03723
 	//v[0] = [0.457, 1]
 	//v[1] = [-1.457, 1]
+	 */
 };
 
 int main(int argc,char **argv) {
@@ -134,14 +150,14 @@ int main(int argc,char **argv) {
 	time_t t = time(0); //Get current time
 	struct tm *now = localtime(&t);
 	char time_charArray[80];
-	string time_string, commandString;
+	string time_string, commandString, dir_string;
 	int retVal;
 	
-	strftime(time_charArray, sizeof(time_charArray), "%F_%T", now);
+	strftime(time_charArray, sizeof(time_charArray), "%F_%H_%M_%S", now);
 	
 	time_string = time_charArray;
-	
-	commandString = "mkdir ./" + sim_descr_short + "_" + time_string;
+	dir_string = "./" + sim_descr_short + "_" + time_string;
+	commandString = "mkdir " + dir_string;
 	
 	retVal = system(commandString.c_str());
 	
@@ -252,8 +268,8 @@ int main(int argc,char **argv) {
 	cout << "Groundstate Eigenvalue is: " << eval(0) << " kJ/mol" << endl;
 	
 	// Output Eigenvalues and Errors
-	ofstream lancout("boundstates.out");
-	ofstream lanczpeout("states_zpe.out");
+	ofstream lancout((dir_string + "/boundstates.txt").c_str());
+	ofstream lanczpeout((dir_string + "/states_zpe.txt").c_str());
 	
 	//Write header for Eigenvalues and Errors
 	lancout << "The following are the eigenvalues and errors for the simulation " << sim_descr << endl;
@@ -323,7 +339,7 @@ int main(int argc,char **argv) {
 	cout << "Tm eigenvector calculation finished." << endl;
 	
 	//Output Tm eigenvectors to a file
-	ofstream lvecout("lv");
+	ofstream lvecout((dir_string + "/lv").c_str());
 	VECT cumulnorm(ngood);
 	double coeff2;
 	
@@ -461,7 +477,7 @@ int main(int argc,char **argv) {
 	//cout<<ARvL(0)<<" "<<ARvL(ntotbs*ngood-1)<<" "<<icode[0]<<" "<<icode[numbas-1]<<endl;
 	
 	//Output eigenvectors to file.	
-	ofstream eigVecFile("eigVecFile.out");
+	ofstream eigVecFile((dir_string + "/eigVecFile.txt").c_str());
 	
 	eigVecFile << "The following are the Ritz vectors of H for the simulation " << sim_descr << endl;
 	eigVecFile << "Number of Ritz vectors: " << ngood << endl;

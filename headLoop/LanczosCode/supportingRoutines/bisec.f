@@ -83,8 +83,8 @@ C
       HALF=0.5D0
 C should be large enough even if ALL the evalues are calculated; I used
 C to have 30*MEV, but quite often ran into the STOP below
-c      MXSTUR=100*MEV
-      MXSTUR=30*MEV
+      MXSTUR=100*MEV
+c      MXSTUR=30*MEV
       NDIS=0
       BETAM=BETA(MEV+1)
       BETA(MEV+1)=ZERO

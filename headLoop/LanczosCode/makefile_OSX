@@ -3,12 +3,13 @@ FC=/opt/local/bin/gfortran-mp-4.8
 SUP_PATH1= ../../Hv-calculators/linRotor/cartSphBasis/librarySources/general/
 SUP_PATH2= ../../Hv-calculators/linRotor/cartSphBasis/librarySources/vectorClasses/
 SUP_PATH3= ../../Hv-calculators/linRotor/cartSphBasis/potentialCalc/CppCode/supportingRoutines/
-SUP_PATH4= ./
+SUP_PATH4= ./supportingRoutines/
+SUP_PATH5= ./
 INCLUDES= -I $(SUP_PATH1) -I $(SUP_PATH2) -I $(SUP_PATH3) 
 CFLAGS=-c -Wall -fopenmp -DLINUX -ggdb -O0 $(INCLUDES)
 FCFLAGS=-c -DLINUX -ggdb -O0 -framework Accelerate $(INCLUDES)
 # LIB_SOURCES= $(SUP_PATH2)matvec2.cpp $(SUP_PATH3)Alavi_H2_Routines.cpp $(SUP_PATH2)Cvectors.cpp $(SUP_PATH3)gridFcns.cpp $(SUP_PATH3)energyRoutines.cpp $(SUP_PATH3)TIP4P_AH2_EngRoutines_Calc.cpp $(SUP_PATH3)rotmat.cpp 
-LIB_SOURCES= $(SUP_PATH2)Cvectors.cpp $(SUP_PATH2)matvec2.cpp $(SUP_PATH4)bisec.f $(SUP_PATH4)inverr.f $(SUP_PATH4)isoev.f $(SUP_PATH4)trivec.f $(SUP_PATH4)lancbis.cpp $(SUP_PATH4)genran.f $(SUP_PATH4)scalar.f $(SUP_PATH4)sturmi.f $(SUP_PATH4)inverm.f
+LIB_SOURCES= $(SUP_PATH2)Cvectors.cpp $(SUP_PATH2)matvec2.cpp $(SUP_PATH4)bisec.f $(SUP_PATH4)inverr.f $(SUP_PATH4)isoev.f $(SUP_PATH4)trivec.f $(SUP_PATH5)lancbis.cpp $(SUP_PATH4)genran.f $(SUP_PATH4)scalar.f $(SUP_PATH4)sturmi.f $(SUP_PATH4)inverm.f
 LDFLAGS=-fopenmp -framework Accelerate -lgfortran
 SOURCES=lanczosEigenValuesVectors.cpp $(LIB_SOURCES)
 SOURCES2 = $(SOURCES:.cpp=.o)
@@ -32,4 +33,4 @@ $(EXECUTABLE): $(OBJECTS)
 	$(FC) $(FCFLAGS) $< -o $@
 
 clean:
-	rm -i $(OBJECTS) $(EXECUTABLE)
+	rm -f $(OBJECTS) $(EXECUTABLE)

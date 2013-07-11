@@ -1,8 +1,8 @@
 #This is the input file for the Boundstate Lanczos Eigenvalue and Eigenvector Calculator
 #Make sure that there is no space before the equals sign and only one after; you will get an error or weird results otherwise
-numberOfIterations= 5
-EigenvalueOpenLowerLimit(kJ/mol)= -500
-EigenvalueClosedUpperLimit(kJ/mol)= 500
+numberOfIterations= 1000
+EigenvalueOpenLowerLimit(kJ/mol)= -40
+EigenvalueClosedUpperLimit(kJ/mol)= 600
 NumberOfEigenvectors(all/partial/none)= all
-NumberOfEigenvectors= 10
+NumberOfEigenvectors= 2
 HvCalculator= linRotCartSph_Alavi
