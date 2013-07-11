@@ -52,6 +52,8 @@ int main(int argc,char **argv) {
 	string lanczosInputFilename, junk, line;
 	ifstream lanczosInputFile;
 	
+	lanczosInputFilename = argv[1];
+	
 	lanczosInputFile.open(lanczosInputFilename.c_str(), ios::in);
 	if (lanczosInputFile.is_open()) {
 		
