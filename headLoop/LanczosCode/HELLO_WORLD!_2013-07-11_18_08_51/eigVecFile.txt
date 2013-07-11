@@ -1,5 +1,0 @@
-The following are the Ritz vectors of H for the simulation HELLO_WORLD!
-Number of Ritz vectors: 4
-Basis Index | Vector 1 | Vector 2 ... 
-0 4.48452 4.54309 -3.65154 -2.92761 
-1 9.70247 9.71036 -7.64827 -5.9808 

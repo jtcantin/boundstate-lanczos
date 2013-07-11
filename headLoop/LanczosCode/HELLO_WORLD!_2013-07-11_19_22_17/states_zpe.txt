@@ -1,8 +1,6 @@
 The following are the relative energies for the simulation HELLO_WORLD!
-Number of Eigenvalues: 4
-Zero Point Energy = 543.776 kJ/mol
+Number of Eigenvalues: 2
+Zero Point Energy = 17.1573 kJ/mol
 State | Relative Energy (kJ/mol)
 0 0
-1 7.45172
-2 20.7491
-3 39.772
+1 565.685

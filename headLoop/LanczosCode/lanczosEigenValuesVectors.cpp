@@ -28,11 +28,26 @@ void Hv_prep_lanczos(int argc, char **argv, generalStor *general_data, lanczosSt
 
 void Hv(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_data, double *vec, double *uec){
 	
+	
+	uec[0] = 100*vec[0] + 200*vec[1];
+	uec[1] = 200*vec[0] + 500*vec[1];	
+	
+	//>>> H = np.mat("100 200; 200 500")
+	//	>>> eVal,eVect = np.linalg.eig(H)
+	//	>>> eVal
+	//	array([  17.15728753,  582.84271247])
+	//	>>> eVect[0,0]/eVect[1,0]
+	//	-2.4142135623730954
+	//	>>> eVect[0,1]/eVect[1,1]
+	//	0.41421356237309503
+	
+	
+	/*
 	uec[0] = 100*vec[0] + 200*vec[1];
 	uec[1] = 300*vec[0] + 400*vec[1];
 	
 	//Python Solution:
-	//  >>> H = np.mat("100 200; 300 400")
+	//  >>> H = np.mat("100 200; 300 400") //NOTE: This is non-hermitian
 	//	>>> eVal,eVect = np.linalg.eig(H)
 	//	>>> eVal
 	//	array([ -37.22813233,  537.22813233])
@@ -40,13 +55,13 @@ void Hv(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_d
 	//	-1.4574271077563381
 	//	>>> eVect[0,1]/eVect[1,1]
 	//	0.45742710775633816
-	
+	*/
 	
 	/*
 	uec[0] = 0.1*vec[0] + 0.2*vec[1];
 	uec[1] = 0.3*vec[0] + 0.4*vec[1];
 	
-	//For H = [0.1, 0.2]
+	//For H = [0.1, 0.2] //NOTE: This is non-hermitian
 	//		  [0.3, 0.4]
 	//eig[0] = 0.5372
 	//eig[1] = -0.03723
