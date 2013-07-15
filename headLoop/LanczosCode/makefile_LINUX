@@ -1,5 +1,8 @@
-CC=/opt/local/bin/g++-mp-4.8
-FC=/opt/local/bin/gfortran-mp-4.8
+#NOTE: You need to set the following environment variables in nlogn to get ./Lanczos to run:
+# export LD_LIBRARY_PATH=/home/pnroy/Dev/lib64:$LD_LIBRARY_PATH
+# export LIBRARY_PATH=/home/pnroy/Dev/lib64:$LIBRARY_PATH
+CC=/home/pnroy/Dev/bin/g++
+FC=/home/pnroy/Dev/bin/gfortran
 SUP_PATH1= ../../Hv-calculators/linRotor/cartSphBasis/librarySources/general/
 SUP_PATH2= ../../Hv-calculators/linRotor/cartSphBasis/librarySources/vectorClasses/
 SUP_PATH3= ../../Hv-calculators/linRotor/cartSphBasis/potentialCalc/CppCode/supportingRoutines/
@@ -8,9 +11,9 @@ SUP_PATH5= ./
 SUP_PATH6= ../../Hv-calculators/linRotor/cartSphBasis/Hv-calc/
 INCLUDES= -I $(SUP_PATH1) -I $(SUP_PATH2) -I $(SUP_PATH3) -I $(SUP_PATH4) -I $(SUP_PATH6)
 CFLAGS=-c -Wall -fopenmp -DLINUX -ggdb -O0 $(INCLUDES)
-FCFLAGS=-c -DLINUX -ggdb -O0 -llapack -lblas $(INCLUDES) 
+FCFLAGS=-c -DLINUX -ggdb -O0 -llapack -lblas -lgfortran $(INCLUDES) 
 LIB_SOURCES= $(SUP_PATH2)Cvectors.cpp $(SUP_PATH2)matvec2.cpp $(SUP_PATH4)bisec.f $(SUP_PATH4)inverr.f $(SUP_PATH4)isoev.f $(SUP_PATH4)trivec.f $(SUP_PATH5)lancbis.cpp $(SUP_PATH4)genran.f $(SUP_PATH4)scalar.f $(SUP_PATH4)sturmi.f $(SUP_PATH4)inverm.f $(SUP_PATH3)Alavi_H2_Routines.cpp $(SUP_PATH3)gridFcns.cpp $(SUP_PATH3)energyRoutines.cpp $(SUP_PATH3)TIP4P_AH2_EngRoutines_Calc.cpp $(SUP_PATH3)rotmat.cpp $(SUP_PATH6)basisFcns.cpp
-LDFLAGS=-fopenmp -llapack -lblas -lgfortran
+LDFLAGS=-fopenmp -llapack -lblas -L/home/pnroy/Dev/lib64/ -lgfortran 
 SOURCES=lanczosEigenValuesVectors.cpp $(LIB_SOURCES)
 SOURCES2 = $(SOURCES:.cpp=.o)
 OBJECTS= $(SOURCES2:.f=.o)
