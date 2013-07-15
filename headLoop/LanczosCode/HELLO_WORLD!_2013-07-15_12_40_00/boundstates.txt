@@ -1,6 +1,0 @@
-The following are the eigenvalues and errors for the simulation HELLO_WORLD!
-Number of Eigenvalues: 3
-State | Eigenvalue (kJ/mol) | Error (kJ/mol?)
-0 -3.13499 1.01628e-13
-1 -0.0783521 4.78003e-14
-2 12.2133 -2.89892e-15

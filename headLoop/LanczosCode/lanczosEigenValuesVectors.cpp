@@ -48,6 +48,8 @@ void Hv(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_d
 		uec[i] += uec1[i];
 	}
 	
+	delete [] uec1;
+	
 	/*
 	uec[0] = 1*vec[0] + 2*vec[1] + 3*vec[2];
 	uec[1] = 2*vec[0] + 3*vec[1] + 7*vec[2];
@@ -181,7 +183,19 @@ int main(int argc,char **argv) {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	lanczosStor *lanczos_data = new lanczosStor();
-	generalStor *general_data = new generalStor();
+	generalStor *general_data;
+	//generalStor *general_data = new generalStor();
+	
+	//Allocate transfer container
+	if (HvCalculatorSwitch == "linRotCartSph_Alavi") {
+		interfaceStor *linRotCartSph_Alavi = new interfaceStor();
+		
+		general_data = reinterpret_cast<generalStor*> (linRotCartSph_Alavi);
+	}
+	else {
+		cerr << "HvCalculator '" << HvCalculatorSwitch << "' not recognized." << endl;
+	}
+
 	
 	//Set up what is needed for any Hv calculations, such as pre-calculating the potential and any other matricies
 	Hv_prep_lanczos(argc, argv, general_data, lanczos_data);
@@ -243,7 +257,7 @@ int main(int argc,char **argv) {
 	double* vec=new double[ntotbs];
 	double* uec=new double[ntotbs];	
 	
-	cout<<"Lanczos Loop 1 - Get Tm beginning."<<endl;
+	cout<<"'Lanczos Loop 1 - Get Tm' beginning."<<endl;
 	
 	// Initialize Vectors
 	for (int ib=0;ib<ntotbs;ib++) {
@@ -307,7 +321,7 @@ int main(int argc,char **argv) {
 			cout<<"iteration "<<j<<endl;*/
 	}                  
 	
-	cout << "Lanczos Loop 1 - Get Tm FINISHED." << endl;
+	cout << "'Lanczos Loop 1 - Get Tm' FINISHED." << endl;
 	cout << "--------------------------------------------------------------------------------" << endl;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -315,7 +329,7 @@ int main(int argc,char **argv) {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	cout << endl;
-	cout << "Determination of Good Eigenvalues beginning." << endl;
+	cout << "'Determination of Good Eigenvalues' beginning." << endl;
 	
 	//Determine Good Eigenvalues
 	lancbis(niter,eval,evalerr,emin,emax,ngood,alpha,beta,beta2);
@@ -323,6 +337,7 @@ int main(int argc,char **argv) {
 	cout << endl;
 	cout << "Number of Good Eigenvalues is: " << ngood << endl;
 	cout << "Groundstate Eigenvalue is: " << eval(0) << " kJ/mol" << endl;
+	cout << "Groundstate Eigenvalue Error is: " << evalerr(0) << " kJ/mol?" << endl;
 	
 	// Output Eigenvalues and Errors
 	ofstream lancout((dir_string + "/boundstates.txt").c_str());
@@ -364,7 +379,7 @@ int main(int argc,char **argv) {
 	
 	// If only the eigenvalues are wished to be calculated, end the program here.
 	if (numEigVecWord == "none") { 
-			cout << "LANCZOS ALGORITHM COMPLETED" << endl;
+			cout << "LANCZOS ALGORITHM COMPLETED - no eigenvectors calculated as based on user input." << endl;
 			exit(0);
 	}
 	
@@ -383,17 +398,17 @@ int main(int argc,char **argv) {
 	
 	    
 	cout << endl;
-	cout << "Eigenvector calculation beginning." << endl;
+	cout << "'Eigenvector calculation' beginning." << endl;
 	
 	//Calculate the eigenvectors of Tm
 	MAT evtr(niter,ngood);
 	
-	cout << "Tm eigenvector calculation beginning." << endl;
+	cout << "'Tm eigenvector calculation' beginning." << endl;
 	
 	//Calculate Tm eigenvectors and store in evtr
 	lanczosvectors(alpha,beta,beta2,niter,eval,ngood,evtr); 
 	
-	cout << "Tm eigenvector calculation finished." << endl;
+	cout << "'Tm eigenvector calculation' finished." << endl;
 	
 	//Output Tm eigenvectors to a file
 	ofstream lvecout((dir_string + "/lv").c_str());
@@ -426,7 +441,7 @@ int main(int argc,char **argv) {
 	//Lanczos Loop 2 - Get Eigenvectors of H
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	cout << "Lanczos Loop 2 - Get Eigenvectors of H beginning." << endl;
+	cout << "'Lanczos Loop 2 - Get Eigenvectors of H' beginning." << endl;
 	
 	//Reinitialize u_j, v_j, and r_j
 	for (int ib=0;ib<ntotbs;ib++) {
@@ -552,7 +567,7 @@ int main(int argc,char **argv) {
 	
 	cout << "The Eigenvectors of H have been stored in " << "eigVecFile.out" << endl;
 	
-	cout << "Lanczos Loop 2 - Get Eigenvectors of H FINISHED." << endl;
+	cout << "'Lanczos Loop 2 - Get Eigenvectors of H' FINISHED." << endl;
 	cout << "--------------------------------------------------------------------------------" << endl;
 	
 	cout << "Boundstate Lanczos Calculator has finished executing." << endl;

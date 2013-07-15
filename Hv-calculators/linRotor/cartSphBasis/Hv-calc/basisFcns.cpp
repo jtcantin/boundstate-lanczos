@@ -1217,7 +1217,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	double momentOfInertia, totalMass;
 	string geometryFilename, line, junk, simulationFilename;
 	
-	inputFilename = argv[1];
+	inputFilename = argv[2];
 	
 	inputFile.open(inputFilename.c_str(), ios::in);
 	if (inputFile.is_open()) {

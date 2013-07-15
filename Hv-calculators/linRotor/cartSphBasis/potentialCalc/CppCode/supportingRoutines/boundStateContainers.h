@@ -193,6 +193,16 @@ struct interfaceStor {
 	tesseralStor *tesseral2PI;
 	lmFBR *lmBasis;
 	
+	/*
+	interfaceStor() {
+		quadrature = new *quadStor [1];
+		grids = new *fiveDGrid [1];
+		potential = new *pointPotentialStorH2 [1];
+		tesseral = new *tesseralStor [1];
+		tesseral2PI = new *tesseral2PI [1];
+		lmBasis = new *lmFBR [1];
+	};*/
+	
 	~interfaceStor() {
 		delete quadrature;
 		delete grids;
