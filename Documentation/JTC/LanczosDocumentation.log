@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.3-1.40.12 (TeX Live 2011) (format=pdflatex 2011.7.3)  8 JUL 2013 15:19
+This is pdfTeX, Version 3.1415926-2.3-1.40.12 (TeX Live 2011) (format=pdflatex 2011.7.3)  15 JUL 2013 12:03
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -378,7 +378,7 @@ Here is how much of TeX's memory you used:
  7670 multiletter control sequences out of 15000+200000
  11979 words of font info for 51 fonts, out of 3000000 for 9000
  831 hyphenation exceptions out of 8191
- 38i,16n,23p,633b,256s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 38i,16n,23p,690b,256s stack positions out of 5000i,500n,10000p,200000b,50000s
 </usr/local/texlive/2011/texmf-dist/fonts/type1
 /public/bbold-type1/bbold10.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1
 /public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/
@@ -404,7 +404,7 @@ local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/l
 ocal/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/symbols/msam7.pfb></us
 r/local/texlive/2011/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
 
-Output written on LanczosDocumentation.pdf (12 pages, 334358 bytes).
+Output written on LanczosDocumentation.pdf (12 pages, 334905 bytes).
 PDF statistics:
  140 PDF objects out of 1000 (max. 8388607)
  100 compressed objects within 1 object stream
