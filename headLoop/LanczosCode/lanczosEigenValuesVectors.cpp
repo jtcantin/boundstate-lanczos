@@ -4,6 +4,7 @@
 #include "vectClass.h" //This is to select which linear algebra class should be used.
 #include "lanczos.h"
 #include "boundStateContainers.h"
+#include "AlaviHvRoutines.h"
 
 //#include "peckeris.h"
 
@@ -21,13 +22,33 @@ static const double MofD2 = 2.0141017780*2.;// nist
 static const double MofHe4 = 4.0026032497; // nist mass of He in amu
 */
 void Hv_prep_lanczos(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_data) {
+	
+	interfaceStor *Hv_data;
+	Hv_data = reinterpret_cast<interfaceStor*> (general_data);
+	
+	HvPrep_Internal(argc, argv, Hv_data, lanczos_data);
+	
+	/*
 	lanczos_data->total_basis_size = 3;
 	lanczos_data->sim_descr = "HELLO_WORLD!";
 	lanczos_data->sim_descr_short = "HELLO_WORLD!";
+	 */
 };
 
 void Hv(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_data, double *vec, double *uec){
+	int i;
+	double *uec1;
 	
+	interfaceStor *Hv_data;
+	Hv_data = reinterpret_cast<interfaceStor*> (general_data);
+	
+	uec1 = Hv_5D_oneCompositeIndex(Hv_data, vec);
+	
+	for (i=0; i<lanczos_data->total_basis_size; i++) {
+		uec[i] += uec1[i];
+	}
+	
+	/*
 	uec[0] = 1*vec[0] + 2*vec[1] + 3*vec[2];
 	uec[1] = 2*vec[0] + 3*vec[1] + 7*vec[2];
 	uec[2] = 3*vec[0] + 7*vec[1] + 5*vec[2];
@@ -46,7 +67,7 @@ void Hv(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_d
 //			[ 0.61728354, -0.30624898, -0.72468793],
 //			[ 0.72554638, -0.13457708,  0.67488626]])
 	
-	
+	*/
 	
 	
 	/*

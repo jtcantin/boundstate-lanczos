@@ -1,15 +1,5 @@
-#include <iostream>
-#include <cmath>
-#include <cstdlib>
-#include <omp.h>
-#include <string.h>
-#include <iomanip>
-#include <cfloat>
-#include <omp.h>
-#include "lanczosUnits.h"
-#include "vectClass.h"
-#include "boundStateContainers.h"
-#include "Alavi_H2_Routines.h"
+
+#include "AlaviHvRoutines.h"
 
 using namespace std;
 
@@ -1958,6 +1948,7 @@ double* Hv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	return Hv_ijkn;
 }
 
+/*
 int main(int argc, char** argv) {
 	//int l_max, thetaPoints, phiPoints;
 	//	
@@ -2016,5 +2007,5 @@ int main(int argc, char** argv) {
 	
 	return 0;
 }
-
+*/
 
