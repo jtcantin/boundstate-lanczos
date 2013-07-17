@@ -124,7 +124,7 @@ int main(int argc,char **argv) {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Get information from Lanczos Algorithm Input File
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	string lanczosInputFilename, junk, line;
+	string lanczosInputFilename, junk, line, outputDirPath;
 	ifstream lanczosInputFile;
 	
 	lanczosInputFilename = argv[1];
@@ -162,6 +162,10 @@ int main(int argc,char **argv) {
 		//HvCalculator
 		lanczosInputFile >> junk;
 		lanczosInputFile >> HvCalculatorSwitch;
+		
+		//Output directory path
+		lanczosInputFile >> junk;
+		lanczosInputFile >> outputDirPath;
 
 	}
 	else {
@@ -227,8 +231,8 @@ int main(int argc,char **argv) {
 	strftime(time_charArray, sizeof(time_charArray), "%F_%H_%M_%S", now);
 	
 	time_string = time_charArray;
-	dir_string = "./" + sim_descr_short + "_" + time_string;
-	commandString = "mkdir " + dir_string;
+	dir_string = outputDirPath + sim_descr_short + "_" + time_string;
+	commandString = "mkdir -p " + dir_string;
 	
 	retVal = system(commandString.c_str());
 	
@@ -236,6 +240,8 @@ int main(int argc,char **argv) {
 		cerr << "ERROR: Storage directory could not be created with the command: " << commandString << endl;
 		exit(1);
 	}
+	
+	cout << "The output directory is: " << dir_string << endl;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Lanczos Loop 1 - Get Tm

@@ -548,13 +548,14 @@ void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, d
 //Rotational Kinetic Energy Operator in the |lm> basis
 // !Make sure to delete (ie. dealloc) kinVec and grid!
 // Note that kinVec = diag(kinMat), since kinMat is diagonal in the |lm> basis
-double* rotKinEng(int **qNum, int length, double momentOfInertia) {
+double* rotKinEng(int **qNum, int length, double rotationalConstant) {
 	double B, *rotEng, l;
 	int i;
 	
 	rotEng = new double [length];
 	
-	B = H_BAR*H_BAR / 2.0 / momentOfInertia;
+	//B = H_BAR*H_BAR / 2.0 / momentOfInertia;
+	B = rotationalConstant;
 	
 #pragma omp parallel for default(shared) private (i,l) schedule(guided)
 	for (i=0; i<length; i++) {
@@ -1214,7 +1215,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	
 	int nx, ny, nz, l_max, thetaPoints, phiPoints, pnx, pny, pnz;
 	double x_max, y_max, z_max, px_max, py_max, pz_max;
-	double momentOfInertia, totalMass;
+	double rotationalConstant, totalMass;
 	string geometryFilename, line, junk, simulationFilename;
 	
 	inputFilename = argv[2];
@@ -1276,7 +1277,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 		inputFile >> totalMass;
 		
 		inputFile >> junk;
-		inputFile >> momentOfInertia;
+		inputFile >> rotationalConstant;
 		
 		inputFile >> junk;
 		inputFile >> geometryFilename;
@@ -1378,7 +1379,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	//Calculate the rotational Kinetic Energy operator
 	double *rotKinEngOp;
 	
-	rotKinEngOp = rotKinEng(qNum, length, momentOfInertia); //This vector is based on the [n] composite basis
+	rotKinEngOp = rotKinEng(qNum, length, rotationalConstant); //This vector is based on the [n] composite basis
 	
 	//Store everything for interface
 	lmFBR *lmBasis = new lmFBR();

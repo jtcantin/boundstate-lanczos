@@ -8,3 +8,5 @@
 *.dSYM
 #ignore .greg files (I am not sure what they are, though - JTC)
 *.greg
+#ignore pbs output files
+*.o*

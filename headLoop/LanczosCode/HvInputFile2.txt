@@ -1,21 +1,22 @@
 #
 #Make sure that there is no space before the equals sign and only one after; you will get an error or weird results otherwise
-nx= 100
+nx= 30
 x_max(nm)= 1.0
-ny= 100
+ny= 30
 y_max(nm)= 1.0
-nz= 100
+nz= 30
 z_max(nm)= 1.0
-l_max= 6
-thetaPoints= 100
-phiPoints= 100
-pointPotential_nx= 100
+l_max= 0
+thetaPoints= 10
+phiPoints= 10
+pointPotential_nx= 30
 pointPotential_x_max(nm)= 1.0
-pointPotential_ny= 100
+pointPotential_ny= 30
 pointPotential_y_max(nm)= 1.0
-pointPotential_nz= 100
+pointPotential_nz= 30
 pointPotential_z_max(nm)= 1.0
-totalMass(g/mol)= 2.015650064
-roationalConstant(kJ/mol)= 0.709652722117881
+totalMass(g/mol)= 2.0
+rotationalConstant(kJ/mol)= 0.709652722117881
 geometryFilename= sII_smallCage4_test_CM_EA_ZYZ.xyz
 simulationTitle= H2_in_sII_smallCage4
+ceilingPotential(kJ/mol)= 10

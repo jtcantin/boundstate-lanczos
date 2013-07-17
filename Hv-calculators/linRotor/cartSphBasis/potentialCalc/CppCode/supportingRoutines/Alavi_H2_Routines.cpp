@@ -255,6 +255,10 @@ double Alavi_H2_Eng_Point(double *CMpotential, double *H_potential, H2_orient *H
 	
 	delete [] indices;
 	
+	if (H2potential>=VCEIL) {
+		H2potential = VCEIL;
+	}
+	
 	return H2potential;
 }
 
