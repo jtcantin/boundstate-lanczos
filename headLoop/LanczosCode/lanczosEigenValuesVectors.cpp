@@ -5,6 +5,7 @@
 #include "lanczos.h"
 #include "boundStateContainers.h"
 #include "AlaviHvRoutines.h"
+#include "generalHvRoutines.h"
 
 //#include "peckeris.h"
 

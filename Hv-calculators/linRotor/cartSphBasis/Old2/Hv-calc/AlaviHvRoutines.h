@@ -13,8 +13,9 @@
 #include "vectClass.h"
 #include "boundStateContainers.h"
 #include "Alavi_H2_Routines.h"
+#include "Alavi_H2_TIP4P_Routines.h"
 
-#define VCEIL 100 //kJ/mol
+//#define VCEIL 100 //kJ/mol
 
 double factorial(int num);
 

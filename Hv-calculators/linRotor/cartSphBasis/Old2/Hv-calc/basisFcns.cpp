@@ -1667,7 +1667,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	CMpotential = new double [potentialUniverse->sysSize];
 	Hpotential = new double [potentialUniverse->sysSize];
 	
-	Alavi_point_Eng(CMpotential, Hpotential, potentialUniverse, atomGeo);
+	Alavi_TIP4P_point_Eng(CMpotential, Hpotential, potentialUniverse, atomGeo);
 	
 	cout << "----------------------------------------------------------------------------" << endl;
 	
