@@ -14,7 +14,7 @@ LDFLAGS=-fopenmp -framework Accelerate -lgfortran
 SOURCES=lanczosEigenValuesVectors.cpp $(LIB_SOURCES)
 SOURCES2 = $(SOURCES:.cpp=.o)
 OBJECTS= $(SOURCES2:.f=.o)
-EXECUTABLE=Lanczos
+EXECUTABLE=Lanczos_OSX
 
 #print_vars:
 #	echo $(SOURCES)

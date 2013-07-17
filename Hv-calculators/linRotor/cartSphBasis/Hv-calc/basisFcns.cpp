@@ -1019,6 +1019,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *interface, int rangeFlag) {
 	int m, mp, n, a, b;
 	int anmp, nmp, nm, bna, anb, mna;
+	double potentialCeiling;
 	
 	//Extract out desired variables from the interface storage structure
 	quadStor *gaussQuad;
@@ -1035,6 +1036,8 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 	l_max = lmBasis->lmax;
 	qNum = lmBasis->qNum;
 	length = lmBasis->length;
+	
+	potentialCeiling = atomPotentials->potentialCeiling;
 	
 	//Determine whether I am calculating phi = acos(cosPhiAbscissae) or phi = 2PI - acos(cosPhiAbscissae)
 	if (rangeFlag == 0) {
@@ -1160,6 +1163,10 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 			//Calculate potential at x, y, z, theta, phi 
 			V_ab = Alavi_H2_Eng_Point(CMpotential, H_potential, &linearMolecule, point_universe);
 			
+			if (V_ab >= potentialCeiling) {
+				V_ab = potentialCeiling;
+			}
+			
 			ut_ab[anb + b] = V_ab * u_ab[bna + a];
 		}
 	}
@@ -1215,7 +1222,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	
 	int nx, ny, nz, l_max, thetaPoints, phiPoints, pnx, pny, pnz;
 	double x_max, y_max, z_max, px_max, py_max, pz_max;
-	double rotationalConstant, totalMass;
+	double rotationalConstant, totalMass, ceilingPotential;
 	string geometryFilename, line, junk, simulationFilename;
 	
 	inputFilename = argv[2];
@@ -1284,6 +1291,9 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 		
 		inputFile >> junk;
 		inputFile >> simulationFilename;
+		
+		inputFile >> junk;
+		inputFile >> ceilingPotential;
 	}
 	else {
 		cerr << "Input file '" << inputFilename << "' could not be opened." << endl;
@@ -1666,7 +1676,8 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	
 	partialPotential->CMpotential = CMpotential;
 	partialPotential->H_potential = Hpotential;
-	partialPotential->potentialUniverse = potentialUniverse;	
+	partialPotential->potentialUniverse = potentialUniverse;
+	partialPotential->potentialCeiling = ceilingPotential;
 	
 	//delete [] atomGeo->atomType;
 	//	delete [] atomGeo->atomPos;

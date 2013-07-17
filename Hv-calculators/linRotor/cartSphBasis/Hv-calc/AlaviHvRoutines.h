@@ -14,6 +14,8 @@
 #include "boundStateContainers.h"
 #include "Alavi_H2_Routines.h"
 
+#define VCEIL 100 //kJ/mol
+
 double factorial(int num);
 
 void genIndices_lm(int l_max, int ***qNum, int *length, int ***index, int *dims);

@@ -6,4 +6,4 @@ EigenvalueClosedUpperLimit(kJ/mol)= 10
 NumberOfEigenvectors(all/partial/none)= none
 NumberOfEigenvectors= 3
 HvCalculator= linRotCartSph_Alavi
-OutputDirectoryPath= ./toby/
+OutputDirectoryPath= ./

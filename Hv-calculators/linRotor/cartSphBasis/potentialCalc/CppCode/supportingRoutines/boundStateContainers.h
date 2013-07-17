@@ -142,6 +142,7 @@ struct pointPotentialStorH2 {
 	double *CMpotential;
 	double *H_potential;
 	universeProp *potentialUniverse;
+	double potentialCeiling;
 	
 	~pointPotentialStorH2() {
 		delete [] CMpotential;

@@ -254,11 +254,11 @@ double Alavi_H2_Eng_Point(double *CMpotential, double *H_potential, H2_orient *H
 	H2potential += H_potential[index];
 	
 	delete [] indices;
-	
+	/* This test relegated to Vv.
 	if (H2potential>=VCEIL) {
 		H2potential = VCEIL;
 	}
-	
+	*/
 	return H2potential;
 }
 
