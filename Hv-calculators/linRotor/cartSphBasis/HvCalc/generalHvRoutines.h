@@ -14,7 +14,6 @@
 #include "boundStateContainers.h"
 #include "Alavi_H2_Routines.h"
 #include "Alavi_H2_TIP4P_Routines.h"
-#include "AlaviHvRoutines.h"
 
 //#define VCEIL 100 //kJ/mol
 
@@ -48,11 +47,9 @@ double* rotKinEng(int **qNum, int length, double momentOfInertia);
 
 void tesseralTest(int l_max, int thetaPoints, int phiPoints);
 
-/* These have been moved to AlaviHvRoutines.H
 double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *interface, int rangeFlag);
 
 void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosStor *lanczos);
-*/
 
 double* Mv_5D_oneCompositeIndex(double *v_ipjkn, double *mat_iip, int ni, int nj, int nk, int nn);
 

@@ -77,4 +77,41 @@ void Alavi_TIP4P_point_Eng(double *CMpotential, double *Hpotential, universeProp
 	}
 }	
 
+pointPotentialStorH2* preCalcPotential_Alavi_TIP4P(int numDim, double *gridMax, int *gridPoints, string geometryFilename){
+	
+	//There are 3 spatial dimensions, so numDim = 3 and the gridMax and gridPoints arrays are of length 3
+	
+	//Get the grid for the potential
+	universeProp *potentialUniverse;
+	
+	potentialUniverse = generateGrid(numDim, gridMax, gridPoints);
+	
+	//Get the system geometry for TIP4P molecules
+	sysAtoms *atomGeo = new sysAtoms();
+	
+	getTIP4Patoms(&(atomGeo->atomType), &(atomGeo->atomPos), &(atomGeo->nAtoms), geometryFilename);
+	
+	//Get the partial potentials
+	double *CMpotential, *Hpotential;
+	
+	CMpotential = new double [potentialUniverse->sysSize];
+	Hpotential = new double [potentialUniverse->sysSize];
+	
+	Alavi_TIP4P_point_Eng(CMpotential, Hpotential, potentialUniverse, atomGeo);
+	
+	cout << "----------------------------------------------------------------------------" << endl;
+	
+	//Store everything for interface
+	pointPotentialStorH2 *partialPotential = new pointPotentialStorH2();
+	
+	partialPotential->CMpotential = CMpotential;
+	partialPotential->H_potential = Hpotential;
+	partialPotential->potentialUniverse = potentialUniverse;
+	
+	//delete [] atomGeo->atomType;
+	//	delete [] atomGeo->atomPos;
+	delete atomGeo;
+	
+	return partialPotential;
+}
 

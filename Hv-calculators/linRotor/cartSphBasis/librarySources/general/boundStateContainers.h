@@ -182,6 +182,13 @@ struct tesseralStor {
 	};
 };
 
+struct interfaceStor;
+
+struct fcnPointerStor {
+	double (*linearMoleculePotential)(interfaceStor*, H2_orient*) = NULL;
+	pointPotentialStorH2* (*preCalcPotential)(int, double*, int*, string) = NULL;
+};
+
 struct interfaceStor {
 	quadStor *quadrature;
 	fiveDGrid *grids;
@@ -189,6 +196,7 @@ struct interfaceStor {
 	tesseralStor *tesseral;
 	tesseralStor *tesseral2PI;
 	lmFBR *lmBasis;
+	fcnPointerStor *fcnPointers;
 	
 	/*
 	interfaceStor() {
@@ -207,6 +215,7 @@ struct interfaceStor {
 		delete tesseral;
 		delete tesseral2PI;
 		delete lmBasis;
+		delete fcnPointers;
 	};
 };
 

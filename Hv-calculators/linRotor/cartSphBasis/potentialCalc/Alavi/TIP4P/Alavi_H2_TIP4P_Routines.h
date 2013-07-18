@@ -17,4 +17,6 @@
 
 void Alavi_TIP4P_point_Eng(double *CMpotential, double *Hpotential, universeProp *point_universe, sysAtoms *atomGeo);
 
+pointPotentialStorH2* preCalcPotential_Alavi_TIP4P(int numDim, double *gridMax, int *gridPoints, string geometryFilename);
+
 #endif

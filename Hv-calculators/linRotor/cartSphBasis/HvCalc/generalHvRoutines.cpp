@@ -1,5 +1,4 @@
-
-#include "AlaviHvRoutines.h"
+#include "generalHvRoutines.h"
 
 using namespace std;
 
@@ -1014,7 +1013,6 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	
 }
 
-/* These have been moved to AlaviHvRoutines.cpp
 //This calculates the vector multiplied by the potential, for a given xyz and either acos(cosPhiAbscissae) or 2PI - acos(cosPhiAbscissae)
 //Test this with both a potential = 1 and potential = cos(theta) or cos(phi)
 double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *interface, int rangeFlag) {
@@ -1029,16 +1027,20 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 	lmFBR *lmBasis;
 	
 	int l_max, **qNum, length;
+	double (*linearMoleculePotential)(interfaceStor*, H2_orient*) = NULL;
 	
 	gaussQuad = interface->quadrature;
 	atomPotentials = interface->potential;
 	lmBasis = interface->lmBasis;
+	
 	
 	l_max = lmBasis->lmax;
 	qNum = lmBasis->qNum;
 	length = lmBasis->length;
 	
 	potentialCeiling = atomPotentials->potentialCeiling;
+	linearMoleculePotential = interface->fcnPointers->linearMoleculePotential;
+	
 	
 	//Determine whether I am calculating phi = acos(cosPhiAbscissae) or phi = 2PI - acos(cosPhiAbscissae)
 	if (rangeFlag == 0) {
@@ -1063,15 +1065,6 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 	cosPhiAbscissae = gaussQuad->GCabscissae;
 	wb = gaussQuad->GCweights;
 	nb = gaussQuad->GCnum;
-	//
-	
-	//Potential Variables
-	double *CMpotential, *H_potential; 
-	universeProp *point_universe;
-	
-	CMpotential = atomPotentials->CMpotential;
-	H_potential = atomPotentials->H_potential;
-	point_universe = atomPotentials->potentialUniverse;
 	//
 	
 	//Tesseral Harmonics Variables
@@ -1161,8 +1154,10 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 				linearMolecule.phi = 2*PI - acos(cosPhiAbscissae[b]);
 			}
 			
-			//Calculate potential at x, y, z, theta, phi 
-			V_ab = Alavi_H2_Eng_Point(CMpotential, H_potential, &linearMolecule, point_universe);
+			//Calculate potential at x, y, z, theta, phi EDIT
+			V_ab = (*linearMoleculePotential)(interface, &linearMolecule);
+			
+			//V_ab = 0.0; //Set to zero for debugging purposes
 			
 			if (V_ab >= potentialCeiling) {
 				V_ab = potentialCeiling;
@@ -1313,7 +1308,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	
 	//Check that the system dimensions are reasonable
 	if (x_max > px_max || y_max > py_max || z_max > pz_max) {
-		cerr << "Error, the system dimensions must be the same size or smaller than the potential universe dimensions." << endl;
+		cerr << "Error, the system's physical dimensions must be the same size or smaller than the potential universe dimensions." << endl;
 		exit(1);
 	}
 	
@@ -1637,11 +1632,9 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	//Pre-Calculate the Potential
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	cout << "Pre-calculating the partial potentials:" << endl;
+	cout << "Pre-calculating the potential:" << endl;
 	cout << "----------------------------------------------------------------------------" << endl;
 	
-	//Get the grid for the potential
-	universeProp *potentialUniverse;
 	int numDim = 3; //There are 3 spatial dimensions
 	double *gridMax = new double [3];
 	int *gridPoints = new int [3];
@@ -1655,36 +1648,14 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	gridMax[2] = pz_max;
 	gridPoints[2] = pnz;
 	
-	potentialUniverse = generateGrid(numDim, gridMax, gridPoints);
 	
-	//Get the system geometry for TIP4P molecules
-	sysAtoms *atomGeo = new sysAtoms();
+	pointPotentialStorH2 *partialPotential;
 	
-	getTIP4Patoms(&(atomGeo->atomType), &(atomGeo->atomPos), &(atomGeo->nAtoms), geometryFilename);
+	partialPotential = (*(interface->fcnPointers->preCalcPotential))(numDim, gridMax, gridPoints, geometryFilename);
 	
-	//Get the partial potentials
-	double *CMpotential, *Hpotential;
-	
-	CMpotential = new double [potentialUniverse->sysSize];
-	Hpotential = new double [potentialUniverse->sysSize];
-	
-	Alavi_TIP4P_point_Eng(CMpotential, Hpotential, potentialUniverse, atomGeo);
-	
-	cout << "----------------------------------------------------------------------------" << endl;
-	
-	//Store everything for interface
-	pointPotentialStorH2 *partialPotential = new pointPotentialStorH2();
-	
-	partialPotential->CMpotential = CMpotential;
-	partialPotential->H_potential = Hpotential;
-	partialPotential->potentialUniverse = potentialUniverse;
 	partialPotential->potentialCeiling = ceilingPotential;
 	
-	//delete [] atomGeo->atomType;
-	//	delete [] atomGeo->atomPos;
-	delete atomGeo;
-	
-	cout << "Partial potentials calculated." << endl;
+	cout << "Potentials Pre-calculated." << endl;
 	
 	cout << "////////////////////////////////////////////////////////////////////////////" << endl;
 	
@@ -1704,7 +1675,6 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	
 	cout << "Hv Preparation FINISHED." << endl;
 }
-*/
 
 double* Mv_5D_oneCompositeIndex(double *v_ipjkn, double *mat_iip, int ni, int nj, int nk, int nn) { 
 	int i, ip, j, k, n;

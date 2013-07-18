@@ -4,8 +4,8 @@
 #include "vectClass.h" //This is to select which linear algebra class should be used.
 #include "lanczos.h"
 #include "boundStateContainers.h"
-#include "AlaviHvRoutines.h"
 #include "generalHvRoutines.h"
+#include "interface.h"
 
 //#include "peckeris.h"
 
@@ -22,98 +22,6 @@ static const double MofH2 = 2.015650642; // nist value
 static const double MofD2 = 2.0141017780*2.;// nist
 static const double MofHe4 = 4.0026032497; // nist mass of He in amu
 */
-void Hv_prep_lanczos(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_data) {
-	
-	interfaceStor *Hv_data;
-	Hv_data = reinterpret_cast<interfaceStor*> (general_data);
-	
-	HvPrep_Internal(argc, argv, Hv_data, lanczos_data);
-	
-	/*
-	lanczos_data->total_basis_size = 3;
-	lanczos_data->sim_descr = "HELLO_WORLD!";
-	lanczos_data->sim_descr_short = "HELLO_WORLD!";
-	 */
-};
-
-void Hv(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_data, double *vec, double *uec){
-	int i;
-	double *uec1;
-	
-	interfaceStor *Hv_data;
-	Hv_data = reinterpret_cast<interfaceStor*> (general_data);
-	
-	uec1 = Hv_5D_oneCompositeIndex(Hv_data, vec);
-	
-	for (i=0; i<lanczos_data->total_basis_size; i++) {
-		uec[i] += uec1[i];
-	}
-	
-	delete [] uec1;
-	
-	/*
-	uec[0] = 1*vec[0] + 2*vec[1] + 3*vec[2];
-	uec[1] = 2*vec[0] + 3*vec[1] + 7*vec[2];
-	uec[2] = 3*vec[0] + 7*vec[1] + 5*vec[2];
-	
-	
-	//	>>> mat = np.matrix("1 2 3; 2 3 7; 3 7 5")
-//	>>> mat
-//	matrix([[1, 2, 3],
-//			[2, 3, 7],
-//			[3, 7, 5]])
-//	>>> eigVal, eigVec = np.linalg.eig(mat)
-//	>>> eigVal
-//	array([ 12.21334124,  -0.07835212,  -3.13498912])
-//	>>> eigVec
-//	matrix([[ 0.30420961,  0.94239088, -0.13912562],
-//			[ 0.61728354, -0.30624898, -0.72468793],
-//			[ 0.72554638, -0.13457708,  0.67488626]])
-	
-	*/
-	
-	
-	/*
-	uec[0] = 100*vec[0] + 200*vec[1];
-	uec[1] = 200*vec[0] + 500*vec[1];	
-	
-	//>>> H = np.mat("100 200; 200 500")
-	//	>>> eVal,eVect = np.linalg.eig(H)
-	//	>>> eVal
-	//	array([  17.15728753,  582.84271247])
-	//	>>> eVect[0,0]/eVect[1,0]
-	//	-2.4142135623730954
-	//	>>> eVect[0,1]/eVect[1,1]
-	//	0.41421356237309503
-	*/
-	
-	/*
-	uec[0] = 100*vec[0] + 200*vec[1];
-	uec[1] = 300*vec[0] + 400*vec[1];
-	
-	//Python Solution:
-	//  >>> H = np.mat("100 200; 300 400") //NOTE: This is non-hermitian
-	//	>>> eVal,eVect = np.linalg.eig(H)
-	//	>>> eVal
-	//	array([ -37.22813233,  537.22813233])
-	//	>>> eVect[0,0]/eVect[1,0]
-	//	-1.4574271077563381
-	//	>>> eVect[0,1]/eVect[1,1]
-	//	0.45742710775633816
-	*/
-	
-	/*
-	uec[0] = 0.1*vec[0] + 0.2*vec[1];
-	uec[1] = 0.3*vec[0] + 0.4*vec[1];
-	
-	//For H = [0.1, 0.2] //NOTE: This is non-hermitian
-	//		  [0.3, 0.4]
-	//eig[0] = 0.5372
-	//eig[1] = -0.03723
-	//v[0] = [0.457, 1]
-	//v[1] = [-1.457, 1]
-	 */
-};
 
 int main(int argc,char **argv) {
 	int i,j,row,n;
@@ -192,19 +100,13 @@ int main(int argc,char **argv) {
 	generalStor *general_data;
 	//generalStor *general_data = new generalStor();
 	
-	//Allocate transfer container
-	if (HvCalculatorSwitch == "linRotCartSph_Alavi") {
-		interfaceStor *linRotCartSph_Alavi = new interfaceStor();
-		
-		general_data = reinterpret_cast<generalStor*> (linRotCartSph_Alavi);
-	}
-	else {
-		cerr << "HvCalculator '" << HvCalculatorSwitch << "' not recognized." << endl;
-	}
-
+	void (*HvPrepPtr)(int, char**, generalStor*, lanczosStor*) = NULL;
+	void (*HvPtr)(int, char**, generalStor*, lanczosStor*, double*, double*) = NULL;
+	
+	HvInterfaceSetup(HvCalculatorSwitch, &general_data, &HvPrepPtr, &HvPtr);
 	
 	//Set up what is needed for any Hv calculations, such as pre-calculating the potential and any other matricies
-	Hv_prep_lanczos(argc, argv, general_data, lanczos_data);
+	(*HvPrepPtr)(argc, argv, general_data, lanczos_data);
 	
 	int ntotbs = lanczos_data->total_basis_size;
 	string sim_descr = lanczos_data->sim_descr;
@@ -292,7 +194,7 @@ int main(int argc,char **argv) {
 			uec[ib]=0.;
 		
 		//u_j = u_j + H*v_j
-		Hv(argc, argv, general_data, lanczos_data, vec, uec);
+		(*HvPtr)(argc, argv, general_data, lanczos_data, vec, uec);
 		
 		//r_j = r_j + u_j; ; results in r_j = (-beta_(j-1) * v_(j-1)) + (H*v_j) = H*v_j - beta_(j-1) * v_(j-1)
 		for (int ib=0;ib<ntotbs;ib++) 
@@ -511,7 +413,7 @@ int main(int argc,char **argv) {
 			uec[ib]=0.;
 		
 		//u_j = u_j + H*v_j
-		Hv(argc, argv, general_data, lanczos_data, vec, uec);
+		(*HvPtr)(argc, argv, general_data, lanczos_data, vec, uec);
 		
 		//r_j = r_j + u_j; ; results in r_j = (-beta_(j-1) * v_(j-1)) + (H*v_j) = H*v_j - beta_(j-1) * v_(j-1)
 		for (int ib=0;ib<ntotbs;ib++) 
