@@ -1,14 +1,14 @@
 #
 #Make sure that there is no space before the equals sign and only one after; you will get an error or weird results otherwise
-nx= 10
+nx= 100
 x_max(nm)= 1.0
-ny= 10
+ny= 100
 y_max(nm)= 1.0
-nz= 10
+nz= 100
 z_max(nm)= 1.0
 l_max= 0
-thetaPoints= 10
-phiPoints= 10
+thetaPoints= 2
+phiPoints= 2
 pointPotential_nx= 10
 pointPotential_x_max(nm)= 1.0
 pointPotential_ny= 10

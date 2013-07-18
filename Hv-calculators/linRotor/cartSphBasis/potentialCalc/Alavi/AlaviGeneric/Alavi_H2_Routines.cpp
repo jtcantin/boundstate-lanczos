@@ -131,7 +131,7 @@ void Alavi_H2_Eng(double *H2potential, double *CMpotential, double *H_potential,
 	}
 	}
 }
-
+/*
 void Alavi_point_Eng(double *CMpotential, double *Hpotential, universeProp *point_universe, sysAtoms *atomGeo) {
 	
 	int i, thread, nthreads, chunk;
@@ -206,16 +206,23 @@ void Alavi_point_Eng(double *CMpotential, double *Hpotential, universeProp *poin
 	
 	}
 }	
+*/
 
-
-double Alavi_H2_Eng_Point(double *CMpotential, double *H_potential, H2_orient *H2_mol, universeProp *point_universe) {
+double Alavi_H2_Eng_Point(interfaceStor *interface, H2_orient *H2_mol) {
 	
 	int i, index, *indices;
 	double H2potential, grid_min;
 	
+	//Potential Variables
+	double *CMpotential, *H_potential; 
+	universeProp *point_universe;
+	
+	CMpotential = interface->potential->CMpotential;
+	H_potential = interface->potential->H_potential;
+	point_universe = interface->potential->potentialUniverse;
+	//
+	
 	indices = new int [point_universe->numDim];
-	
-	
 	
 	//Calculate Energy for H2 molecule
 	H2potential = 0.0;

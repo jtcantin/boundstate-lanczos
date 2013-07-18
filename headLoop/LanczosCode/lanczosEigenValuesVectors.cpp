@@ -125,10 +125,11 @@ int main(int argc,char **argv) {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Get information from Lanczos Algorithm Input File
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	string lanczosInputFilename, junk, line, outputDirPath;
+	string lanczosInputFilename, junk, line, outputDirPath, HvInputFilename;
 	ifstream lanczosInputFile;
 	
 	lanczosInputFilename = argv[1];
+	HvInputFilename = argv[2];
 	
 	lanczosInputFile.open(lanczosInputFilename.c_str(), ios::in);
 	if (lanczosInputFile.is_open()) {
@@ -243,6 +244,13 @@ int main(int argc,char **argv) {
 	}
 	
 	cout << "The output directory is: " << dir_string << endl;
+	
+	//copy over input files for reference
+	commandString = "cp " + lanczosInputFilename + " " + dir_string;
+	system(commandString.c_str());
+	
+	commandString = "cp " + HvInputFilename + " " + dir_string;
+	system(commandString.c_str());
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Lanczos Loop 1 - Get Tm

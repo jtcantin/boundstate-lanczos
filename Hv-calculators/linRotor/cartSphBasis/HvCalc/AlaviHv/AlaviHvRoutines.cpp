@@ -58,15 +58,6 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 	nb = gaussQuad->GCnum;
 	//
 	
-	//Potential Variables
-	double *CMpotential, *H_potential; 
-	universeProp *point_universe;
-	
-	CMpotential = atomPotentials->CMpotential;
-	H_potential = atomPotentials->H_potential;
-	point_universe = atomPotentials->potentialUniverse;
-	//
-	
 	//Tesseral Harmonics Variables
 	double **L_lpmp, **S_mp, **S_m, **L_lm;
 	
@@ -154,8 +145,10 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 				linearMolecule.phi = 2*PI - acos(cosPhiAbscissae[b]);
 			}
 			
-			//Calculate potential at x, y, z, theta, phi 
-			V_ab = Alavi_H2_Eng_Point(CMpotential, H_potential, &linearMolecule, point_universe);
+			//Calculate potential at x, y, z, theta, phi EDIT
+			V_ab = Alavi_H2_Eng_Point(interface, &linearMolecule);
+			
+			//V_ab = 0.0; //Set to zero for debugging purposes
 			
 			if (V_ab >= potentialCeiling) {
 				V_ab = potentialCeiling;
@@ -627,7 +620,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//Pre-Calculate the Potential
+	//Pre-Calculate the Potential EDIT
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	cout << "Pre-calculating the partial potentials:" << endl;

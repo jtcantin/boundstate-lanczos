@@ -1,0 +1,26 @@
+The following are the relative energies for the simulation FreeRotorInTruncatedSpace
+Number of Eigenvalues: 22
+Zero Point Energy = 0.0287426 kJ/mol
+State | Relative Energy (kJ/mol)
+0 0
+1 0.0287427
+2 0.0574854
+3 0.076647
+4 0.153294
+5 0.229941
+6 0.229942
+7 0.306589
+8 0.383236
+9 0.459884
+10 0.459887
+11 0.536531
+12 0.536534
+13 0.613181
+14 0.689826
+15 0.689829
+16 0.766476
+17 0.766485
+18 0.843132
+19 0.919771
+20 0.919774
+21 0.919779
