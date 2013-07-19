@@ -11,9 +11,11 @@ interface.cpp - add another else if statement to check HvCalculator against and 
 interface.h - add the include file for the new code that contains the functions to be pointed to
 makefile_OSX, makefile_LINUX_NLOGN, makefile_LINUX_TOBY - add the sources to the list (using a SUP_PATH variable) and add the SUP_PATH to the includes list. SUP_PATH stands for "SUPporting Routine PATH".
 
-If you are changing the potential for the Linear Rotor, Cartesian Centre of Mass, Spherical Harmonics Hv Calculator, you need to change ONLY the above two files, except for when the given storage arrays for the potential are not sufficient and you need to add some to the pointPotentialStorH2 structure found in linRotCartSphContainers.h.
+If you touch the other files, or delete anything, you may break the code.
 
-If you find that you need to make any other changes, please talk to Joshua T. Cantin before you implement them. Also, do NOT delete anything of what is already there, just add to the files when making the changes.
+If you are changing the potential for the Linear Rotor, Cartesian Centre of Mass, Spherical Harmonics Hv Calculator, you need to change ONLY the above five files, except for when the given storage arrays for the potential are not sufficient and you need to add some to the pointPotentialStorH2 structure found in linRotCartSphContainers.h.
+
+If you find that you need to make any other changes, please talk to Joshua T. Cantin before you implement them. Also, do NOT delete anything of what is already there, just add to the files when making the changes; otherwise, it may break the rest of the code.
 
 To run the code, you need the executable and at least one input file. You will need two for the Alavi HvCalculator. The code can be run as:
 ./Lanczos LanczosInputFile.txt [OtherInputFile.txt ...]
