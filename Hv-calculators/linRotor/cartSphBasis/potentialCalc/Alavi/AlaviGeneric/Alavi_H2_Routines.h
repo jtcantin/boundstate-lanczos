@@ -8,7 +8,8 @@
 #include <string.h>
 #include "gridFcns.h"
 #include "vectClass.h" //This is to select which linear algebra class should be used.
-#include "boundStateContainers.h"
+#include "interfaceContainers.h"
+#include "linRotCartSphContainers.h"
 #include "lanczosUnits.h"
 
 //#define VCEIL 100 //kJ/mol

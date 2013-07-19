@@ -2,7 +2,7 @@
 #define	INTERFACE_H
 
 #include <iostream>
-#include "boundStateContainers.h"
+#include "interfaceContainers.h"
 #include "lanczosUnits.h"
 
 //Vector and Matrix Classes
@@ -10,6 +10,7 @@
 
 //Linear Rotor Cartesian Position and Spherical Harmonics Rotational Basis Hv
 #include "linRotCartSphHvRoutines.h"
+#include "linRotCartSphContainers.h"
 
 //Alavi Hydrogen Model
 #include "Alavi_H2_Routines.h"

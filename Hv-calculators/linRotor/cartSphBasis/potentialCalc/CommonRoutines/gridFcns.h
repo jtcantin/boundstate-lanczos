@@ -6,7 +6,8 @@
 #include <string.h>
 #include <iomanip>
 #include "vectClass.h" //This is to select which linear algebra class should be used.
-#include "boundStateContainers.h"
+#include "linRotCartSphContainers.h"
+#include "interfaceContainers.h"
 #include "lanczosUnits.h"
 
 using namespace std;

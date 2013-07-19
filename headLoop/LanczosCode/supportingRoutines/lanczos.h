@@ -5,7 +5,7 @@
 #include <cmath>
 #include <ctime>
 #include "lanczosUnits.h"
-#include "boundStateContainers.h"
+#include "interfaceContainers.h"
 #include "vectClass.h" //This is to select which linear algebra class should be used.
 #include "interface.h"
 

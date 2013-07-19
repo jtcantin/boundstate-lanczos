@@ -1,1 +1,23 @@
-This is the location of the head loop for the Lanczos code. This head loop will reference the Hv routines in the Hv-calculators folder.
+*PRELIMINARY README FILE*
+This code has been designed to calculate quantum mechanical boundstate eigenvalues and eigenvectors using the Lanczos Algorithm.
+This code was mostly written by Joshua T. Cantin and sections were written by Dr. Pierre-Nicholas Roy and Dr. Tao (Toby) Zeng.
+
+To compile the code, makefiles for Mac OS X and Linux (Ubuntu) can be found in the Compilation folder.
+
+The Lanczos Algorithm, Hv Calculator, and Potential Calculator are all logically and functionally separated; to each section of the code, the rest are a black box to be accessed via function pointers. These function pointers point to functions as defined within interface.cpp. interface.cpp will choose the function pointers based on the HvCalculator variable in the LanczosInputFile. interface.cpp also chooses the storage structure that is handled by Lanczos as a black box that is passed to Hv and HvPrep for internal use.
+
+If someone wishes to add a potential or another Hv calculator, you do NOT need to touch any of the existing files except for the following:
+interface.cpp - add another else if statement to check HvCalculator against and put in the appropriate function pointers and storage structure
+interface.h - add the include file for the new code that contains the functions to be pointed to
+makefile_OSX, makefile_LINUX_NLOGN, makefile_LINUX_TOBY - add the sources to the list (using a SUP_PATH variable) and add the SUP_PATH to the includes list. SUP_PATH stands for "SUPporting Routine PATH".
+
+If you are changing the potential for the Linear Rotor, Cartesian Centre of Mass, Spherical Harmonics Hv Calculator, you need to change ONLY the above two files, except for when the given storage arrays for the potential are not sufficient and you need to add some to the pointPotentialStorH2 structure found in linRotCartSphContainers.h.
+
+If you find that you need to make any other changes, please talk to Joshua T. Cantin before you implement them. Also, do NOT delete anything of what is already there, just add to the files when making the changes.
+
+To run the code, you need the executable and at least one input file. You will need two for the Alavi HvCalculator. The code can be run as:
+./Lanczos LanczosInputFile.txt [OtherInputFile.txt ...]
+
+Templates for the LanczosInputFile.txt and the file needed for the Linear Rotor, Cartesian Centre of Mass, Spherical Harmonics Hv Calculator can be found in the InputFileTemplates folder.
+
+Note that only the eigenvalue and not the eigenvector portion of the Lanczos code has been memory tested so far; the eigenvector portion may leak memory heavily and/or make invalid reads or writes.

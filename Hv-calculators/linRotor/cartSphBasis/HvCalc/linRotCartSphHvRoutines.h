@@ -10,7 +10,8 @@
 #include <cfloat>
 #include <omp.h>
 #include "vectClass.h" //This is to select which linear algebra class should be used.
-#include "boundStateContainers.h"
+#include "interfaceContainers.h"
+#include "linRotCartSphContainers.h"
 #include "lanczosUnits.h"
 
 double factorial(int num);
