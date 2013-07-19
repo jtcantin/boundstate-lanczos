@@ -1,4 +1,4 @@
-#include "generalHvRoutines.h"
+#include "linRotCartSphHvRoutines.h"
 
 using namespace std;
 
@@ -289,7 +289,7 @@ double plgndr(int l,int m,double x) {
 }
 
 //Calculation of the set of normalized associated Legendre polynomials for l = 0 to l_max and m = -l_max to l_max 
-// This function returns a pointer to an array of the normalized associated Legendre polynomials in the [n] composit basis
+// This function returns a pointer to an array of the normalized associated Legendre polynomials in the [n] composite basis
 double* normAssocLegendrePoly(int **qNum, int length, double x){
 	//Storage arrays
 	double *legendre, **legenArr;
@@ -476,35 +476,6 @@ void gaussLegendre(int numPoints, double **abscissae, double **weights){
 	
 	(*weights) = legendreWeights(n, (*abscissae));
 }
-
-/*
- //Cartesian Kinetic Energy operator and grid
- //The grid spans [-x_max, x_max]
- // !Make sure to delete (ie. dealloc) kinMat and grid!
- void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, double **grid) {
- int i, j;
- double d_x;
- 
- d_x = 2.0*x_max/(nPoints + 1.0);
- 
- (*grid) = new double [nPoints];
- (*kinMat) = new double [nPoints*nPoints];
- for (i=0; i<nPoints; i++) {
- (*grid)[i] = double(i+1)*d_x - x_max;
- 
- for (j=0; j<nPoints; j++) {
- (*kinMat)[i*nPoints + j] = (H_BAR*H_BAR) / (2.0 * totalMass * d_x * d_x) * pow(-1.0, (i+1)-(j+1));
- if (i==j) {
- (*kinMat)[i*nPoints + j] *= (PI*PI)/3.0;
- }
- else {
- (*kinMat)[i*nPoints + j] *= 2.0/double( ((i+1)-(j+1)) * ((i+1)-(j+1)) );
- }
- 
- }
- }
- }*/
-
 
 //Cartesian Kinetic Energy operator and grid
 //The grid spans [-x_max/2, x_max/2]
@@ -1317,7 +1288,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 		exit(1);
 	}
 	
-	cout << "Input file parameters read." << endl;
+	cout << "Hv Input file parameters read." << endl;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Generate the x, y, and z bases and Kinetic Energy Operators
@@ -1651,7 +1622,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	
 	pointPotentialStorH2 *partialPotential;
 	
-	partialPotential = (*(interface->fcnPointers->preCalcPotential))(numDim, gridMax, gridPoints, geometryFilename);
+	partialPotential = (*(interface->fcnPointers->preCalcPotential))(numDim, gridMax, gridPoints, geometryFilename, interface);
 	
 	partialPotential->potentialCeiling = ceilingPotential;
 	
@@ -1916,7 +1887,7 @@ double* Hv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	//cout << "Tv finished" << endl;
 	
 	//Calculate the potential energy terms
-	Vv_ijkn = Vv_5D_oneCompositeIndex(interface, v_ipjkn); //Zero out for debugging
+	Vv_ijkn = Vv_5D_oneCompositeIndex(interface, v_ipjkn);
 	
 	//cout << "Vv finished" << endl;
 	
@@ -1931,6 +1902,32 @@ double* Hv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	
 	return Hv_ijkn;
 }
+
+void Hv_Prep_linRotCartSph(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_data) {
+	
+	interfaceStor *Hv_data;
+	Hv_data = reinterpret_cast<interfaceStor*> (general_data);
+	
+	HvPrep_Internal(argc, argv, Hv_data, lanczos_data);
+	
+};
+
+void Hv_linRotCartSph(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_data, double *vec, double *uec) {
+	int i;
+	double *uec1;
+	
+	interfaceStor *Hv_data;
+	Hv_data = reinterpret_cast<interfaceStor*> (general_data);
+	
+	uec1 = Hv_5D_oneCompositeIndex(Hv_data, vec);
+	
+	for (i=0; i<lanczos_data->total_basis_size; i++) {
+		uec[i] += uec1[i];
+	}
+	
+	delete [] uec1;
+	
+};
 
 /*
 int main(int argc, char** argv) {

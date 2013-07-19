@@ -1,17 +1,16 @@
+#ifndef TIP4P_AH2_ENGROUTINES_H
+#define TIP4P_AH2_ENGROUTINES_H
+
 #include <iostream>
 #include <fstream>
 #include <cmath>
 #include <cstdlib>
 #include <string>
-//#include <cstdio>
 #include "vectClass.h" //This is to select which linear algebra class should be used.
 #include "rotmat.h"
 #include "energyRoutines.h"
 #include "lanczosUnits.h"
 using namespace std;
-
-#ifndef TIP4P_AH2_ENGROUTINES_H
-#define TIP4P_AH2_ENGROUTINES_H
 
 //TIP4P parameters; Values from a calculation using the values from: Water models http://www.lsbu.ac.uk/water/models.html (accessed May 17, 2013).
 #define Q_H 0.520 //e 
@@ -40,19 +39,6 @@ using namespace std;
 #define SIGMA_OH2 0.3101 //nm; Lorentz-Bertholet Combination of SIGMA_O-O = 3.166 Ang and SIGMA_H2-H2 = 3.038 Ang; SIGMA_OH2 = sqrt(SIGMA_O-O*SIGMA_H2-H2) = 3.101 Ang; Alavi, S.; Ripmeester, J. A.; Klug, D. D. Molecular-dynamics study of structure II hydrogen clathrates. J. Chem. Phys. 2005, 123, 024507.
 #define A_LJ_OH 1.362e-06 //kJ.nm^12/mol; 4*EPS_OH2*SIGMA_OH2^12
 #define B_LJ_OH 1.532e-3 //kJ.nm^6/mol; 4*EPS_OH2*SIGMA_OH2^6
-
-#define Q_H2_H 0.4932 //e, from Alavi, S.; Ripmeester, J. A.; Klug, D. D. Molecular-dynamics study of structure II hydrogen clathrates. J. Chem. Phys. 2005, 123, 024507.
-#define Q_H2_CM -0.9864 //e, from Alavi, S.; Ripmeester, J. A.; Klug, D. D. Molecular-dynamics study of structure II hydrogen clathrates. J. Chem. Phys. 2005, 123, 024507.
-
-#define H2_H1_X 0.
-#define H2_H1_Y 0.
-#define H2_H1_Z 0.03707 //nm; Bondlength is 0.7414 Ang from Alavi_2005
-
-#define H2_H2_X 0.
-#define H2_H2_Y 0.
-#define H2_H2_Z -0.03707 //nm; Bondlength is 0.7414 Ang from Alavi_2005
-
-//#define NM_PER_ANG 0.1
 
 void getTIP4Patoms(char **atomType, VECT **atomPos, int *nAtoms, string filename);
 

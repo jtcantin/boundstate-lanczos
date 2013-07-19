@@ -1,7 +1,7 @@
-#include "vectClass.h" //This is to select which linear algebra class should be used.
-
 #ifndef BOUNDSTATECONTAINERS_H
 #define	BOUNDSTATECONTAINERS_H
+
+#include "vectClass.h" //This is to select which linear algebra class should be used.
 
 struct H2_orient {
 	VECT *CM;
@@ -186,7 +186,12 @@ struct interfaceStor;
 
 struct fcnPointerStor {
 	double (*linearMoleculePotential)(interfaceStor*, H2_orient*) = NULL;
-	pointPotentialStorH2* (*preCalcPotential)(int, double*, int*, string) = NULL;
+	pointPotentialStorH2* (*preCalcPotential)(int, double*, int*, string, interfaceStor*) = NULL;
+	double (*SummedCoulombPotential)(VECT, double, char*, VECT*, int) = NULL;
+	double (*SummedLJPotential)(VECT, char*, VECT*, int) = NULL;
+	double (*SummedLJPotentialFast)(VECT, char*, VECT*, int) = NULL;
+	void (*getAtomGeometry)(char**, VECT**, int*, string) = NULL;
+	
 };
 
 struct interfaceStor {

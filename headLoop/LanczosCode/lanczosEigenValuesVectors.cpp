@@ -1,13 +1,4 @@
-#include <iostream>
-#include <cmath>
-#include <ctime>
-#include "vectClass.h" //This is to select which linear algebra class should be used.
 #include "lanczos.h"
-#include "boundStateContainers.h"
-#include "generalHvRoutines.h"
-#include "interface.h"
-
-//#include "peckeris.h"
 
 void lanczosvectors(VECT &alpha,VECT &beta,VECT &beta2,int niter,
 					VECT &eval,int ngood,MAT &evtr);

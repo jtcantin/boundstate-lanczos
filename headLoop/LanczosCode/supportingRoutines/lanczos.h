@@ -1,7 +1,13 @@
 #ifndef LANCZOS_H
 #define	LANCZOS_H
 
+#include <iostream>
+#include <cmath>
+#include <ctime>
+#include "lanczosUnits.h"
+#include "boundStateContainers.h"
 #include "vectClass.h" //This is to select which linear algebra class should be used.
+#include "interface.h"
 
 void lancbis(int niter,VECT &eval,VECT &evalerr,double elmin,
 			 double elmax,int &ngood,const VECT& alpha,const VECT& beta,

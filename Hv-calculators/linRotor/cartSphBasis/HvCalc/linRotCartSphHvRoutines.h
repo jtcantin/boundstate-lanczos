@@ -1,5 +1,5 @@
-#ifndef GENERALHVROUTINES_H
-#define	GENERALHVROUTINES_H
+#ifndef	LINROTCARTSPHHVROUTINES_H
+#define	LINROTCARTSPHHVROUTINES_H
 
 #include <iostream>
 #include <cmath>
@@ -9,13 +9,9 @@
 #include <iomanip>
 #include <cfloat>
 #include <omp.h>
-#include "lanczosUnits.h"
-#include "vectClass.h"
+#include "vectClass.h" //This is to select which linear algebra class should be used.
 #include "boundStateContainers.h"
-#include "Alavi_H2_Routines.h"
-#include "Alavi_H2_TIP4P_Routines.h"
-
-//#define VCEIL 100 //kJ/mol
+#include "lanczosUnits.h"
 
 double factorial(int num);
 
@@ -62,5 +58,9 @@ double* Tv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn);
 double* Vv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn);
 
 double* Hv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn);
+
+void Hv_Prep_linRotCartSph(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_data);
+
+void Hv_linRotCartSph(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_data, double *vec, double *uec);
 
 #endif

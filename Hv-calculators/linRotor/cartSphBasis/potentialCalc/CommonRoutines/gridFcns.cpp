@@ -146,7 +146,7 @@ int main(int argc, char** argv)
  */
 
 //Function to print out a Gaussian Cube File
-// unitFlag > 0 means Bohr, unitFlag < 0 means Angstroms
+// unitFlag > 0 means Bohr, unitFlag < 0 means Angstroms NOTE: this flag doesn't seem to work properly right now.
 
 void writeCubeFile(int nDim, int *dimSize, VECT *dimGenerator, double *data, int dataSize, int nAtoms, int *atomNum, double *atomCharge, VECT *atomPos, const VECT& origin, string *comments, int unitFlag, string filename) {
 	int i, j, k, count;
