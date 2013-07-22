@@ -1126,9 +1126,9 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 			}
 			
 			//Calculate potential at x, y, z, theta, phi EDIT
-			V_ab = (*linearMoleculePotential)(interface, &linearMolecule);
+			//V_ab = (*linearMoleculePotential)(interface, &linearMolecule);
 			
-			//V_ab = 0.0; //Set to zero for debugging purposes
+			V_ab = 0.0; //Set to zero for debugging purposes
 			
 			if (V_ab >= potentialCeiling) {
 				V_ab = potentialCeiling;
@@ -1895,6 +1895,7 @@ double* Hv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 #pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
 	for (p=0; p<basis_size; p++) {
 		Hv_ijkn[p] = Tv_ijkn[p] + Vv_ijkn[p]; 
+	//	Hv_ijkn[p] = Tv_ijkn[p];
 	}
 	
 	delete [] Tv_ijkn;
