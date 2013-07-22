@@ -79,6 +79,9 @@ int main(int argc,char **argv) {
 		exit(1);
 	}
 	
+	//Set output precision
+	cout << scientific << setprecision(15) << endl;
+	
 	
 	cout << "Eigenvalue and Eigenvector Lanczos calculator begun." << endl;
 	cout << "The number of Lanczos iterations will be: " << niter << endl;
@@ -251,6 +254,9 @@ int main(int argc,char **argv) {
 	ofstream lancout((dir_string + "/boundstates.txt").c_str());
 	ofstream lanczpeout((dir_string + "/states_zpe.txt").c_str());
 	
+	lancout << scientific << setprecision(15) << endl;
+	lanczpeout << scientific << setprecision(15) << endl;
+	
 	//Write header for Eigenvalues and Errors
 	lancout << "The following are the eigenvalues and errors for the simulation " << sim_descr << endl;
 	lancout << "Number of Eigenvalues: " << ngood << endl;
@@ -322,6 +328,8 @@ int main(int argc,char **argv) {
 	ofstream lvecout((dir_string + "/lv").c_str());
 	VECT cumulnorm(ngood);
 	double coeff2;
+	
+	lvecout << scientific << setprecision(15) << endl;
 	
 	lvecout << "The following are the Coefficients squared of the Eigenvectors of Tm for the simulation " << sim_descr << endl;
 	lvecout << "Number of Eigenvectors: " << ngood << endl;
@@ -458,6 +466,8 @@ int main(int argc,char **argv) {
 	
 	//Output eigenvectors to file.	
 	ofstream eigVecFile((dir_string + "/eigVecFile.txt").c_str());
+	
+	eigVecFile << scientific << setprecision(15) << endl;
 	
 	eigVecFile << "The following are the Ritz vectors of H for the simulation " << sim_descr << endl;
 	eigVecFile << "Number of Ritz vectors: " << ngood << endl;

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cmath>
 #include <ctime>
+#include <iomanip>
 #include "lanczosUnits.h"
 #include "interfaceContainers.h"
 #include "vectClass.h" //This is to select which linear algebra class should be used.
