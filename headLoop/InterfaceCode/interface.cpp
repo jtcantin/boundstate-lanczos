@@ -27,6 +27,24 @@ void HvInterfaceSetup(string HvCalculatorSwitch, generalStor **general_data, voi
 		(*HvPtr) = &Hv_linRotCartSph;
 		
 	}
+	else if (HvCalculatorSwitch == "linRotCartSph_Coulomb") {
+		interfaceStor *linRotCartSph_Alavi = new interfaceStor();
+		
+		//Potential function pointers 
+		linRotCartSph_Alavi->fcnPointers = new fcnPointerStor();
+		
+		//Coulomb-specific function pointers
+		linRotCartSph_Alavi->fcnPointers->linearMoleculePotential = &CoulombPotential;
+		linRotCartSph_Alavi->fcnPointers->preCalcPotential = &preCalcPotential_Coulomb;
+		
+		//Reinterpret cast for the sake of allowing C++ to pass it around without knowing what is inside
+		(*general_data) = reinterpret_cast<generalStor*> (linRotCartSph_Alavi);
+		
+		//Hv-specific function pointers
+		(*HvPrepPtr) = &Hv_Prep_linRotCartSph;
+		(*HvPtr) = &Hv_linRotCartSph;
+		
+	}
 	else {
 		cerr << "HvCalculator '" << HvCalculatorSwitch << "' not recognized." << endl;
 		exit(1);

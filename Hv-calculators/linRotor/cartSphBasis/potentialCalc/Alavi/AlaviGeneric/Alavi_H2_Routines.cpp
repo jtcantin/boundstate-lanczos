@@ -276,7 +276,7 @@ void Alavi_SiteSite_Eng(double *CMpotential, double *Hpotential, universeProp *p
 
 //The following function precalculates the Alavi hydrogen site potentials by setting up the PES grid, getting the system geometry, 
 //   and calculating the CM and H-atom potentials
-pointPotentialStorH2* preCalcPotential_Alavi(int numDim, double *gridMax, int *gridPoints, string geometryFilename, interfaceStor *interface) {
+pointPotentialStorH2* preCalcPotential_Alavi(int numDim, double *gridMax, int *gridPoints, string geometryFilename, interfaceStor *interface, int argc, char **argv) {
 	
 	//There are 3 spatial dimensions, so numDim = 3 and the gridMax and gridPoints arrays are of length 3
 	

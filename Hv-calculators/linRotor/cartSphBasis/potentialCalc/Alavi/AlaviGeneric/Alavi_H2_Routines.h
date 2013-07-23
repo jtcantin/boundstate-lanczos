@@ -34,6 +34,6 @@ double Alavi_H2_Eng_Point(interfaceStor *interface, H2_orient *H2_mol);
 
 void Alavi_SiteSite_Eng(double *CMpotential, double *Hpotential, universeProp *point_universe, sysAtoms *atomGeo, interfaceStor *interface);
 
-pointPotentialStorH2* preCalcPotential_Alavi(int numDim, double *gridMax, int *gridPoints, string geometryFilename, interfaceStor *interface);
+pointPotentialStorH2* preCalcPotential_Alavi(int numDim, double *gridMax, int *gridPoints, string geometryFilename, interfaceStor *interface, int argc, char** argv);
 
 #endif

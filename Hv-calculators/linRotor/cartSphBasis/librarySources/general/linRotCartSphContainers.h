@@ -140,6 +140,11 @@ struct pointPotentialStorH2 {
 	universeProp *potentialUniverse;
 	double potentialCeiling;
 	
+	//For Coulomb Potential
+	double centreCharge;
+	double molCharge;
+	double coulombPotentialCeil;
+	
 	~pointPotentialStorH2() {
 		delete [] CMpotential;
 		delete [] H_potential;
@@ -186,7 +191,7 @@ struct interfaceStor;
 
 struct fcnPointerStor {
 	double (*linearMoleculePotential)(interfaceStor*, H2_orient*) = NULL;
-	pointPotentialStorH2* (*preCalcPotential)(int, double*, int*, string, interfaceStor*) = NULL;
+	pointPotentialStorH2* (*preCalcPotential)(int, double*, int*, string, interfaceStor*, int, char**) = NULL;
 	double (*SummedCoulombPotential)(VECT, double, char*, VECT*, int) = NULL;
 	double (*SummedLJPotential)(VECT, char*, VECT*, int) = NULL;
 	double (*SummedLJPotentialFast)(VECT, char*, VECT*, int) = NULL;

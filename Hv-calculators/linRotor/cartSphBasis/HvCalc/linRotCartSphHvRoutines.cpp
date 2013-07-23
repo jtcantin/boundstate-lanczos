@@ -1270,8 +1270,9 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	inputFile.close();
 	
 	//Check to ensure the geometry file can be opened before doing the rest of the calculations
+	//NULL is to allow for cases where the geometry file is not needed
 	inputFile.open(geometryFilename.c_str(), ios::in);
-	if (!(inputFile.is_open())) {
+	if (!(inputFile.is_open()) && (geometryFilename != "NULL")) {
 		cerr << "Atom geometry file '" << geometryFilename << "' could not be opened." << endl;
 		exit(1);
 	}
@@ -1622,7 +1623,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	
 	pointPotentialStorH2 *partialPotential;
 	
-	partialPotential = (*(interface->fcnPointers->preCalcPotential))(numDim, gridMax, gridPoints, geometryFilename, interface);
+	partialPotential = (*(interface->fcnPointers->preCalcPotential))(numDim, gridMax, gridPoints, geometryFilename, interface, argc, argv);
 	
 	partialPotential->potentialCeiling = ceilingPotential;
 	
@@ -1797,8 +1798,8 @@ double* Tv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	//Perform the sum (Tx*v + Ty*v + Tz*v) + Trot*v = v_nijk_TzTerm + v_nijk
 #pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
 	for (p=0; p<basis_size; p++) {
-		//v_nijk[p] += v_nijk_TzTerm[p];
-		v_nijk[p] += 0.0; //Only keep rotational term - for debugging purposes
+		v_nijk[p] += v_nijk_TzTerm[p];
+		//v_nijk[p] += 0.0; //Only keep rotational term - for debugging purposes
 	}
 	delete [] v_nijk_TzTerm;
 	
@@ -1888,19 +1889,19 @@ double* Hv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	//cout << "Tv finished" << endl;
 	
 	//Calculate the potential energy terms
-	//Vv_ijkn = Vv_5D_oneCompositeIndex(interface, v_ipjkn);
+	Vv_ijkn = Vv_5D_oneCompositeIndex(interface, v_ipjkn);
 	
 	//cout << "Vv finished" << endl;
 	
 	//Sum Tv_ijkn and Vv_ijkn to get Hv_ijkn
 #pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
 	for (p=0; p<basis_size; p++) {
-	//	Hv_ijkn[p] = Tv_ijkn[p] + Vv_ijkn[p]; 
-		Hv_ijkn[p] = Tv_ijkn[p];
+		Hv_ijkn[p] = Tv_ijkn[p] + Vv_ijkn[p]; 
+	//	Hv_ijkn[p] = Tv_ijkn[p]; // Free system - only for debugging purposes
 	}
 	
 	delete [] Tv_ijkn;
-	//delete [] Vv_ijkn;
+	delete [] Vv_ijkn;
 	
 	return Hv_ijkn;
 }
