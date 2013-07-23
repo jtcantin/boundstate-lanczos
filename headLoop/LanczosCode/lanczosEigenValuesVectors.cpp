@@ -184,6 +184,7 @@ int main(int argc,char **argv) {
 	for (j=1;j<=niter;j++) {    
 		
 		//u_j = 0. -> NOTE: Eliminate this by changing Hv output to be double*; the current method is a waste of computational time
+//#pragma omp parallel for default(shared) private (ib) schedule(guided)
 		for (int ib=0;ib<ntotbs;ib++) 
 			uec[ib]=0.;
 		
@@ -191,6 +192,7 @@ int main(int argc,char **argv) {
 		(*HvPtr)(argc, argv, general_data, lanczos_data, vec, uec);
 		
 		//r_j = r_j + u_j; ; results in r_j = (-beta_(j-1) * v_(j-1)) + (H*v_j) = H*v_j - beta_(j-1) * v_(j-1)
+//#pragma omp parallel for default(shared) private (ib) schedule(guided)
 		for (int ib=0;ib<ntotbs;ib++) 
 			rvec[ib]+=uec[ib];
 		
@@ -200,6 +202,7 @@ int main(int argc,char **argv) {
 			alpha(j-1)+=vec[ib]*rvec[ib];
 		
 		//r_j = r_j - alpha_j * v_j
+//#pragma omp parallel for default(shared) private (ib) schedule(guided)
 		for (int ib=0;ib<ntotbs;ib++) 
 			rvec[ib]-=(alpha(j-1)*vec[ib]);
 		
@@ -212,14 +215,17 @@ int main(int argc,char **argv) {
 		
 		
 		//r_j = r_j/beta_j (normalize r_j) = v_(j+1) (after swap)
+//#pragma omp parallel for default(shared) private (ib) schedule(guided)
 		for (int ib=0;ib<ntotbs;ib++) 
 			rvec[ib]=(1./beta(j))*rvec[ib];
 		
 		//v_j = -beta_j * v_j = r_(j+1) (after swap)
+//#pragma omp parallel for default(shared) private (ib) schedule(guided)
 		for (int ib=0;ib<ntotbs;ib++) 
 			vec[ib]=(-beta(j))*vec[ib]; // prepare r check minus sign!!!
 		
 		//Swap vectors
+//#pragma omp parallel for default(shared) private (ib) schedule(guided)
 		for (int ib=0;ib<ntotbs;ib++) {
 			
 			//Swap r_j and v_j, using u_j as storage space
