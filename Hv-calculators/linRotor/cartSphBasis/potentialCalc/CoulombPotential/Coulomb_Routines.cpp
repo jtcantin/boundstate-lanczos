@@ -8,8 +8,8 @@ double CoulombPotential(interfaceStor *interface, H2_orient *lin_mol) {
 	double potential, q_centre, q_mol, V_ceil;
 	VECT zeroVec;
 	
-	potential =0.0;
-	/*
+	
+	
 	zeroVec.DIM(3);
 	zeroVec.COOR(0) = 0.0;
 	zeroVec.COOR(1) = 0.0;
@@ -21,9 +21,11 @@ double CoulombPotential(interfaceStor *interface, H2_orient *lin_mol) {
 	
 	potential = CoulombEng(zeroVec, q_centre, *(lin_mol->CM), q_mol);
 	
+	//potential =0.0;
+	
 	if (fabs(potential) > fabs(V_ceil)) {
 		potential = V_ceil;
-	} */
+	} 
 	
 	return potential;
 }

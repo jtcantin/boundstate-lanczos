@@ -1,0 +1,7 @@
+export LIBRARY_PATH=/home/pnroy/Dev/lib64:$LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/pnroy/Dev/lib64:$LD_LIBRARY_PATH
+
+setenv LIBRARY_PATH /home/pnroy/Dev/lib64:$LIBRARY_PATH
+setenv LD_LIBRARY_PATH /home/pnroy/Dev/lib64:$LD_LIBRARY_PATH
+
+time ./LanczosTOBY LanczosInputFileCoul.txt HvInputFileCoul.txt CoulombInputFile.txt

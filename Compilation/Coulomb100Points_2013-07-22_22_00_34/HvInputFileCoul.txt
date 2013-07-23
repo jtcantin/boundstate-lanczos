@@ -1,10 +1,10 @@
 #
 #Make sure that there is no space before the equals sign and only one after; you will get an error or weird results otherwise
-nx= 100
+nx= 30
 x_max(nm)= 1.0
-ny= 100
+ny= 30
 y_max(nm)= 1.0
-nz= 100
+nz= 30
 z_max(nm)= 1.0
 l_max= 0
 thetaPoints= 2
