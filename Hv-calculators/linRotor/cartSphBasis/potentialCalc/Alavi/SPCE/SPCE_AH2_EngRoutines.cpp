@@ -1,8 +1,8 @@
-#include "TIP4P_AH2_EngRoutines.h"
+#include "SPCE_AH2_EngRoutines.h"
 
 using namespace std;
 
-void getTIP4Patoms(char **atomType, VECT **atomPos, int *nAtoms, string filename) {
+void getSPCEatoms(char **atomType, VECT **atomPos, int *nAtoms, string filename) {
 	ifstream datafile;
 	string line;
 	VECT *EA, *CM;
@@ -51,8 +51,8 @@ void getTIP4Patoms(char **atomType, VECT **atomPos, int *nAtoms, string filename
 	
 	//Set up a generic water molecule
 	
-	VECT H1(3), H2(3), O(3), M(3);
-	VECT H1_mol(3), H2_mol(3), O_mol(3), M_mol(3);
+	VECT H1(3), H2(3), O(3);
+	VECT H1_mol(3), H2_mol(3), O_mol(3);
 	
 	//Set intitial water molecule atom locations assuming the WFF is aligned with the SFF
 	H1.COOR(0) = H1_X;
@@ -66,10 +66,6 @@ void getTIP4Patoms(char **atomType, VECT **atomPos, int *nAtoms, string filename
 	O.COOR(0) = O_X;
 	O.COOR(1) = O_Y;
 	O.COOR(2) = O_Z;
-	
-	M.COOR(0) = M_X;
-	M.COOR(1) = M_Y;
-	M.COOR(2) = M_Z;
 	
 	for (i=0; i<nMol; i++) {
 		//Rotate water molecules using the Euler angles
@@ -85,38 +81,33 @@ void getTIP4Patoms(char **atomType, VECT **atomPos, int *nAtoms, string filename
 		O_mol = rotMat*O;
 		H1_mol = rotMat*H1;
 		H2_mol = rotMat*H2;
-		M_mol = rotMat*M;
 				
 		//Add centre of mass to each atom to translate molecule
 		
 		O_mol = O_mol + NM_PER_ANG*CM[i];
 		H1_mol = H1_mol + NM_PER_ANG*CM[i];
 		H2_mol = H2_mol + NM_PER_ANG*CM[i];
-		M_mol = M_mol + NM_PER_ANG*CM[i];
 		
 		//Store atom positions
 		(*atomPos)[N_MOL_ATOMS*i + 0].DIM(3);
 		(*atomPos)[N_MOL_ATOMS*i + 1].DIM(3);
 		(*atomPos)[N_MOL_ATOMS*i + 2].DIM(3);
-		(*atomPos)[N_MOL_ATOMS*i + 3].DIM(3);
 		
 		(*atomPos)[N_MOL_ATOMS*i + 0] = O_mol;
 		(*atomPos)[N_MOL_ATOMS*i + 1] = H1_mol;
 		(*atomPos)[N_MOL_ATOMS*i + 2] = H2_mol;
-		(*atomPos)[N_MOL_ATOMS*i + 3] = M_mol;
 		
 		//Store atom types
 		(*atomType)[N_MOL_ATOMS*i + 0] = 'O';
 		(*atomType)[N_MOL_ATOMS*i + 1] = 'H';
 		(*atomType)[N_MOL_ATOMS*i + 2] = 'H';
-		(*atomType)[N_MOL_ATOMS*i + 3] = 'M';
 	}
 	
 	delete [] EA;
 	delete [] CM;
 }
 
-double Q_TIP4P_Eng(VECT pos, double q, char *atomType, VECT *atomPos, int nAtoms) {
+double Q_SPCE_Eng(VECT pos, double q, char *atomType, VECT *atomPos, int nAtoms) {
 	int i;
 	double Eng;
 	
@@ -127,13 +118,10 @@ double Q_TIP4P_Eng(VECT pos, double q, char *atomType, VECT *atomPos, int nAtoms
 			case 'H':
 				Eng += CoulombEng(pos, q, atomPos[i], Q_H);
 				break;
-			case 'M':
-				Eng += CoulombEng(pos, q, atomPos[i], Q_M);
-				break;
 			case 'O':
 				break;
 			default:
-				cerr << "Atom type not recognized while executing Q_TIP4P_Eng()." << endl;
+				cerr << "Atom type not recognized while executing Q_SPCE_Eng()." << endl;
 				exit(1);
 				break;
 		}
@@ -142,7 +130,7 @@ double Q_TIP4P_Eng(VECT pos, double q, char *atomType, VECT *atomPos, int nAtoms
 	return Eng;
 }
 
-double LJ_TIP4P_Eng(VECT pos, char *atomType, VECT *atomPos, int nAtoms) {
+double LJ_SPCE_Eng(VECT pos, char *atomType, VECT *atomPos, int nAtoms) {
 	int i;
 	double Eng;
 	
@@ -151,14 +139,12 @@ double LJ_TIP4P_Eng(VECT pos, char *atomType, VECT *atomPos, int nAtoms) {
 	for (i=0; i<nAtoms; i++) {
 		switch (atomType[i]) {
 			case 'H':
-				break;
-			case 'M':
 				break;
 			case 'O':
 				Eng += LJEng(pos, atomPos[i], EPS_OH2, SIGMA_OH2);
 				break;
 			default:
-				cerr << "Atom type not recognized while executing LJ_TIP4P_Eng()." << endl;
+				cerr << "Atom type not recognized while executing LJ_SPCE_Eng()." << endl;
 				exit(1);
 				break;
 		}
@@ -167,7 +153,7 @@ double LJ_TIP4P_Eng(VECT pos, char *atomType, VECT *atomPos, int nAtoms) {
 	return Eng;
 }
 
-double LJ_TIP4P_Eng_Fast(VECT pos, char *atomType, VECT *atomPos, int nAtoms) {
+double LJ_SPCE_Eng_Fast(VECT pos, char *atomType, VECT *atomPos, int nAtoms) {
 	int i;
 	double Eng;
 	
@@ -177,13 +163,11 @@ double LJ_TIP4P_Eng_Fast(VECT pos, char *atomType, VECT *atomPos, int nAtoms) {
 		switch (atomType[i]) {
 			case 'H':
 				break;
-			case 'M':
-				break;
 			case 'O':
 				Eng += LJEngFast(pos, atomPos[i], A_LJ_OH, B_LJ_OH);
 				break;
 			default:
-				cerr << "Atom type not recognized while executing LJ_TIP4P_Eng()." << endl;
+				cerr << "Atom type not recognized while executing LJ_SPCE_Eng()." << endl;
 				exit(1);
 				break;
 		}

@@ -42,7 +42,7 @@ using namespace std;
 
 void getTIP4Patoms(char **atomType, VECT **atomPos, int *nAtoms, string filename);
 
-double AH2_TIP4P_Eng(VECT H2cm, double *H2angles, char *atomType, VECT *atomPos);
+//double AH2_TIP4P_Eng(VECT H2cm, double *H2angles, char *atomType, VECT *atomPos);
 
 double Q_TIP4P_Eng(VECT pos, double q, char *atomType, VECT *atomPos, int nAtoms);
 

@@ -1,3 +1,6 @@
+#ifndef SPCE_AH2_ENGROUTINES_H
+#define SPCE_AH2_ENGROUTINES_H
+
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -10,24 +13,21 @@
 #include "lanczosUnits.h"
 using namespace std;
 
-#ifndef SPCE_AH2_ENGROUTINES_H
-#define SPCE_AH2_ENGROUTINES_H
-
 //SPCE parameters; Values from a calculation using the values from: Water models http://www.lsbu.ac.uk/water/models.html (accessed May 17, 2013).
 #define Q_H 0.4238 //e from Alavi_2005
 #define Q_M -0.8476 //e from Alavi_2005
 
 #define O_X 0.
 #define O_Y 0.
-#define O_Z 0.00655538 //nm
+#define O_Z 0.006461408220 //nm
 
-#define H1_X -0.075695 //nm
+#define H1_X -8.164965810E-2 //nm
 #define H1_Y 0.
-#define H1_Z -0.0520326 //nm
+#define H1_Z -0.05127361870 //nm
 
-#define H2_X 0.075695 //nm
+#define H2_X 8.164965810E-2 //nm
 #define H2_Y 0.
-#define H2_Z -0.0520326 //nm
+#define H2_Z -0.05127361870 //nm
 
 #define N_MOL_ATOMS 3
 
@@ -37,22 +37,10 @@ using namespace std;
 #define A_LJ_OH 1.364e-06 //kJ.nm^12/mol; 4*EPS_OH2*SIGMA_OH2^12
 #define B_LJ_OH 1.533e-3 //kJ.nm^6/mol; 4*EPS_OH2*SIGMA_OH2^6
 
-#define Q_H2_H 0.4932 //e, from Alavi, S.; Ripmeester, J. A.; Klug, D. D. Molecular-dynamics study of structure II hydrogen clathrates. J. Chem. Phys. 2005, 123, 024507.
-#define Q_H2_CM -0.9864 //e, from Alavi, S.; Ripmeester, J. A.; Klug, D. D. Molecular-dynamics study of structure II hydrogen clathrates. J. Chem. Phys. 2005, 123, 024507.
-
-#define H2_H1_X 0.
-#define H2_H1_Y 0.
-#define H2_H1_Z 0.03707 //nm; Bondlength is 0.7414 Ang from Alavi_2005
-
-#define H2_H2_X 0.
-#define H2_H2_Y 0.
-#define H2_H2_Z -0.03707 //nm; Bondlength is 0.7414 Ang from Alavi_2005
 
 //#define NM_PER_ANG 0.1
 
 void getSPCEatoms(char **atomType, VECT **atomPos, int *nAtoms, string filename);
-
-double AH2_SPCE_Eng(VECT H2cm, double *H2angles, char *atomType, VECT *atomPos);
 
 double Q_SPCE_Eng(VECT pos, double q, char *atomType, VECT *atomPos, int nAtoms);
 

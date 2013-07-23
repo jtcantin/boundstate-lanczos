@@ -5,5 +5,5 @@ EigenvalueOpenLowerLimit(kJ/mol)= -1
 EigenvalueClosedUpperLimit(kJ/mol)= 1
 NumberOfEigenvectors(all/partial/none)= none
 NumberOfEigenvectors= 3
-HvCalculator= linRotCartSph_Alavi_TIP4P
+HvCalculator= linRotCartSph_Alavi_SPCE
 OutputDirectoryPath= ./

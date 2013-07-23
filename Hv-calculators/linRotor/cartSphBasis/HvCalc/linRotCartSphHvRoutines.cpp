@@ -1128,6 +1128,8 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 			//Calculate potential at x, y, z, theta, phi EDIT
 			V_ab = (*linearMoleculePotential)(interface, &linearMolecule);
 			
+			//cout << "VvPot: " << V_ab << " " << potentialCeiling << endl;
+			
 			//V_ab = 0.0; //Set to zero for debugging purposes
 			
 			if (V_ab >= potentialCeiling) {

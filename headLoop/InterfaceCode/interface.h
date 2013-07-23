@@ -18,8 +18,15 @@
 //TIP4P Model
 #include "TIP4P_AH2_EngRoutines.h"
 
+//SPC/E Model
+#include "SPCE_AH2_EngRoutines.h"
+
 //Coulomb Potential
 #include "Coulomb_Routines.h"
+
+//Isotropic Harmonic Oscillator Potential
+#include "IsoHarmOsc_Routines.h"
+
 
 void HvInterfaceSetup(string HvCalculatorSwitch, generalStor **general_data, void (**HvPrepPtr)(int, char**, generalStor*, lanczosStor*), void (**HvPtr)(int, char**, generalStor*, lanczosStor*, double*, double*));
 
