@@ -358,9 +358,9 @@ double* normAssocLegendrePoly(int **qNum, int length, double x){
 	//At this point, the Legendre Polynomials have been calculated (except for a phase factor (-1)^m).
 	//Now, the acquired polynomials are going to be renormalized, with:
 	//    N_lm = (-1)^m * sqrt[ (l-m)! * (2l+1) / (2(l+m)!) ]
-#pragma omp parallel default(shared) private (l,m,ld,md, phaseFactor, partialNormFactor, n) 
+	//#pragma omp parallel default(shared) private (l,m,ld,md, phaseFactor, partialNormFactor, n) 
 	{
-#pragma omp for schedule(guided)
+	//#pragma omp for schedule(guided)
 	for (l=0; l<=l_max; l++) {
 		phaseFactor = 1.0;
 		for (m=0; m<=l; m++) {
@@ -374,7 +374,7 @@ double* normAssocLegendrePoly(int **qNum, int length, double x){
 	}
 	
 	//Now, the associated Legendre Polynomials have been calculated and will be converted into a form for all lm, not just m>=0, and stored in legendre.	
-#pragma omp for schedule(guided)
+	//#pragma omp for schedule(guided)
 	for (n=0; n<length; n++) {
 		l = qNum[n][0];
 		m = qNum[n][1];
@@ -414,7 +414,7 @@ double* tesseralTrigTerm(int **qNum, int length, double phi) {
 	//Calculate the trigonometric portion of the tesseral harmonics, which are a function of m and phi only and include the factors sqrt(2) * sqrt(1/2pi) = sqrt(1/pi);
 	trig = new double [length];
 	
-#pragma omp parallel for default(shared) private (n,m) schedule(guided)
+	//#pragma omp parallel for default(shared) private (n,m) schedule(guided)
 	for (n=0; n<length; n++) {
 		m = qNum[n][1];
 		
@@ -455,7 +455,7 @@ void gaussChebyshev(int numPoints, double **abscissae, double **weights){
 	(*abscissae) = new double [n];
 	(*weights) = new double	[n];
 	
-#pragma omp parallel for default(shared) private (i) schedule(guided)
+	//#pragma omp parallel for default(shared) private (i) schedule(guided)
 	for (i=0; i<n; i++) {
 		(*abscissae)[i] = cos(PI * (2.0*double(i+1) - 1.0) /(2.0 * double(n)));
 		(*weights)[i] = PI / double(n);
@@ -490,9 +490,9 @@ void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, d
 	(*kinMat) = new double [nPoints*nPoints];
 	
 	
-#pragma omp parallel default(shared) private (i,j)
+	//#pragma omp parallel default(shared) private (i,j)
 	{
-#pragma omp for schedule(guided) collapse(2) //"guided" schedule means that the iterations are dynamically dispersed to each thread dependent on the number of threads and the number of iterations remaining
+	//#pragma omp for schedule(guided) collapse(2) //"guided" schedule means that the iterations are dynamically dispersed to each thread dependent on the number of threads and the number of iterations remaining
 	for (i=0; i<nPoints; i++) {		
 		for (j=0; j<nPoints; j++) {
 			(*kinMat)[i*nPoints + j] = (H_BAR*H_BAR) / (2.0 * totalMass * d_x * d_x) * pow(-1.0, (i+1)-(j+1));
@@ -507,7 +507,7 @@ void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, d
 		
 	}
 	
-#pragma omp for schedule(guided)
+	//#pragma omp for schedule(guided)
 	for (i=0; i<nPoints; i++) {	//This loop separated out of the above for better parallelization
 		(*grid)[i] = double(i)*d_x - x_max/2.0;
 	}
@@ -527,7 +527,7 @@ double* rotKinEng(int **qNum, int length, double rotationalConstant) {
 	//B = H_BAR*H_BAR / 2.0 / momentOfInertia;
 	B = rotationalConstant;
 	
-#pragma omp parallel for default(shared) private (i,l) schedule(guided)
+	//#pragma omp parallel for default(shared) private (i,l) schedule(guided)
 	for (i=0; i<length; i++) {
 		l = double(qNum[i][0]);
 		rotEng[i] = B * l * (l+1.0);
@@ -625,7 +625,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 		}
 	}
 	
-#pragma omp parallel for default(shared) private (m,l,a) schedule(guided) collapse(3)
+	//#pragma omp parallel for default(shared) private (m,l,a) schedule(guided) collapse(3)
 	for (m=-l_max; m<=l_max; m++) {		
 		for (l=0; l<=l_max; l++) {			
 			for (a=0; a<thetaPoints; a++) {
@@ -636,7 +636,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	}
 	
 	//Calculate elements, which is sqrt(gaussLegendreWeights(a)) * ~P_lm(x_a), where x_a = cos(theta_a), ~ means normalized
-#pragma omp parallel for default(shared) private (n,a,l,m) schedule(guided) collapse(2)
+	//#pragma omp parallel for default(shared) private (n,a,l,m) schedule(guided) collapse(2)
 	for (n=0; n<length; n++) {
 		for (a=0; a<thetaPoints; a++) {
 			l = qNum[n][0];
@@ -660,7 +660,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 		}
 	}
 	
-#pragma omp parallel for default(shared) private (m,l,lp,a) schedule(guided) collapse(3) //Can only be at most collapse(3) and not collapse(4), because of resMatLegendre[m_shift(m)][l][lp] (ie. it is not dependent on a, so two processors may write to the same memory location)
+	//#pragma omp parallel for default(shared) private (m,l,lp,a) schedule(guided) collapse(3) //Can only be at most collapse(3) and not collapse(4), because of resMatLegendre[m_shift(m)][l][lp] (ie. it is not dependent on a, so two processors may write to the same memory location)
 	for (m=-l_max; m<=l_max; m++) {		
 		for (l=0; l<=l_max; l++) {			
 			for (lp=0; lp<=l_max; lp++) {				
@@ -687,7 +687,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 		}
 	}
 	
-#pragma omp parallel for default(shared) private (l,m,a) schedule(guided) collapse(3)
+	//#pragma omp parallel for default(shared) private (l,m,a) schedule(guided) collapse(3)
 	for (l=0; l<=l_max; l++) {		
 		for (m=-l_max; m<=l_max; m++) {			
 			for (a=0; a<thetaPoints; a++) {
@@ -701,7 +701,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	//	}
 	
 	//Calculate elements, which is sqrt(gaussLegendreWeights(a)) * ~P_lm(x_a), where x_a = cos(theta_a), ~ means normalized
-#pragma omp parallel for default(shared) private (n,a,l,m,mp) schedule(guided) collapse(2)
+	//#pragma omp parallel for default(shared) private (n,a,l,m,mp) schedule(guided) collapse(2)
 	for (n=0; n<length; n++) {
 		for (a=0; a<thetaPoints; a++) { //Add sqrt(1.0-(cosThetaAbscissae[a]*cosThetaAbscissae[a])) for the othogonality condition shown at http://en.wikipedia.org/wiki/Associated_Legendre_polynomials#Orthogonality
 			l = qNum[n][0];
@@ -734,7 +734,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 		}
 	}
 	
-#pragma omp parallel for default(shared) private (l,m,mp,a) schedule(guided) collapse(3) //Can only be at most collapse(3) and not collapse(4), because of resMatLegendre_m[l][m_shift(m)][m_shift(mp)] (ie. it is not dependent on a, so two processors may write to the same memory location)
+	//#pragma omp parallel for default(shared) private (l,m,mp,a) schedule(guided) collapse(3) //Can only be at most collapse(3) and not collapse(4), because of resMatLegendre_m[l][m_shift(m)][m_shift(mp)] (ie. it is not dependent on a, so two processors may write to the same memory location)
 	for (l=0; l<=l_max; l++) {		
 		for (m=-l_max; m<=l_max; m++) {			
 			for (mp=-l_max; mp<=l_max; mp++) {				
@@ -779,7 +779,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 	}
 	
 	//Calculate the matrix elements T^l_mb = sqrt(w^GC_b) * [sqrt(2.0*PI) / sqrt(2.0)] * trig(l,m,b); [sqrt(2.0*PI) / sqrt(2.0)] is to renormalize the functions
-#pragma omp parallel for default(shared) private (n,b,l,m) schedule(guided) collapse(2)
+	//#pragma omp parallel for default(shared) private (n,b,l,m) schedule(guided) collapse(2)
 	for (n=0; n<length; n++) {
 		for (b=0; b<phiPoints; b++) { 
 			l = qNum[n][0];
@@ -807,7 +807,7 @@ void tesseralTest(int l_max, int thetaPoints, int phiPoints) {
 		}
 	}
 	
-#pragma omp parallel for default(shared) private (l,m,mp,b) schedule(guided) collapse(3) //Can't have collapse(4) as this allows two different CPUs to access the same memory location as trigResMat does not depend on b, only l, m, and mp.
+	//#pragma omp parallel for default(shared) private (l,m,mp,b) schedule(guided) collapse(3) //Can't have collapse(4) as this allows two different CPUs to access the same memory location as trigResMat does not depend on b, only l, m, and mp.
 	for (l=0; l<=l_max; l++) {
 		for (m=-l_max; m<=l_max; m++) {
 			for (mp=-l_max; mp<=l_max; mp++) {				
@@ -1071,11 +1071,11 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 	double *u_lm;
 	u_lm = new double [length];
 	
-#pragma omp parallel default(shared) private (a,mp,anmp,n,b,bna,m,mna,anb,linearMolecule,CMpos,V_ab)
+//#pragma omp parallel default(shared) private (a,mp,anmp,n,b,bna,m,mna,anb,linearMolecule,CMpos,V_ab)
 	{
 	
 	//Loop 1 - vt_mpa = L_lpmp(q_a) * v_lpmp; FLOPS = na * length = na * (l_max+1)^2
-#pragma omp for schedule(guided) collapse(2)
+	//#pragma omp for schedule(guided) collapse(2)
 	for (a = 0; a<na; a++) {
 		for (mp=-l_max; mp<=l_max; mp++) {
 			anmp = a * nmp;			
@@ -1088,7 +1088,7 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 	}
 	
 	//Loop 2 - u_ab = S_mp(Pb) * vt_mpa; FLOPS = na * nb * nm = na * nb * (2l_max+1)
-#pragma omp for schedule(guided) collapse(2)
+	//#pragma omp for schedule(guided) collapse(2)
 	for (b=0; b<nb; b++) {
 		for  (a=0; a<na; a++){
 			bna = b * na;
@@ -1110,7 +1110,7 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 	
 	linearMolecule.CM = &CMpos;
 	
-#pragma omp for schedule(guided) collapse(2)
+//#pragma omp for schedule(guided) collapse(2)
 	for (b=0; b<nb; b++) {
 		for (a=0; a<na; a++) {
 			bna = b * na;
@@ -1139,7 +1139,7 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 	}
 	
 	//Loop 4 - ut_ma = wb * S_m(Pb) * ut_ab; FLOPS = na * nb * nm = na * nb * (2l_max+1)
-#pragma omp for schedule(guided) collapse(2)
+	//#pragma omp for schedule(guided) collapse(2)
 	for (m=-l_max; m<=l_max; m++) {
 		for (a=0; a<na; a++) {
 			mna = m_shift(m) * na;
@@ -1153,7 +1153,7 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 	}
 	
 	//Loop 5 - u_lm = wa * L_lm(Qa) * ut_ma; FLOPS = na * length = na * (l_max+1)^2
-#pragma omp for schedule(guided)
+	//#pragma omp for schedule(guided)
 	for (n=0; n<length; n++) {
 		u_lm[n] = 0.0;
 		
@@ -1476,17 +1476,17 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	}
 	
 	
-#pragma omp parallel default(shared) private(a,b,m,l,n,stor)
+	//#pragma omp parallel default(shared) private(a,b,m,l,n,stor)
 	{
 	
 	//Sec 1	
-#pragma omp for schedule(guided)
+	//#pragma omp for schedule(guided)
 	for (a=0; a<na; a++) {
 		tessHarmonics->L_lpmp[a] = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
 	}
 	
 	//Sec 2
-#pragma omp for schedule(guided)
+	//#pragma omp for schedule(guided)
 	for (b=0; b<nb; b++) {		
 		stor = tesseralTrigTerm(qNum, length, acos(cosPhiAbscissae[b])); //Phi --------------------------------------------------------
 		
@@ -1506,7 +1506,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	}
 	
 	//Sec3
-#pragma omp for schedule(guided)
+	//#pragma omp for schedule(guided)
 	for (a=0; a<na; a++) {
 		stor = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
 		
@@ -1517,7 +1517,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	}
 	
 	//Sec 4	
-#pragma omp for schedule(guided)
+	//#pragma omp for schedule(guided)
 	for (b=0; b<nb; b++) {
 		stor = tesseralTrigTerm(qNum, length, acos(cosPhiAbscissae[b])); //Phi --------------------------------------------------------
 		
@@ -1538,13 +1538,13 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	//Calculate the Tesseral Harmonics terms and rearrange appropriately for phi = 2PI - acos(cosPhiAbscissae)
 	
 	//Sec 5	
-#pragma omp for schedule(guided)
+	//#pragma omp for schedule(guided)
 	for (a=0; a<na; a++) {
 		tessHarmonics2PI->L_lpmp[a] = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
 	}
 	
 	//Sec 6	
-#pragma omp for schedule(guided)
+	//#pragma omp for schedule(guided)
 	for (b=0; b<nb; b++) {		
 		stor = tesseralTrigTerm(qNum, length, 2.0*PI - acos(cosPhiAbscissae[b])); //Phi --------------------------------------------------------
 		
@@ -1563,7 +1563,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	}
 	
 	//Sec 7
-#pragma omp for schedule(guided)
+	//#pragma omp for schedule(guided)
 	for (a=0; a<na; a++) {
 		stor = normAssocLegendrePoly(qNum, length, cosThetaAbscissae[a]);
 		
@@ -1574,7 +1574,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	}
 	
 	//Sec 8
-#pragma omp for schedule(guided)
+	//#pragma omp for schedule(guided)
 	for (b=0; b<nb; b++) {
 		stor = tesseralTrigTerm(qNum, length, 2.0*PI - acos(cosPhiAbscissae[b])); //Phi --------------------------------------------------------
 		
@@ -1653,7 +1653,7 @@ double* Mv_5D_oneCompositeIndex(double *v_ipjkn, double *mat_iip, int ni, int nj
 	
 	double *v_ijkn = new double [ni*nj*nk*nn];
 	
-#pragma omp parallel for default(shared) private(n,k,j,i,ip) schedule(guided) collapse(4)
+//#pragma omp parallel for default(shared) private(n,k,j,i,ip) schedule(guided) collapse(4)
 	for (n=0; n<nn; n++) {
 		for (k=0; k<nk; k++) {			
 			for (j=0; j<nj; j++) {			
@@ -1677,7 +1677,7 @@ double* diagMv_5D_oneCompositeIndex(double *v_npijk, double *mat_n, int nn, int 
 	
 	double *v_nijk = new double [ni*nj*nk*nn];
 	
-#pragma omp parallel for default(shared) private(k,j,i,n) schedule(guided) collapse(4)
+	//#pragma omp parallel for default(shared) private(k,j,i,n) schedule(guided) collapse(4)
 	for (k=0; k<nk; k++) {
 		for (j=0; j<nj; j++) {
 			for (i=0; i<ni; i++) {
@@ -1697,7 +1697,7 @@ double* reshuffleIndices_5D_oneCompositeIndex(double *v_ijkn, int ni, int nj, in
 	
 	double *v_jkni = new double [ni*nj*nk*nn];
 	
-#pragma omp parallel for default(shared) private(n,k,j,i) schedule(guided) collapse(4)
+//#pragma omp parallel for default(shared) private(n,k,j,i) schedule(guided) collapse(4)
 	for (n=0; n<nn; n++) {
 		for (k=0; k<nk; k++) {			
 			for (j=0; j<nj; j++) {				
@@ -1751,7 +1751,7 @@ double* Tv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	v_jkni = Mv_5D_oneCompositeIndex(v_jpkni, Ty, nj, nk, nn, ni);
 	
 	//Perform the sum Tx*v + Ty*v = v_jkni_TxTerm + v_jkni
-#pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
+	//#pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
 	for (p=0; p<basis_size; p++) {
 		v_jkni[p] += v_jkni_TxTerm[p];
 	}
@@ -1774,7 +1774,7 @@ double* Tv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	v_knij = Mv_5D_oneCompositeIndex(v_kpnij, Tz, nk, nn, ni, nj);
 	
 	//Perform the sum (Tx*v + Ty*v) + Tz*v = v_knij_TyTerm + v_knij
-#pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
+	//#pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
 	for (p=0; p<basis_size; p++) {
 		v_knij[p] += v_knij_TyTerm[p];
 	}
@@ -1796,7 +1796,7 @@ double* Tv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	v_nijk = diagMv_5D_oneCompositeIndex(v_npijk, Trot, nn, ni, nj, nk);
 	
 	//Perform the sum (Tx*v + Ty*v + Tz*v) + Trot*v = v_nijk_TzTerm + v_nijk
-#pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
+	//#pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
 	for (p=0; p<basis_size; p++) {
 		v_nijk[p] += v_nijk_TzTerm[p];
 		//v_nijk[p] += 0.0; //Only keep rotational term - for debugging purposes
@@ -1894,7 +1894,7 @@ double* Hv_5D_oneCompositeIndex(interfaceStor *interface, double *v_ipjkn) {
 	//cout << "Vv finished" << endl;
 	
 	//Sum Tv_ijkn and Vv_ijkn to get Hv_ijkn
-#pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
+	//#pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
 	for (p=0; p<basis_size; p++) {
 		Hv_ijkn[p] = Tv_ijkn[p] + Vv_ijkn[p]; 
 	//	Hv_ijkn[p] = Tv_ijkn[p]; // Free system - only for debugging purposes
