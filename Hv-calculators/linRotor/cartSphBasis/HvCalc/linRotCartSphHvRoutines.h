@@ -48,6 +48,12 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 
 void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosStor *lanczos);
 
+quadStor* QuadraturePrep(int thetaPoints, int phiPoints);
+
+void TesseralPrep(int na, int nb, quadStor *quadrature, lmFBR *lmBasis, tesseralStor **tessHarmonicsStor, tesseralStor **tessHarmonics2PIStor);
+
+void quadratureConvergenceStudy(interfaceStor *interface, lanczosStor *lanczos);
+
 double* Mv_5D_oneCompositeIndex(double *v_ipjkn, double *mat_iip, int ni, int nj, int nk, int nn);
 
 double* diagMv_5D_oneCompositeIndex(double *v_npijk, double *mat_n, int nn, int ni, int nj, int nk);

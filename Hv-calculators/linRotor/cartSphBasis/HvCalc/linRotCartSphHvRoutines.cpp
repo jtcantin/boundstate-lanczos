@@ -1178,7 +1178,7 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 }
 
 void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosStor *lanczos) {
-	int a, b, na, nb, nm, n, m, l;
+	int na, nb;
 	
 	cout << endl;
 	cout << "Hv Preparation STARTED." << endl;
@@ -1192,7 +1192,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	int nx, ny, nz, l_max, thetaPoints, phiPoints, pnx, pny, pnz;
 	double x_max, y_max, z_max, px_max, py_max, pz_max;
 	double rotationalConstant, totalMass, ceilingPotential;
-	string geometryFilename, line, junk, simulationFilename;
+	string geometryFilename, line, junk, simulationFilename, quadConvergeStudy;
 	
 	inputFilename = argv[2];
 	
@@ -1263,6 +1263,10 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 		
 		inputFile >> junk;
 		inputFile >> ceilingPotential;
+		
+		inputFile >> junk;
+		inputFile >> quadConvergeStudy;
+		
 	}
 	else {
 		cerr << "Input file '" << inputFilename << "' could not be opened." << endl;
@@ -1349,8 +1353,6 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	//Generate the |lm> basis and Rotational Kinetic Energy Operator
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	nm = 2*l_max + 1;
-	
 	//Generate the |lm> basis
 	int **qNum, length, **index, *dims;
 	dims = new int [2];
@@ -1383,6 +1385,83 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Calculate abscissae and weights for the quadratures
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	quadStor *quadrature;
+	
+	quadrature = QuadraturePrep(thetaPoints, phiPoints);
+	
+	cout << "Gauss-Legendre and Gauss-Chebyshev quadrature weights and abscissae calculated." << endl;
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Calculate Tesseral Harmonics
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	tesseralStor *tessHarmonics, *tessHarmonics2PI;
+	
+	na = thetaPoints;
+	nb = phiPoints;
+	
+	TesseralPrep(na, nb, quadrature, lmBasis, &tessHarmonics, &tessHarmonics2PI);
+		
+	cout << "Tesseral Harmonics terms calculated." << endl;
+	
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Pre-Calculate the Potential
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	cout << "Pre-calculating the potential:" << endl;
+	cout << "----------------------------------------------------------------------------" << endl;
+	
+	int numDim = 3; //There are 3 spatial dimensions
+	double *gridMax = new double [3];
+	int *gridPoints = new int [3];
+	
+	gridMax[0] = px_max;
+	gridPoints[0] = pnx;
+	
+	gridMax[1] = py_max;
+	gridPoints[1] = pny;
+	
+	gridMax[2] = pz_max;
+	gridPoints[2] = pnz;
+	
+	
+	pointPotentialStorH2 *partialPotential;
+	
+	partialPotential = (*(interface->fcnPointers->preCalcPotential))(numDim, gridMax, gridPoints, geometryFilename, interface, argc, argv);
+	
+	partialPotential->potentialCeiling = ceilingPotential;
+	
+	cout << "Potentials Pre-calculated." << endl;
+	
+	
+	
+	
+	//Put everything in the interface sructure
+	interface->grids = gridStor;
+	interface->lmBasis = lmBasis;
+	interface->quadrature = quadrature;
+	interface->tesseral = tessHarmonics;
+	interface->tesseral2PI = tessHarmonics2PI;
+	interface->potential = partialPotential;
+	
+	//Put what is needed for the Lanczos algorithm in lanczos	
+	lanczos->total_basis_size = nx*ny*nz*length;
+	lanczos->sim_descr = simulationFilename; //Keep it at this for now.
+	lanczos->sim_descr_short = simulationFilename;
+	
+	if (quadConvergeStudy == "TRUE") {
+		quadratureConvergenceStudy(interface, lanczos);
+	}
+	else {
+		cout << "No convergence study performed, using values in : " << inputFilename << endl;
+	}
+
+	cout << "////////////////////////////////////////////////////////////////////////////" << endl;
+	
+	cout << "Hv Preparation FINISHED." << endl;
+}
+
+quadStor* QuadraturePrep(int thetaPoints, int phiPoints) {
 	//Gauss-Legendre
 	double minVal, maxVal, *cosThetaAbscissae, *cosThetaWeights;
 	minVal = -1.0;
@@ -1390,8 +1469,8 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	
 	cosThetaAbscissae = new double [thetaPoints];
 	cosThetaWeights = new double [thetaPoints];
-	na = thetaPoints;
-	nb = phiPoints;
+	//na = thetaPoints;
+	//nb = phiPoints;
 	
 	gauleg(minVal, maxVal, cosThetaAbscissae, cosThetaWeights, thetaPoints);
 	
@@ -1411,11 +1490,26 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	quadrature->GLweights = cosThetaWeights;
 	quadrature->GLnum = thetaPoints;	
 	
-	cout << "Gauss-Legendre and Gauss-Chebyshev quadrature weights and abscissae calculated." << endl;
+	return quadrature;
+}
+
+void TesseralPrep(int na, int nb, quadStor *quadrature, lmFBR *lmBasis, tesseralStor **tessHarmonicsStor, tesseralStor **tessHarmonics2PIStor) {
 	
 	//Calculate the Tesseral Harmonics terms and rearrange appropriately for phi = acos(cosPhiAbscissae)
 	tesseralStor *tessHarmonics = new tesseralStor();
-	double *stor;
+	double *stor, *cosPhiAbscissae, *cosThetaAbscissae;
+	int n, a, b, m, l, nm;
+	
+	int l_max, length, **qNum, **index;
+	
+	qNum = lmBasis->qNum;
+	length = lmBasis->length;
+	l_max = lmBasis->lmax;
+	index = lmBasis->index;
+	nm = 2*l_max + 1;
+	
+	cosPhiAbscissae = quadrature->GCabscissae;
+	cosThetaAbscissae = quadrature->GLabscissae;
 	
 	tessHarmonics->na = na;
 	tessHarmonics->nb = nb;
@@ -1596,58 +1690,80 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	}
 	}
 	
-	//Everything already stored for interface in tessHarmonics2PI and tessHarmonics
+	//Return storage containers	
+	*tessHarmonicsStor = tessHarmonics;
+	*tessHarmonics2PIStor = tessHarmonics2PI;
+	
+}				
+
+void quadratureConvergenceStudy(interfaceStor *interface, lanczosStor *lanczos) {
+
+	int i,a,b,j;
+	int basisSize;
+	int na, nb;
+	
+	basisSize = lanczos->total_basis_size;
+	
+	na = interface->quadrature->GLnum;
+	nb = interface->quadrature->GCnum;
+	
+	double* vec=new double[basisSize];
+	double* uec;
+	double expectVal = 0.0;
+	
+	quadStor *quadrature;
+	tesseralStor *tessHarmonics, *tessHarmonics2PI;
+	
+	string outputFilename = lanczos->sim_descr_short;
+	
+	ofstream outputFile(outputFilename.c_str());
+
+	cout << "Quadrature Convergence Study beginning." << endl;
+	
+	for (i=0; i<basisSize; i++) {
+		vec[i] = 1.0/sqrt((double)basisSize);
+	}
+	
+	outputFile << "#ThetaPoints" << " " << "PhiPoints" << " " << "<v|H|v>" << endl;
+	
+	j = 0;
+	
+	for (a=1; a<=na; a++) {
+		for (b=1; b<=nb; b++) {
+			j++;
+			
+			quadrature = QuadraturePrep(a, nb);
+			
+			TesseralPrep(a, nb, quadrature, interface->lmBasis, &tessHarmonics, &tessHarmonics2PI);
+			
+			delete interface->quadrature;
+			delete interface->tesseral;
+			delete interface->tesseral2PI;
+			
+			interface->quadrature = quadrature;
+			interface->tesseral = tessHarmonics;
+			interface->tesseral2PI = tessHarmonics2PI;
+			
+			uec = Hv_5D_oneCompositeIndex(interface, vec);
+			
+			for (i=0; i<basisSize; i++) {
+				expectVal += vec[i]*uec[i];
+			}
+			
+			outputFile << a << " " << nb << " " << expectVal << endl;
+			//outputFile << a << " " << expectVal << endl;
+			
+			if (j % 10 == 0) {
+				cout << "Working... at " << j << " out of " << na*nb << endl;
+			}
+			
+			expectVal = 0.0;
+			
+		}
+	}
 	
 	
-	cout << "Tesseral Harmonics terms calculated." << endl;
 	
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//Pre-Calculate the Potential
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	cout << "Pre-calculating the potential:" << endl;
-	cout << "----------------------------------------------------------------------------" << endl;
-	
-	int numDim = 3; //There are 3 spatial dimensions
-	double *gridMax = new double [3];
-	int *gridPoints = new int [3];
-	
-	gridMax[0] = px_max;
-	gridPoints[0] = pnx;
-	
-	gridMax[1] = py_max;
-	gridPoints[1] = pny;
-	
-	gridMax[2] = pz_max;
-	gridPoints[2] = pnz;
-	
-	
-	pointPotentialStorH2 *partialPotential;
-	
-	partialPotential = (*(interface->fcnPointers->preCalcPotential))(numDim, gridMax, gridPoints, geometryFilename, interface, argc, argv);
-	
-	partialPotential->potentialCeiling = ceilingPotential;
-	
-	cout << "Potentials Pre-calculated." << endl;
-	
-	cout << "////////////////////////////////////////////////////////////////////////////" << endl;
-	
-	
-	//Put everything in the interface sructure
-	interface->grids = gridStor;
-	interface->lmBasis = lmBasis;
-	interface->quadrature = quadrature;
-	interface->tesseral = tessHarmonics;
-	interface->tesseral2PI = tessHarmonics2PI;
-	interface->potential = partialPotential;
-	
-	//Put what is needed for the Lanczos algorithm in lanczos	
-	lanczos->total_basis_size = nx*ny*nz*length;
-	lanczos->sim_descr = simulationFilename; //Keep it at this for now.
-	lanczos->sim_descr_short = simulationFilename;
-	
-	cout << "Hv Preparation FINISHED." << endl;
 }
 
 double* Mv_5D_oneCompositeIndex(double *v_ipjkn, double *mat_iip, int ni, int nj, int nk, int nn) { 
