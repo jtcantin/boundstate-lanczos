@@ -139,6 +139,7 @@ struct pointPotentialStorH2 {
 	double *H_potential;
 	universeProp *potentialUniverse;
 	double potentialCeiling;
+	double *fullPotential;
 	
 	//For Coulomb Potential
 	double centreCharge;
@@ -149,6 +150,7 @@ struct pointPotentialStorH2 {
 		delete [] CMpotential;
 		delete [] H_potential;
 		delete potentialUniverse;
+		delete [] fullPotential;
 	};
 };
 

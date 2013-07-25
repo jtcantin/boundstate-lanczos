@@ -1,4 +1,4 @@
-#include "linRotCartSphHvRoutines.h"
+#include "linRotCartSphHvFullVPrepRoutines.h"
 
 using namespace std;
 
@@ -1177,6 +1177,154 @@ double* calc_ulm(double x, double y, double z, double *v_lpmp, interfaceStor *in
 	
 }
 
+double* calc_Vlmlpmp(interfaceStor *interface) {
+	int m, mp, n, a, b, i, j, k, np;
+	int anmp, nmp, nm, bna, anb, mna, nnp, nn;
+	double potentialCeiling;
+	
+	//Extract out desired variables from the interface storage structure
+	quadStor *gaussQuad;
+	pointPotentialStorH2 *atomPotentials;
+	tesseralStor *tesseralHarmonics;
+	lmFBR *lmBasis;
+	fiveDGrid *cartGrid;
+	
+	int l_max, **qNum, length;
+	double (*linearMoleculePotential)(interfaceStor*, H2_orient*) = NULL;
+	
+	gaussQuad = interface->quadrature;
+	atomPotentials = interface->potential;
+	lmBasis = interface->lmBasis;
+	cartGrid = interface->grids;
+	
+	
+	l_max = lmBasis->lmax;
+	qNum = lmBasis->qNum;
+	length = lmBasis->length;
+	
+	potentialCeiling = atomPotentials->potentialCeiling;
+	linearMoleculePotential = interface->fcnPointers->linearMoleculePotential;
+	
+	
+	//Determine whether I am calculating phi = acos(cosPhiAbscissae) or phi = 2PI - acos(cosPhiAbscissae)
+	if (rangeFlag == 0) {
+		tesseralHarmonics = interface->tesseral;
+	}
+	else {
+		tesseralHarmonics = interface->tesseral2PI;
+	}
+	
+	//Get number of m values
+	nmp = 2*l_max + 1;
+	nm = 2*l_max + 1;
+	
+	nn = (l_max+1)*(l_max+1);
+	nnp = nn;
+				   
+	
+	//Quadrature Variables
+	double *cosThetaAbscissae, *cosPhiAbscissae, *wa, *wb;
+	int na, nb;
+	
+	cosThetaAbscissae = gaussQuad->GLabscissae;
+	wa = gaussQuad->GLweights;
+	na = gaussQuad->GLnum;
+	
+	cosPhiAbscissae = gaussQuad->GCabscissae;
+	wb = gaussQuad->GCweights;
+	nb = gaussQuad->GCnum;
+	//
+	
+	//Tesseral Harmonics Variables
+	double **L_lpmp1, **S_mp1, **S_m1, **L_lm1;
+	
+	L_lpmp1 = tesseralHarmonics->L_lpmp;
+	S_mp1 = tesseralHarmonics->S_mp;
+	S_m1 = tesseralHarmonics->S_m;
+	L_lm1 = tesseralHarmonics->L_lm;
+	
+	double **L_lpmp2, **S_mp2, **S_m2, **L_lm2;
+	
+	L_lpmp2 = tesseralHarmonics->L_lpmp;
+	S_mp2 = tesseralHarmonics->S_mp;
+	S_m2 = tesseralHarmonics->S_m;
+	L_lm2 = tesseralHarmonics->L_lm;
+	//
+	
+	//Cartesian Grid Variables
+	
+	int ni, nj, nk;
+	double *xGrid, *yGrid, *zGrid;
+	
+	ni = cartGrid->nx;
+	xGrid = cartGrid->x_Grid;
+	
+	nj = cartGrid->ny;
+	yGrid = cartGrid->y_Grid;
+	
+	nk = cartGrid->nz;
+	zGrid = cartGrid->z_Grid;
+	
+	//
+	
+	double *potentialMatrix = new double [nx*ny*nz*nn*nnp];
+	double V_ijkab_1, V_ijkab_2;
+	VECT CMpos(3);
+	H2_orient linearMolecule;
+	
+	//Calculate <lm|V|l'm'>(x,y,z) = sum(a,b)[ wa * wb * ( L_lm(theta) * S_m(phi) * V(theta,phi;x,y,z) * L_lpmp(theta) * S_mp(phi) + L_lm(theta) * S_m(phi2) * V(theta,phi2;x,y,z) * L_lpmp(theta) * S_mp(phi2) )
+	//      where phi = acos(cosPhiAbscissae[b]) and phi2 = 2*PI - acos(cosPhiAbscissae[b]); you need both to get the full range of phi [0,2pi)
+	//#pragma omp parallel for schedule(guided) collapse(5)
+	for (i=0; i<ni; i++) {
+		for (j=0; j<nj; j++) {
+			for (k=0; k<nk; k++) {
+				for (n=0; n<nn; n++) {
+					for (np=0; np<nnp; np++) {
+						potentialMatrix[(((i*nj + j)*nk + k)*nn + n)*nnp + np] = 0.0;
+						
+						m = qNum[n][1];
+						mp = qNum[np][1];
+						
+						//CMpos.DIM(3);
+						CMpos.COOR(0) = xGrid[i];
+						CMpos.COOR(1) = yGrid[j];
+						CMpos.COOR(2) = zGrid[k];
+						
+						linearMolecule.CM = &CMpos;
+						
+						for (a=0; a<na; a++) {
+							linearMolecule.theta = acos(cosThetaAbscissae[a]);
+							
+							for (b=0; b<nb; b++) {
+								
+								//Get the potential for phi in [0, pi)
+								linearMolecule.phi = acos(cosPhiAbscissae[b]); 								
+								V_ijkab_1 = (*linearMoleculePotential)(interface, &linearMolecule);
+								
+								if (V_ijkab_1 >= potentialCeiling) {
+									V_ijkab_1 = potentialCeiling;
+								}
+								
+								//Get the potential for phi in [pi, 2pi)								
+								linearMolecule.phi = 2*PI - acos(cosPhiAbscissae[b]);
+								V_ijkab_2 = (*linearMoleculePotential)(interface, &linearMolecule);
+								
+								if (V_ijkab_2 >= potentialCeiling) {
+									V_ijkab_2 = potentialCeiling;
+								}
+								
+								potentialMatrix[(((i*nj + j)*nk + k)*nn + n)*nnp + np] += wa[a] * wb[b] * (L_lm1[n][a] * S_m1[m_shift(m)][b] * V_ijkab_1 * L_lpmp1[a][np] * S_mp1[b][m_shift(mp)] + L_lm2[n][a] * S_m2[m_shift(m)][b] * V_ijkab_2 * L_lpmp2[a][np] * S_mp2[b][m_shift(mp)] );
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return potentialMatrix;
+}
+
 void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosStor *lanczos) {
 	int na, nb;
 	
@@ -1431,11 +1579,6 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	
 	partialPotential->potentialCeiling = ceilingPotential;
 	
-	cout << "Potentials Pre-calculated." << endl;
-	
-	
-	
-	
 	//Put everything in the interface sructure
 	interface->grids = gridStor;
 	interface->lmBasis = lmBasis;
@@ -1449,6 +1592,13 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	lanczos->sim_descr = simulationFilename; //Keep it at this for now.
 	lanczos->sim_descr_short = simulationFilename;
 	
+	//Pre-Calculate <lm|V|lpmp>
+	interface->potential->fullPotential = calc_Vlmlpmp(interface);
+	
+	cout << "Potentials Pre-calculated." << endl;
+	
+	
+	//Check if a convergence study is desired
 	if (quadConvergeStudy == "TRUE") {
 		quadratureConvergenceStudy(interface, lanczos);
 	}
@@ -1457,6 +1607,11 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	}
 
 	cout << "////////////////////////////////////////////////////////////////////////////" << endl;
+	
+	//Free up memory for later use
+	delete [] interface->potential->CMpotential;
+	delete [] interface->potential->Hpotential;
+	delete interface->potential->potentialUniverse;
 	
 	cout << "Hv Preparation FINISHED." << endl;
 }
