@@ -10,6 +10,8 @@
 #include "vectClass.h" //This is to select which linear algebra class should be used.
 #include "interface.h"
 
+#define OUTPUT_PRECISION 15
+
 void lancbis(int niter,VECT &eval,VECT &evalerr,double elmin,
 			 double elmax,int &ngood,const VECT& alpha,const VECT& beta,
 			 const VECT& beta2);

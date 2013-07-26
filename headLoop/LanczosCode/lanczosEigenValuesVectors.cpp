@@ -80,7 +80,7 @@ int main(int argc,char **argv) {
 	}
 	
 	//Set output precision
-	cout << scientific << setprecision(15) << endl;
+	cout << scientific << setprecision(OUTPUT_PRECISION) << endl;
 	
 	
 	cout << "Eigenvalue and Eigenvector Lanczos calculator begun." << endl;
@@ -111,7 +111,10 @@ int main(int argc,char **argv) {
 	
 	//test Hv
 	
-	cout << "Eigenvalues will be searched for in the interval (" << emin << ", " << emax << "]; all in kJ/mol." << endl;
+	cout << fixed << setprecision(6) << "Eigenvalues will be searched for in the interval (" << emin << ", " << emax << "]; all in kJ/mol." << endl;
+
+	//Set output precision
+	cout << scientific << setprecision(OUTPUT_PRECISION) << endl;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Create directory structure

@@ -12,6 +12,9 @@
 #include "linRotCartSphHvRoutines.h"
 #include "linRotCartSphContainers.h"
 
+//Linear Rotor Cartesian Position and Spherical Harmonics Rotational Basis Hv with the Potential Fully Pre-calculated
+#include "linRotCartSphHvFullVPrepRoutines.h"
+
 //Alavi Hydrogen Model
 #include "Alavi_H2_Routines.h"
 

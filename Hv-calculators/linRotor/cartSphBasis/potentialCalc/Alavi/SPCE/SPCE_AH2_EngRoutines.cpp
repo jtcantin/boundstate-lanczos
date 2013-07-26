@@ -45,7 +45,7 @@ void getSPCEatoms(char **atomType, VECT **atomPos, int *nAtoms, string filename)
 	datafile.close();
 	
 	
-	*nAtoms = nMol*N_MOL_ATOMS;
+	*nAtoms = nMol*N_MOL_ATOMS_SPCE;
 	*atomPos = new VECT[*nAtoms];
 	*atomType = new char[*nAtoms];
 	
@@ -55,17 +55,17 @@ void getSPCEatoms(char **atomType, VECT **atomPos, int *nAtoms, string filename)
 	VECT H1_mol(3), H2_mol(3), O_mol(3);
 	
 	//Set intitial water molecule atom locations assuming the WFF is aligned with the SFF
-	H1.COOR(0) = H1_X;
-	H1.COOR(1) = H1_Y;
-	H1.COOR(2) = H1_Z;
+	H1.COOR(0) = H1_X_SPCE;
+	H1.COOR(1) = H1_Y_SPCE;
+	H1.COOR(2) = H1_Z_SPCE;
 	
-	H2.COOR(0) = H2_X;
-	H2.COOR(1) = H2_Y;
-	H2.COOR(2) = H2_Z;
+	H2.COOR(0) = H2_X_SPCE;
+	H2.COOR(1) = H2_Y_SPCE;
+	H2.COOR(2) = H2_Z_SPCE;
 	
-	O.COOR(0) = O_X;
-	O.COOR(1) = O_Y;
-	O.COOR(2) = O_Z;
+	O.COOR(0) = O_X_SPCE;
+	O.COOR(1) = O_Y_SPCE;
+	O.COOR(2) = O_Z_SPCE;
 	
 	for (i=0; i<nMol; i++) {
 		//Rotate water molecules using the Euler angles
@@ -89,18 +89,18 @@ void getSPCEatoms(char **atomType, VECT **atomPos, int *nAtoms, string filename)
 		H2_mol = H2_mol + NM_PER_ANG*CM[i];
 		
 		//Store atom positions
-		(*atomPos)[N_MOL_ATOMS*i + 0].DIM(3);
-		(*atomPos)[N_MOL_ATOMS*i + 1].DIM(3);
-		(*atomPos)[N_MOL_ATOMS*i + 2].DIM(3);
+		(*atomPos)[N_MOL_ATOMS_SPCE*i + 0].DIM(3);
+		(*atomPos)[N_MOL_ATOMS_SPCE*i + 1].DIM(3);
+		(*atomPos)[N_MOL_ATOMS_SPCE*i + 2].DIM(3);
 		
-		(*atomPos)[N_MOL_ATOMS*i + 0] = O_mol;
-		(*atomPos)[N_MOL_ATOMS*i + 1] = H1_mol;
-		(*atomPos)[N_MOL_ATOMS*i + 2] = H2_mol;
+		(*atomPos)[N_MOL_ATOMS_SPCE*i + 0] = O_mol;
+		(*atomPos)[N_MOL_ATOMS_SPCE*i + 1] = H1_mol;
+		(*atomPos)[N_MOL_ATOMS_SPCE*i + 2] = H2_mol;
 		
 		//Store atom types
-		(*atomType)[N_MOL_ATOMS*i + 0] = 'O';
-		(*atomType)[N_MOL_ATOMS*i + 1] = 'H';
-		(*atomType)[N_MOL_ATOMS*i + 2] = 'H';
+		(*atomType)[N_MOL_ATOMS_SPCE*i + 0] = 'O';
+		(*atomType)[N_MOL_ATOMS_SPCE*i + 1] = 'H';
+		(*atomType)[N_MOL_ATOMS_SPCE*i + 2] = 'H';
 	}
 	
 	delete [] EA;
@@ -116,9 +116,10 @@ double Q_SPCE_Eng(VECT pos, double q, char *atomType, VECT *atomPos, int nAtoms)
 	for (i=0; i<nAtoms; i++) {
 		switch (atomType[i]) {
 			case 'H':
-				Eng += CoulombEng(pos, q, atomPos[i], Q_H);
+				Eng += CoulombEng(pos, q, atomPos[i], Q_H_SPCE);
 				break;
 			case 'O':
+				Eng += CoulombEng(pos, q, atomPos[i], Q_O_SPCE);
 				break;
 			default:
 				cerr << "Atom type not recognized while executing Q_SPCE_Eng()." << endl;
@@ -141,7 +142,7 @@ double LJ_SPCE_Eng(VECT pos, char *atomType, VECT *atomPos, int nAtoms) {
 			case 'H':
 				break;
 			case 'O':
-				Eng += LJEng(pos, atomPos[i], EPS_OH2, SIGMA_OH2);
+				Eng += LJEng(pos, atomPos[i], EPS_OH2_SPCE, SIGMA_OH2_SPCE);
 				break;
 			default:
 				cerr << "Atom type not recognized while executing LJ_SPCE_Eng()." << endl;
@@ -164,7 +165,7 @@ double LJ_SPCE_Eng_Fast(VECT pos, char *atomType, VECT *atomPos, int nAtoms) {
 			case 'H':
 				break;
 			case 'O':
-				Eng += LJEngFast(pos, atomPos[i], A_LJ_OH, B_LJ_OH);
+				Eng += LJEngFast(pos, atomPos[i], A_LJ_OH_SPCE, B_LJ_OH_SPCE);
 				break;
 			default:
 				cerr << "Atom type not recognized while executing LJ_SPCE_Eng()." << endl;

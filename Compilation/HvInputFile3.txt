@@ -1,14 +1,14 @@
 #
 #Make sure that there is no space before the equals sign and only one after; you will get an error or weird results otherwise
-nx= 30
+nx= 10
 x_max(nm)= 1.0
-ny= 30
+ny= 10
 y_max(nm)= 1.0
-nz= 30
+nz= 10
 z_max(nm)= 1.0
-l_max= 0
-thetaPoints= 35
-phiPoints= 35
+l_max= 5
+thetaPoints= 30
+phiPoints= 30
 pointPotential_nx= 100
 pointPotential_x_max(nm)= 1.0
 pointPotential_ny= 100
@@ -18,6 +18,6 @@ pointPotential_z_max(nm)= 1.0
 totalMass(g/mol)= 2.015650064
 rotationalConstant(kJ/mol)= 0.709652722117881
 geometryFilename= sII_smallCage4_test_CM_EA_ZYZ.xyz
-simulationTitle= SPCEconvergenceStudy
+simulationTitle= SPCENoQuadTestToby
 ceilingPotential(kJ/mol)= 10
 quadratureConvergenceStudy(TRUE/FALSE)= TRUE

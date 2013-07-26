@@ -1,0 +1,5 @@
+
+The following are the relative energies for the simulation Coulomb100PointsNoQuad
+Number of Eigenvalues: 0
+Zero Point Energy = 0.000000000000000e+00 kJ/mol
+State | Relative Energy (kJ/mol)
