@@ -2,7 +2,32 @@
 This code has been designed to calculate quantum mechanical boundstate eigenvalues and eigenvectors using the Lanczos Algorithm.
 This code was mostly written by Joshua T. Cantin and sections were written by Dr. Pierre-Nicholas Roy and Dr. Tao (Toby) Zeng.
 
-To compile the code, makefiles for Mac OS X and Linux (Ubuntu) can be found in the Compilation folder.
+_________________________
+Compilation and Execution
+_________________________
+To compile the code, makefiles for Mac OS X and Linux (Ubuntu) can be found in the Compilation folder. Also note, that on nlogn and toby, the two environment variables below must be set before the executable can be run. The commands to do this can be found in linuxEnvironment within the compilation folder.
+
+Environment Variables:
+
+LIBRARY_PATH=/home/pnroy/Dev/lib64:$LIBRARY_PATH
+LD_LIBRARY_PATH=/home/pnroy/Dev/lib64:$LD_LIBRARY_PATH
+
+To run the code, you need the executable and at least one input file. You will need two for the Alavi HvCalculator. The code can be run as:
+./Lanczos LanczosInputFile.txt [OtherInputFile.txt ...]
+
+Note that the executable name may be one of the following, depending on the makefile used: 
+     Lanczos_OSX
+     LanczosTOBY
+     LanczosNLOGN
+
+Templates for the LanczosInputFile.txt and the file needed for the Linear Rotor, Cartesian Centre of Mass, Spherical Harmonics Hv Calculator can be found in the Compilation/InputFileTemplates folder.
+
+Note that only the eigenvalue and not the eigenvector portion of the Lanczos code has been memory tested so far; the eigenvector portion may leak memory heavily and/or make invalid reads or writes.
+
+
+___________________________________
+Adding Hv Calculators or Potentials
+___________________________________
 
 The Lanczos Algorithm, Hv Calculator, and Potential Calculator are all logically and functionally separated; to each section of the code, the rest are a black box to be accessed via function pointers. These function pointers point to functions as defined within interface.cpp. interface.cpp will choose the function pointers based on the HvCalculator variable in the LanczosInputFile. interface.cpp also chooses the storage structure that is handled by Lanczos as a black box that is passed to Hv and HvPrep for internal use.
 
@@ -17,9 +42,23 @@ If you are changing the potential for the Linear Rotor, Cartesian Centre of Mass
 
 If you find that you need to make any other changes, please talk to Joshua T. Cantin before you implement them. Also, do NOT delete anything of what is already there, just add to the files when making the changes; otherwise, it may break the rest of the code.
 
-To run the code, you need the executable and at least one input file. You will need two for the Alavi HvCalculator. The code can be run as:
-./Lanczos LanczosInputFile.txt [OtherInputFile.txt ...]
+_______________________________________
+Available Hv Calculators and Potentials
+_______________________________________
 
-Templates for the LanczosInputFile.txt and the file needed for the Linear Rotor, Cartesian Centre of Mass, Spherical Harmonics Hv Calculator can be found in the InputFileTemplates folder.
+The following are valid options for the HvCalculator variable in the LanczosInputFile:
 
-Note that only the eigenvalue and not the eigenvector portion of the Lanczos code has been memory tested so far; the eigenvector portion may leak memory heavily and/or make invalid reads or writes.
+linRotCartSph_Alavi_TIP4P
+linRotCartSph_Alavi_SPCE
+linRotCartSph_Coulomb
+linRotCartSph_IsoHarmOsc
+linRotCartSph_NoQuad_Alavi_TIP4P
+linRotCartSph_NoQuad_Alavi_SPCE
+linRotCartSph_NoQuad_Coulomb
+linRotCartSph_NoQuad_IsoHarmOsc
+
+The linRotCartSph prefix indicates that the linear rotor, cartesian translation basis, spherical harmonic rotational basis Hv Calculator is used. This Hv calculator performs the quadrature on the fly and is much slower than linRotCartSph_NoQuad.
+
+The linRotCartSph_NoQuad prefix indicates that the linear rotor, cartesian translation basis, spherical harmonic rotational basis Hv Calculator with the quadrature precomputed is used. Also, this Hv calculator has the option of calculator all l values, only even l values, or only odd; select this with the rotationalSymmetry variable in the HvInputFile. This can is at least 2x as fast as linRotCartSph; I say at least as I expect the difference to become larger the greater the number of points in the basis (my tests were for a small number of points).
+
+The remainder of the option title indicates the potential used. Alavi indicates that the "Alavi model" of hydrogen is used (i.e. a point charge model fit to a quadrupole moment) and TIP4P or SPC/E indicate the corresponding water model. Coulomb is a single point charge located at the origin (centre of the system) and IsoHarmOsc is an Isotropic Harmonic Oscillator centred at the origin.

@@ -1,0 +1,2 @@
+#nx= 10 ny= 10 nz= 10 l_max= 2 nThetaMax= 10 nPhiMax= 10npx= 10 npy= 10 npz= 10
+#ThetaPoints PhiPoints <v|H|v>

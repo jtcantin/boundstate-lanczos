@@ -147,7 +147,7 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 						
 						//Give feedback as to progress
 						if (count % step == 0) {
-							cout << count << endl;
+							cout << double(count)/double(matrixSize) << endl;
 						}
 						count++;
 					}
@@ -174,7 +174,7 @@ void HvPrep_Internal_NoQuad(int argc, char **argv, interfaceStor *interface, lan
 	int nx, ny, nz, l_max, thetaPoints, phiPoints, pnx, pny, pnz;
 	double x_max, y_max, z_max, px_max, py_max, pz_max;
 	double rotationalConstant, totalMass, ceilingPotential;
-	string geometryFilename, line, junk, simulationFilename, quadConvergeStudy;
+	string geometryFilename, line, junk, simulationFilename, quadConvergeStudy, symFlag;
 	
 	inputFilename = argv[2];
 	
@@ -248,6 +248,9 @@ void HvPrep_Internal_NoQuad(int argc, char **argv, interfaceStor *interface, lan
 		
 		inputFile >> junk;
 		inputFile >> quadConvergeStudy;
+		
+		inputFile >> junk;
+		inputFile >> symFlag;
 		
 	}
 	else {
@@ -439,7 +442,7 @@ void HvPrep_Internal_NoQuad(int argc, char **argv, interfaceStor *interface, lan
 	
 	cout << "Potentials Pre-calculated." << endl;
 	
-	
+	interface->lmBasis->symmeterizer = calcSym(interface, symFlag);
 	
 
 	cout << "////////////////////////////////////////////////////////////////////////////" << endl;
@@ -451,6 +454,52 @@ void HvPrep_Internal_NoQuad(int argc, char **argv, interfaceStor *interface, lan
 	
 	cout << "Hv Preparation FINISHED." << endl;
 }
+
+double* calcSym(interfaceStor *interface, string symFlag) {
+	int nn = interface->lmBasis->length;
+	int **qNum = interface->lmBasis->qNum;
+	int n, l;
+	
+	double *symmeterizer = new double [nn];
+	
+	if (symFlag == "All") {
+		for (n=0; n<nn; n++) {
+			symmeterizer[n] = 1.0;
+		}
+	}
+	else if (symFlag == "Even") {
+		for (n=0; n<nn; n++) {
+			l = qNum[n][0];
+			
+			if (l % 2 == 0) {
+				symmeterizer[n] = 1.0;
+			}
+			else {
+				symmeterizer[n] = 0.0;
+			}
+		}
+	}
+	else if (symFlag == "Odd") {
+		for (n=0; n<nn; n++) {
+			l = qNum[n][0];
+			
+			if (l % 2 == 1) {
+				symmeterizer[n] = 1.0;
+			}
+			else {
+				symmeterizer[n] = 0.0;
+			}
+		}
+	}
+	else {
+		cerr << "ERROR: Symmeterizer Flag not recognized." << endl;
+		exit(1);
+	}
+
+	
+	return symmeterizer;
+}
+	
 
 void quadratureConvergenceStudy_NoQuad(interfaceStor *interface, lanczosStor *lanczos) {
 
@@ -581,7 +630,7 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 }
 
 double* Hv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ipjkn) {
-	int p;
+	int i, j, k, n;
 	
 	int ni, nj, nk, nn, basis_size;	
 	ni = interface->grids->nx;
@@ -594,6 +643,7 @@ double* Hv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ipjkn
 	
 	double *Tv_ijkn;
 	double *Vv_ijkn;
+	double *S_n;
 	double *Hv_ijkn = new double [basis_size];
 	
 	//Calculate the kinetic energy terms
@@ -606,11 +656,26 @@ double* Hv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ipjkn
 	
 	//cout << "Vv finished" << endl;
 	
+	//Get symmeterizer
+	S_n = interface->lmBasis->symmeterizer;
+	
 	//Sum Tv_ijkn and Vv_ijkn to get Hv_ijkn
-	//#pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
+	/*//#pragma omp parallel for default(shared) private(p) schedule(guided) //Parallelization justified as no processor will access the same memory location at the same time (i.e. p is different for each processor)
 	for (p=0; p<basis_size; p++) {
 		Hv_ijkn[p] = Tv_ijkn[p] + Vv_ijkn[p]; 
 	//	Hv_ijkn[p] = Tv_ijkn[p]; // Free system - only for debugging purposes
+	}*/
+	
+	//Sum Tv_ijkn and Vv_ijkn to get Hv_ijkn and then multiply by S_n to get all, even or odd l
+	for (i=0; i<ni; i++) {
+		for (j=0; j<nj; j++) {
+			for (k=0; k<nk; k++) {
+				for (n=0; n<nn; n++) {
+					Hv_ijkn[((n*nk + k)*nj + j)*ni + i] = Tv_ijkn[((n*nk + k)*nj + j)*ni + i] + Vv_ijkn[((n*nk + k)*nj + j)*ni + i];
+					Hv_ijkn[((n*nk + k)*nj + j)*ni + i] *= S_n[n];
+				}
+			}
+		}
 	}
 	
 	delete [] Tv_ijkn;

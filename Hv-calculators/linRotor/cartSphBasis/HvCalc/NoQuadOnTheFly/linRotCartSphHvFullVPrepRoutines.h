@@ -29,4 +29,6 @@ void Hv_Prep_linRotCartSph_NoQuad(int argc, char **argv, generalStor *general_da
 
 void Hv_linRotCartSph_NoQuad(int argc, char **argv, generalStor *general_data, lanczosStor *lanczos_data, double *vec, double *uec);
 
+double* calcSym(interfaceStor *interface, string symFlag);
+
 #endif

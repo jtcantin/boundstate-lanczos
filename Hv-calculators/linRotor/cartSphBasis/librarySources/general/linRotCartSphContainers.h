@@ -116,6 +116,8 @@ struct lmFBR {
 	
 	double *rotKinMat;
 	
+	double *symmeterizer;
+	
 	~lmFBR() {
 		int i;
 		
