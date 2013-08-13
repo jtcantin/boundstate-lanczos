@@ -44,14 +44,17 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 				   
 	
 	//Quadrature Variables
-	double *cosThetaAbscissae, *cosPhiAbscissae, *wa, *wb;
+	double *cosThetaAbscissae, *cosPhiAbscissae, *wa, *wb, *phiAbscissae, *PIphiAbscissae, *thetaAbscissae;
 	int na, nb;
 	
 	cosThetaAbscissae = gaussQuad->GLabscissae;
+	thetaAbscissae = gaussQuad->GLacosAbscissae;
 	wa = gaussQuad->GLweights;
 	na = gaussQuad->GLnum;
 	
 	cosPhiAbscissae = gaussQuad->GCabscissae;
+	phiAbscissae = gaussQuad->GCacosAbscissae;
+	PIphiAbscissae = gaussQuad->GCPIacosAbscissae;
 	wb = gaussQuad->GCweights;
 	nb = gaussQuad->GCnum;
 	//
@@ -121,12 +124,12 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 						linearMolecule.CM = &CMpos;
 						
 						for (a=0; a<na; a++) {
-							linearMolecule.theta = acos(cosThetaAbscissae[a]);
+							linearMolecule.theta = thetaAbscissae[a];
 							
 							for (b=0; b<nb; b++) {
 								
 								//Get the potential for phi in [0, pi)
-								linearMolecule.phi = acos(cosPhiAbscissae[b]); 								
+								linearMolecule.phi = phiAbscissae[b]; 								
 								V_ijkab_1 = (*linearMoleculePotential)(interface, &linearMolecule);
 								
 								if (V_ijkab_1 >= potentialCeiling) {
@@ -134,7 +137,7 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 								}
 								
 								//Get the potential for phi in [pi, 2pi)								
-								linearMolecule.phi = 2*PI - acos(cosPhiAbscissae[b]);
+								linearMolecule.phi = PIphiAbscissae[b];
 								V_ijkab_2 = (*linearMoleculePotential)(interface, &linearMolecule);
 								
 								if (V_ijkab_2 >= potentialCeiling) {

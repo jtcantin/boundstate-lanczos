@@ -1479,14 +1479,36 @@ quadStor* QuadraturePrep(int thetaPoints, int phiPoints) {
 	
 	gaussChebyshev(phiPoints, &cosPhiAbscissae, &cosPhiWeights);
 	
+	//Pre-compute values using acos for the sake of speed
+	int a,b;
+	//Theta [0,PI]
+	double *thetaAbscissae = new double [thetaPoints];
+	
+	for (a; a<thetaPoints; a++) {
+		thetaAbscissae[a] = acos(cosThetaAbscissae[a]);
+	}
+	
+	//Phi [0,PI) and [PI,2PI)
+	double *phiAbscissae = new double [phiPoints];
+	double *PIphiAbscissae = new double [phiPoints];
+	
+	for (b; b<phiPoints; b++) {
+		phiAbscissae[b] = acos(cosPhiAbscissae[b]);
+		PIphiAbscissae[b] = 2*PI - acos(cosPhiAbscissae[b]);
+	}
+	
+	
 	//Store everything for interface
 	quadStor *quadrature = new quadStor();
 	
 	quadrature->GCabscissae = cosPhiAbscissae;
+	quadrature->GCacosAbscissae = phiAbscissae;
+	quadrature->GCPIacosAbscissae = PIphiAbscissae;
 	quadrature->GCweights = cosPhiWeights;
 	quadrature->GCnum = phiPoints;
 	
 	quadrature->GLabscissae = cosThetaAbscissae;
+	quadrature->GLacosAbscissae = thetaAbscissae;
 	quadrature->GLweights = cosThetaWeights;
 	quadrature->GLnum = thetaPoints;	
 	

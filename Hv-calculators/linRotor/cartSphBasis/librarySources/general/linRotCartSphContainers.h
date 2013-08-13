@@ -38,19 +38,25 @@ struct sysAtoms {
 
 struct quadStor {
 	double *GCabscissae;
+	double *GCacosAbscissae;
+	double *GCPIacosAbscissae;
 	double *GCweights;
 	int GCnum;
 	
 	double *GLabscissae;
+	double *GLacosAbscissae;
 	double *GLweights;
 	int GLnum;
 	
 	~quadStor() {
 		delete [] GCabscissae;
 		delete [] GCweights;
+		delete [] GCacosAbscissae;
+		delete [] GCPIacosAbscissae;
 		
 		delete [] GLabscissae;
 		delete [] GLweights;
+		delete [] GLacosAbscissae;
 	};
 };
 
