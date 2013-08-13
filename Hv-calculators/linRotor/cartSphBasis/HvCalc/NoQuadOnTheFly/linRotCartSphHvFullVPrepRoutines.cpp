@@ -94,6 +94,7 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 	int matrixSize = ni*nj*nk*nn*nnp;
 	int count = 0;
 	int step = matrixSize/100;
+	int ind;
 	
 	double *potentialMatrix = new double [matrixSize];
 	double V_ijkab_1, V_ijkab_2;
@@ -105,13 +106,15 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 	
 	//Calculate <lm|V|l'm'>(x,y,z) = sum(a,b)[ wa * wb * ( L_lm(theta) * S_m(phi) * V(theta,phi;x,y,z) * L_lpmp(theta) * S_mp(phi) + L_lm(theta) * S_m(phi2) * V(theta,phi2;x,y,z) * L_lpmp(theta) * S_mp(phi2) )
 	//      where phi = acos(cosPhiAbscissae[b])] and phi2 = 2*PI - acos(cosPhiAbscissae[b]); you need both to get the full range of phi [0,2pi)
-#pragma omp parallel for default(shared) private(i,j,k,n,np,m,mp,linearMolecule, CMpos, a, b, V_ijkab_1, V_ijkab_2) schedule(guided) collapse(5)
+#pragma omp parallel for default(shared) private(i,j,k,n,np,m,mp,ind,linearMolecule, CMpos, a, b, V_ijkab_1, V_ijkab_2) schedule(guided) collapse(5)
 	for (i=0; i<ni; i++) {
 		for (j=0; j<nj; j++) {
 			for (k=0; k<nk; k++) {
 				for (n=0; n<nn; n++) {
 					for (np=0; np<nnp; np++) {
-						potentialMatrix[(((i*nj + j)*nk + k)*nn + n)*nnp + np] = 0.0;
+						
+						ind = (((i*nj + j)*nk + k)*nn + n)*nnp + np;
+						potentialMatrix[ind] = 0.0;
 						
 						m = qNum[n][1];
 						mp = qNum[np][1];
@@ -144,7 +147,7 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 									V_ijkab_2 = potentialCeiling;
 								}
 								
-								potentialMatrix[(((i*nj + j)*nk + k)*nn + n)*nnp + np] += wa[a] * wb[b] * (L_lm1[n][a] * S_m1[m_shift(m)][b] * V_ijkab_1 * L_lpmp1[a][np] * S_mp1[b][m_shift(mp)] + L_lm2[n][a] * S_m2[m_shift(m)][b] * V_ijkab_2 * L_lpmp2[a][np] * S_mp2[b][m_shift(mp)] );
+								potentialMatrix[ind] += wa[a] * wb[b] * (L_lm1[n][a] * S_m1[m_shift(m)][b] * V_ijkab_1 * L_lpmp1[a][np] * S_mp1[b][m_shift(mp)] + L_lm2[n][a] * S_m2[m_shift(m)][b] * V_ijkab_2 * L_lpmp2[a][np] * S_mp2[b][m_shift(mp)] );
 							}
 						}
 						

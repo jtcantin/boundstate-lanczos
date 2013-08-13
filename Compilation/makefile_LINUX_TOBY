@@ -28,7 +28,7 @@ LDFLAGS=-L/home/pnroy/Dev/lib64/ -fopenmp -lblas -llapack -lgfortran
 SOURCES=$(SUP_PATH6)lanczosEigenValuesVectors.cpp $(LIB_SOURCES)
 SOURCES2 = $(SOURCES:.cpp=.o)
 OBJECTS= $(SOURCES2:.f=.o)
-EXECUTABLE=LanczosTOBYnoAcos
+EXECUTABLE=LanczosTOBYnoAcosIndex
 
 #print_vars:
 #	echo $(SOURCES)
