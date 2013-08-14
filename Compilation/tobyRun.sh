@@ -1,0 +1,19 @@
+echo SPCElanczoslogBacic10pt20potNoAcosIndex
+time ./LanczosTOBYnoAcosIndex LanczosInputFileToby.txt HvInputFileToby.txt > /scratch/jtcantin/SPCElanczoslogBacic10pt20potNoAcosIndex
+
+echo SPCElanczoslogBacic30pt20potNoAcosIndex
+time ./LanczosTOBYnoAcosIndex LanczosInputFileToby3.txt HvInputFileToby3.txt > /scratch/jtcantin/SPCElanczoslogBacic30pt20potNoAcosIndex
+
+echo SPCElanczoslogBacic20pt20potNoAcosIndex
+time ./LanczosTOBYnoAcosIndex LanczosInputFileToby2.txt HvInputFileToby2.txt > /scratch/jtcantin/SPCElanczoslogBacic20pt20potNoAcosIndex
+
+echo SPCElanczoslogBacic60pt20potNoAcosIndex
+time ./LanczosTOBYnoAcosIndex LanczosInputFileToby5.txt HvInputFileToby5.txt > /scratch/jtcantin/SPCElanczoslogBacic60pt20potNoAcosIndex
+
+echo SPCElanczoslogBacic40pt20potNoAcosIndex
+time ./LanczosTOBYnoAcosIndex LanczosInputFileToby6.txt HvInputFileToby6.txt > /scratch/jtcantin/SPCElanczoslogBacic40pt20potNoAcosIndex
+
+echo SPCElanczoslogBacic50pt20potNoAcosIndex
+time ./LanczosTOBYnoAcosIndex LanczosInputFileToby4.txt HvInputFileToby4.txt > /scratch/jtcantin/SPCElanczoslogBacic50pt20potNoAcosIndex
+
+
