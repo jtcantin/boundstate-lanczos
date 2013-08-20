@@ -29,7 +29,7 @@ int AlaviMapH2GridToHGrid(H2_orient *H2_mol, universeProp *H_universe, double H_
 		}
 		
 		//Calculate minimum grid value (for a [min max] interval centred about 0)
-		c_i_min = (-1.0/2.0)*H_universe->grid_max[j];
+		c_i_min = (-0.5)*H_universe->grid_max[j];
 		
 		//Delta x
 		d_c = H_universe->d_i[j];
@@ -156,7 +156,7 @@ double Alavi_H2_Eng_Point(interfaceStor *interface, H2_orient *H2_mol) {
 	//Add Centre of Mass energy
 	//
 	for (i=0; i<point_universe->numDim; i++) {
-		grid_min = (-1.0/2.0)*point_universe->grid_max[i]; //Calculate minimum grid value (for a [min max] interval centred about 0)
+		grid_min = (-0.5)*point_universe->grid_max[i]; //Calculate minimum grid value (for a [min max] interval centred about 0)
 		indices[i] = round((H2_mol->CM->COOR(i) - grid_min)/point_universe->d_i[i]); //Get index corresponding to spatial value
 	}
 	

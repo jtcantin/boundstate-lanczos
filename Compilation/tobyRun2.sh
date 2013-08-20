@@ -1,0 +1,12 @@
+
+export OMP_NUM_THREADS=8
+echo SPCElanczoslogBacic70pt20potNoAcosIndex_8threads
+time ./LanczosTOBYnoAcosIndex LanczosInputFileToby5.txt HvInputFileToby70pt.txt > /scratch/jtcantin/SPCElanczoslogBacic70pt20potNoAcosIndex_8threads
+
+export OMP_NUM_THREADS=8
+echo SPCElanczoslogBacic80pt20potNoAcosIndex_8threads
+time ./LanczosTOBYnoAcosIndex LanczosInputFileToby5.txt HvInputFileToby80pt.txt > /scratch/jtcantin/SPCElanczoslogBacic80pt20potNoAcosIndex_8threads
+
+export OMP_NUM_THREADS=8
+echo SPCElanczoslogBacic90pt20potNoAcosIndex_8threads
+time ./LanczosTOBYnoAcosIndex LanczosInputFileToby5.txt HvInputFileToby90pt.txt > /scratch/jtcantin/SPCElanczoslogBacic90pt20potNoAcosIndex_8threads

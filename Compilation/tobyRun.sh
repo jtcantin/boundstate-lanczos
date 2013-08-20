@@ -1,19 +1,19 @@
-echo SPCElanczoslogBacic10pt20potNoAcosIndex
-time ./LanczosTOBYnoAcosIndex LanczosInputFileToby.txt HvInputFileToby.txt > /scratch/jtcantin/SPCElanczoslogBacic10pt20potNoAcosIndex
-
-echo SPCElanczoslogBacic30pt20potNoAcosIndex
-time ./LanczosTOBYnoAcosIndex LanczosInputFileToby3.txt HvInputFileToby3.txt > /scratch/jtcantin/SPCElanczoslogBacic30pt20potNoAcosIndex
-
-echo SPCElanczoslogBacic20pt20potNoAcosIndex
-time ./LanczosTOBYnoAcosIndex LanczosInputFileToby2.txt HvInputFileToby2.txt > /scratch/jtcantin/SPCElanczoslogBacic20pt20potNoAcosIndex
-
-echo SPCElanczoslogBacic60pt20potNoAcosIndex
-time ./LanczosTOBYnoAcosIndex LanczosInputFileToby5.txt HvInputFileToby5.txt > /scratch/jtcantin/SPCElanczoslogBacic60pt20potNoAcosIndex
-
-echo SPCElanczoslogBacic40pt20potNoAcosIndex
-time ./LanczosTOBYnoAcosIndex LanczosInputFileToby6.txt HvInputFileToby6.txt > /scratch/jtcantin/SPCElanczoslogBacic40pt20potNoAcosIndex
-
-echo SPCElanczoslogBacic50pt20potNoAcosIndex
+echo SPCElanczoslogBacic50pt20potNoAcosIndex_2hr
 time ./LanczosTOBYnoAcosIndex LanczosInputFileToby4.txt HvInputFileToby4.txt > /scratch/jtcantin/SPCElanczoslogBacic50pt20potNoAcosIndex
+
+echo SPCElanczoslogBacic40pt20potNoAcosIndex50000L_2hr
+time ./LanczosTOBYnoAcosIndex LanczosInputFileToby.txt HvInputFileToby.txt > /scratch/jtcantin/SPCElanczoslogBacic40pt20potNoAcosIndex50000L
+
+echo SPCElanczoslogBacic40pt20potNoAcosIndex20000L_1.65hr
+time ./LanczosTOBYnoAcosIndex LanczosInputFileToby3.txt HvInputFileToby3.txt > /scratch/jtcantin/SPCElanczoslogBacic40pt20potNoAcosIndex20000L
+
+echo SPCElanczoslogBacic40pt20potNoAcosIndex40000L_2hr
+time ./LanczosTOBYnoAcosIndex LanczosInputFileToby2.txt HvInputFileToby2.txt > /scratch/jtcantin/SPCElanczoslogBacic40pt20potNoAcosIndex40000L
+
+echo SPCElanczoslogBacic60pt20potNoAcosIndex100000L_3hr
+time ./LanczosTOBYnoAcosIndex LanczosInputFileToby5.txt HvInputFileToby5.txt > /scratch/jtcantin/SPCElanczoslogBacic60pt20potNoAcosIndex100000L
+
+
+
 
 

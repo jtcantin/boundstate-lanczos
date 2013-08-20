@@ -1,0 +1,7 @@
+2013/08/14 5:30 - JTC
+Changed:
+	Alavi_H2_Routines.cpp:
+		Alavi_H2_Eng_Point: 
+	 		     switching 1.0/2.0 to 0.5 line 159
+		AlaviMapH2GridToHGrid:
+			     switching 1.0/2.0 to 0.5 line 32

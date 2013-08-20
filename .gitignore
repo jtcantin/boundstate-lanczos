@@ -10,3 +10,5 @@
 *.greg
 #ignore pbs output files
 *.o*
+#ignore testing folder
+Testing/
