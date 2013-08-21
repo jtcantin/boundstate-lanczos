@@ -2,6 +2,7 @@
 
 using namespace std;
 
+//Changed d_x = x_max/n to d_x = x_max/(n-1) to get a proper grid - JTC 2013/08/20
 universeProp* generateGrid(int numDim, double *gridMax, int *gridPoints) {
 	universeProp *universe = new universeProp();
 	int chunk, thread, nthreads, i, j;
@@ -14,7 +15,8 @@ universeProp* generateGrid(int numDim, double *gridMax, int *gridPoints) {
 	
 	universe->sysSize = 1;
 	for (i=0; i<universe->numDim; i++) {
-		universe->d_i[i] = (universe->grid_max[i]) / ((double) universe->grid_num[i]);
+		universe->d_i[i] = (universe->grid_max[i]) / (double(universe->grid_num[i] - 1));
+		//universe->d_i[i] = (universe->grid_max[i]) / ((double) universe->grid_num[i]);
 		universe->sysSize *= universe->grid_num[i];
 	}
 	

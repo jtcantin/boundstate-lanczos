@@ -480,11 +480,12 @@ void gaussLegendre(int numPoints, double **abscissae, double **weights){
 //Cartesian Kinetic Energy operator and grid
 //The grid spans [-x_max/2, x_max/2]
 // !Make sure to delete (ie. dealloc) kinMat and grid!
+//Changed d_x = x_max/n to d_x = x_max/(n-1) to get a proper grid - JTC 2013/08/20
 void cartKinGrid(double x_max, int nPoints, double totalMass, double **kinMat, double **grid) {
 	int i, j;
 	double d_x;
 	
-	d_x = x_max / double(nPoints);
+	d_x = x_max / double(nPoints - 1);
 	
 	(*grid) = new double [nPoints];
 	(*kinMat) = new double [nPoints*nPoints];
