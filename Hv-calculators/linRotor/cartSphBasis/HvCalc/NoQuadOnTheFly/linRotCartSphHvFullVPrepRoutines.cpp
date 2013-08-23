@@ -113,19 +113,18 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 #pragma omp parallel default(shared) private(i,j,k,n,np,m,mp,ind,ind2,ind3,linearMolecule, CMpos, a, b, V_ijkab_1, V_ijkab_2) 
 	{
 	//Precompute the spherical harmonics terms and the weights
-#pragma omp for schedule(guided) collapse(2)
+#pragma omp for schedule(guided) collapse(4)
 	for (n=0; n<nn; n++) {
 		for (np=0; np<nnp; np++) {
-			
-			ind2 = (n*nnp + np)*na;
-			
-			m = qNum[n][1];
-			mp = qNum[np][1];
-			
 			for (a=0; a<na; a++) {				
 				for (b=0; b<nb; b++) {
-					harmFactor[(ind2 + a)*nb + b]   = wa[a] * wb[b] * L_lm1[n][a] * S_m1[m_shift(m)][b] * L_lpmp1[a][np] * S_mp1[b][m_shift(mp)];
-					harmFactorPI[(ind2 + a)*nb + b] = wa[a] * wb[b] * L_lm2[n][a] * S_m2[m_shift(m)][b] * L_lpmp2[a][np] * S_mp2[b][m_shift(mp)];
+					ind2 = ((n*nnp + np)*na + a)*nb + b;
+					
+					m = qNum[n][1];
+					mp = qNum[np][1];
+					
+					harmFactor[ind2]   = wa[a] * wb[b] * L_lm1[n][a] * S_m1[m_shift(m)][b] * L_lpmp1[a][np] * S_mp1[b][m_shift(mp)];
+					harmFactorPI[ind2] = wa[a] * wb[b] * L_lm2[n][a] * S_m2[m_shift(m)][b] * L_lpmp2[a][np] * S_mp2[b][m_shift(mp)];
 				}
 			}
 		}
