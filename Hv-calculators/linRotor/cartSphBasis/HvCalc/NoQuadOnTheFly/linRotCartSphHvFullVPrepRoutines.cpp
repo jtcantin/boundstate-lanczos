@@ -94,7 +94,7 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 	int matrixSize = ni*nj*nk*nn*nnp;
 	int count = 0;
 	int step = matrixSize/100;
-	int ind;
+	int ind, ind2;
 	
 	double *potentialMatrix = new double [matrixSize];
 	double V_ijkab_1, V_ijkab_2;
@@ -103,6 +103,30 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 	
 	cout << "Total potential matrix size: " << matrixSize << endl;
 	cout << "Note: the following statements are only an estimate of the progress." << endl;
+	
+	//Precompute the spherical harmonics terms and the weights
+	
+	double *harmFactor = new double [nn*nnp*na*nb];
+	double *harmFactorPI = new double [nn*nnp*na*nb];
+	
+	for (n=0; n<nn; n++) {
+		for (np=0; np<nnp; np++) {
+			
+			ind2 = (n*nnp + np)*na;
+			
+			m = qNum[n][1];
+			mp = qNum[np][1];
+			
+			for (a=0; a<na; a++) {				
+				for (b=0; b<nb; b++) {
+					harmFactor[(ind2 + a)*nb + b]   = wa[a] * wb[b] * L_lm1[n][a] * S_m1[m_shift(m)][b] * L_lpmp1[a][np] * S_mp1[b][m_shift(mp)];
+					harmFactorPI[(ind2 + a)*nb + b] = wa[a] * wb[b] * L_lm2[n][a] * S_m2[m_shift(m)][b] * L_lpmp2[a][np] * S_mp2[b][m_shift(mp)];
+				}
+			}
+		}
+	}
+	
+	//Precompute the potential matrix	
 	
 	//Calculate <lm|V|l'm'>(x,y,z) = sum(a,b)[ wa * wb * ( L_lm(theta) * S_m(phi) * V(theta,phi;x,y,z) * L_lpmp(theta) * S_mp(phi) + L_lm(theta) * S_m(phi2) * V(theta,phi2;x,y,z) * L_lpmp(theta) * S_mp(phi2) )
 	//      where phi = acos(cosPhiAbscissae[b])] and phi2 = 2*PI - acos(cosPhiAbscissae[b]); you need both to get the full range of phi [0,2pi)
@@ -114,6 +138,8 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 					for (np=0; np<nnp; np++) {
 						
 						ind = (((i*nj + j)*nk + k)*nn + n)*nnp + np;
+						ind2 = (n*nnp + np)*na;
+						
 						potentialMatrix[ind] = 0.0;
 						
 						m = qNum[n][1];
@@ -147,7 +173,7 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 									V_ijkab_2 = potentialCeiling;
 								}
 								
-								potentialMatrix[ind] += wa[a] * wb[b] * (L_lm1[n][a] * S_m1[m_shift(m)][b] * V_ijkab_1 * L_lpmp1[a][np] * S_mp1[b][m_shift(mp)] + L_lm2[n][a] * S_m2[m_shift(m)][b] * V_ijkab_2 * L_lpmp2[a][np] * S_mp2[b][m_shift(mp)] );
+								potentialMatrix[ind] += harmFactor[(ind2 + a)*nb + b] * V_ijkab_1 + harmFactorPI[(ind2 + a)*nb + b] * V_ijkab_2;
 							}
 						}
 						
