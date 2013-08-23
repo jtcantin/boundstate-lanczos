@@ -132,23 +132,23 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 	}
 	
 	//Precompute the potential matrix	
-#pragma omp for schedule(guided) collapse(3)	
+#pragma omp for schedule(guided) collapse(5)	
 	for (i=0; i<ni; i++) {
 		for (j=0; j<nj; j++) {
 			for (k=0; k<nk; k++) {
-				ind = ((i*nj + j)*nk + k)*na;
-				
-				CMpos.DIM(3);
-				CMpos.COOR(0) = xGrid[i];
-				CMpos.COOR(1) = yGrid[j];
-				CMpos.COOR(2) = zGrid[k];
-				
-				linearMolecule.CM = &CMpos;
-				
 				for (a=0; a<na; a++) {
-					linearMolecule.theta = thetaAbscissae[a];
-					
 					for (b=0; b<nb; b++) {
+						
+						ind = ((i*nj + j)*nk + k)*na;
+						
+						CMpos.DIM(3);
+						CMpos.COOR(0) = xGrid[i];
+						CMpos.COOR(1) = yGrid[j];
+						CMpos.COOR(2) = zGrid[k];
+						
+						linearMolecule.CM = &CMpos;
+						
+						linearMolecule.theta = thetaAbscissae[a];
 						
 						//Get the potential for phi in [0, pi)
 						linearMolecule.phi = phiAbscissae[b]; 								

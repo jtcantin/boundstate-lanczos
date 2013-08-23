@@ -1,0 +1,24 @@
+#
+#Make sure that there is no space before the equals sign and only one after; you will get an error or weird results otherwise
+nx= 16
+x_max(nm)= 0.4
+ny= 16
+y_max(nm)= 0.4
+nz= 16
+z_max(nm)= 0.4
+l_max= 4
+thetaPoints= 15
+phiPoints= 15
+pointPotential_nx= 21
+pointPotential_x_max(nm)= 0.48
+pointPotential_ny= 21
+pointPotential_y_max(nm)= 0.48
+pointPotential_nz= 21
+pointPotential_z_max(nm)= 0.48
+totalMass(g/mol)= 2.01588
+rotationalConstant(kJ/mol)= 0.7096487130193394
+geometryFilename= sII_smallCage11_CM_EA_ZYZ.xyz
+simulationTitle= SmallBasisTest2
+ceilingPotential(kJ/mol)= 18
+quadratureConvergenceStudy(TRUE/FALSE)= FALSE
+rotationalSymmetry(All/Even/Odd)= Odd
