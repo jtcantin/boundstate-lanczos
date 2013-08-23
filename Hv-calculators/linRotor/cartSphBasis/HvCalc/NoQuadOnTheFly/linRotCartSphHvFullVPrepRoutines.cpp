@@ -94,7 +94,7 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 	int matrixSize = ni*nj*nk*nn*nnp;
 	int count = 0;
 	int step = matrixSize/100;
-	int ind, ind2;
+	int ind, ind2, ind3;
 	
 	double *potentialMatrix = new double [matrixSize];
 	double V_ijkab_1, V_ijkab_2;
@@ -128,9 +128,64 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 	
 	//Precompute the potential matrix	
 	
+	double *V_ijkab_1_mat = new double [ni*nj*nk*na*nb];
+	double *V_ijkab_2_mat = new double [ni*nj*nk*na*nb];
+	
+	for (i=0; i<ni; i++) {
+		for (j=0; j<nj; j++) {
+			for (k=0; k<nk; k++) {
+				ind = ((i*nj + j)*nk + k)*na;
+				
+				CMpos.DIM(3);
+				CMpos.COOR(0) = xGrid[i];
+				CMpos.COOR(1) = yGrid[j];
+				CMpos.COOR(2) = zGrid[k];
+				
+				linearMolecule.CM = &CMpos;
+				
+				for (a=0; a<na; a++) {
+					linearMolecule.theta = thetaAbscissae[a];
+					
+					for (b=0; b<nb; b++) {
+						
+						//Get the potential for phi in [0, pi)
+						linearMolecule.phi = phiAbscissae[b]; 								
+						V_ijkab_1 = (*linearMoleculePotential)(interface, &linearMolecule);
+						
+						if (V_ijkab_1 >= potentialCeiling) {
+							V_ijkab_1 = potentialCeiling;
+						}
+						
+						V_ijkab_1_mat[(ind + a)*nb + b] = V_ijkab_1;
+						
+						
+						//Get the potential for phi in [pi, 2pi)								
+						linearMolecule.phi = PIphiAbscissae[b];
+						V_ijkab_2 = (*linearMoleculePotential)(interface, &linearMolecule);
+						
+						if (V_ijkab_2 >= potentialCeiling) {
+							V_ijkab_2 = potentialCeiling;
+						}
+						
+						V_ijkab_2_mat[(ind + a)*nb + b] = V_ijkab_2;
+						
+						
+					}
+				}
+				
+				//Give feedback as to progress
+//				if (count % step == 0) {
+//					cout << double(count)/double(matrixSize) << endl;
+//				}
+//				count++;
+			}
+		}
+	}
+	
+	
 	//Calculate <lm|V|l'm'>(x,y,z) = sum(a,b)[ wa * wb * ( L_lm(theta) * S_m(phi) * V(theta,phi;x,y,z) * L_lpmp(theta) * S_mp(phi) + L_lm(theta) * S_m(phi2) * V(theta,phi2;x,y,z) * L_lpmp(theta) * S_mp(phi2) )
 	//      where phi = acos(cosPhiAbscissae[b])] and phi2 = 2*PI - acos(cosPhiAbscissae[b]); you need both to get the full range of phi [0,2pi)
-#pragma omp parallel for default(shared) private(i,j,k,n,np,m,mp,ind,linearMolecule, CMpos, a, b, V_ijkab_1, V_ijkab_2) schedule(guided) collapse(5)
+#pragma omp parallel for default(shared) private(i,j,k,n,np,m,mp,ind,ind2,ind3,linearMolecule, CMpos, a, b, V_ijkab_1, V_ijkab_2) schedule(guided) collapse(5)
 	for (i=0; i<ni; i++) {
 		for (j=0; j<nj; j++) {
 			for (k=0; k<nk; k++) {
@@ -139,41 +194,13 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 						
 						ind = (((i*nj + j)*nk + k)*nn + n)*nnp + np;
 						ind2 = (n*nnp + np)*na;
+						ind3 = ((i*nj + j)*nk + k)*na;
 						
-						potentialMatrix[ind] = 0.0;
-						
-						m = qNum[n][1];
-						mp = qNum[np][1];
-						
-						CMpos.DIM(3);
-						CMpos.COOR(0) = xGrid[i];
-						CMpos.COOR(1) = yGrid[j];
-						CMpos.COOR(2) = zGrid[k];
-						
-						linearMolecule.CM = &CMpos;
-						
+						potentialMatrix[ind] = 0.0;						
+					
 						for (a=0; a<na; a++) {
-							linearMolecule.theta = thetaAbscissae[a];
-							
 							for (b=0; b<nb; b++) {
-								
-								//Get the potential for phi in [0, pi)
-								linearMolecule.phi = phiAbscissae[b]; 								
-								V_ijkab_1 = (*linearMoleculePotential)(interface, &linearMolecule);
-								
-								if (V_ijkab_1 >= potentialCeiling) {
-									V_ijkab_1 = potentialCeiling;
-								}
-								
-								//Get the potential for phi in [pi, 2pi)								
-								linearMolecule.phi = PIphiAbscissae[b];
-								V_ijkab_2 = (*linearMoleculePotential)(interface, &linearMolecule);
-								
-								if (V_ijkab_2 >= potentialCeiling) {
-									V_ijkab_2 = potentialCeiling;
-								}
-								
-								potentialMatrix[ind] += harmFactor[(ind2 + a)*nb + b] * V_ijkab_1 + harmFactorPI[(ind2 + a)*nb + b] * V_ijkab_2;
+								potentialMatrix[ind] += harmFactor[(ind2 + a)*nb + b] * V_ijkab_1_mat[(ind3 + a)*nb + b] + harmFactorPI[(ind2 + a)*nb + b] * V_ijkab_2_mat[(ind3 + a)*nb + b];
 							}
 						}
 						
