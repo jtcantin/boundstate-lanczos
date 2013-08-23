@@ -109,6 +109,7 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 	double *harmFactor = new double [nn*nnp*na*nb];
 	double *harmFactorPI = new double [nn*nnp*na*nb];
 	
+#pragma omp parallel for default(shared) private(i,j,k,n,np,m,mp,ind,ind2,ind3,linearMolecule, CMpos, a, b, V_ijkab_1, V_ijkab_2) schedule(guided) collapse(2)
 	for (n=0; n<nn; n++) {
 		for (np=0; np<nnp; np++) {
 			
