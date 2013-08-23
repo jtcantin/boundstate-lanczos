@@ -104,12 +104,16 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 	cout << "Total potential matrix size: " << matrixSize << endl;
 	cout << "Note: the following statements are only an estimate of the progress." << endl;
 	
-	//Precompute the spherical harmonics terms and the weights
-	
 	double *harmFactor = new double [nn*nnp*na*nb];
 	double *harmFactorPI = new double [nn*nnp*na*nb];
 	
-#pragma omp parallel for default(shared) private(i,j,k,n,np,m,mp,ind,ind2,ind3,linearMolecule, CMpos, a, b, V_ijkab_1, V_ijkab_2) schedule(guided) collapse(2)
+	double *V_ijkab_1_mat = new double [ni*nj*nk*na*nb];
+	double *V_ijkab_2_mat = new double [ni*nj*nk*na*nb];
+	
+#pragma omp parallel default(shared) private(i,j,k,n,np,m,mp,ind,ind2,ind3,linearMolecule, CMpos, a, b, V_ijkab_1, V_ijkab_2) 
+	{
+	//Precompute the spherical harmonics terms and the weights
+#pragma omp for schedule(guided) collapse(2)
 	for (n=0; n<nn; n++) {
 		for (np=0; np<nnp; np++) {
 			
@@ -128,11 +132,7 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 	}
 	
 	//Precompute the potential matrix	
-	
-	double *V_ijkab_1_mat = new double [ni*nj*nk*na*nb];
-	double *V_ijkab_2_mat = new double [ni*nj*nk*na*nb];
-	
-#pragma omp parallel for default(shared) private(i,j,k,n,np,m,mp,ind,ind2,ind3,linearMolecule, CMpos, a, b, V_ijkab_1, V_ijkab_2) schedule(guided) collapse(3)	
+#pragma omp for schedule(guided) collapse(3)	
 	for (i=0; i<ni; i++) {
 		for (j=0; j<nj; j++) {
 			for (k=0; k<nk; k++) {
@@ -176,10 +176,10 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 				}
 				
 				//Give feedback as to progress
-//				if (count % step == 0) {
-//					cout << double(count)/double(matrixSize) << endl;
-//				}
-//				count++;
+				//				if (count % step == 0) {
+				//					cout << double(count)/double(matrixSize) << endl;
+				//				}
+				//				count++;
 			}
 		}
 	}
@@ -187,7 +187,7 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 	
 	//Calculate <lm|V|l'm'>(x,y,z) = sum(a,b)[ wa * wb * ( L_lm(theta) * S_m(phi) * V(theta,phi;x,y,z) * L_lpmp(theta) * S_mp(phi) + L_lm(theta) * S_m(phi2) * V(theta,phi2;x,y,z) * L_lpmp(theta) * S_mp(phi2) )
 	//      where phi = acos(cosPhiAbscissae[b])] and phi2 = 2*PI - acos(cosPhiAbscissae[b]); you need both to get the full range of phi [0,2pi)
-#pragma omp parallel for default(shared) private(i,j,k,n,np,m,mp,ind,ind2,ind3,linearMolecule, CMpos, a, b, V_ijkab_1, V_ijkab_2) schedule(guided) collapse(5)
+#pragma omp for schedule(guided) collapse(5)
 	for (i=0; i<ni; i++) {
 		for (j=0; j<nj; j++) {
 			for (k=0; k<nk; k++) {
@@ -199,7 +199,7 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 						ind3 = ((i*nj + j)*nk + k)*na;
 						
 						potentialMatrix[ind] = 0.0;						
-					
+						
 						for (a=0; a<na; a++) {
 							for (b=0; b<nb; b++) {
 								potentialMatrix[ind] += harmFactor[(ind2 + a)*nb + b] * V_ijkab_1_mat[(ind3 + a)*nb + b] + harmFactorPI[(ind2 + a)*nb + b] * V_ijkab_2_mat[(ind3 + a)*nb + b];
@@ -215,6 +215,7 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 				}
 			}
 		}
+	}
 	}
 	
 	return potentialMatrix;
