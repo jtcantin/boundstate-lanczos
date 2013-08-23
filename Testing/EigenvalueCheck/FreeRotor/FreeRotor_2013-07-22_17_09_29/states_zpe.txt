@@ -1,7 +1,0 @@
-
-The following are the relative energies for the simulation FreeRotor
-Number of Eigenvalues: 2
-Zero Point Energy = -1.287858708565182e-12 kJ/mol
-State | Relative Energy (kJ/mol)
-0 0.000000000000000e+00
-1 1.419305444226186e+00

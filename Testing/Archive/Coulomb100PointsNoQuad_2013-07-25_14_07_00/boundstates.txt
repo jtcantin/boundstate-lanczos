@@ -1,4 +1,0 @@
-
-The following are the eigenvalues and errors for the simulation Coulomb100PointsNoQuad
-Number of Eigenvalues: 0
-State | Eigenvalue (kJ/mol) | Error (kJ/mol?)

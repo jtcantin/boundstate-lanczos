@@ -1,0 +1,48 @@
+
+export OMP_NUM_THREADS=8
+echo Alavi_SPCE_smallCage11_ortho_x02_dx002_l5_tp60_cp18
+time ./LanczosTOBYgrid LanczosInputFileToby.txt HvInputFileToby00.txt > /scratch/jtcantin/Alavi_SPCE_smallCage11_ortho_x02_dx002_l5_tp60_cp18
+
+export OMP_NUM_THREADS=8
+echo Alavi_SPCE_smallCage11_ortho_x04_dx004_l5_tp60_cp18
+time ./LanczosTOBYgrid LanczosInputFileToby.txt HvInputFileToby01.txt > /scratch/jtcantin/Alavi_SPCE_smallCage11_ortho_x04_dx004_l5_tp60_cp18
+
+export OMP_NUM_THREADS=8
+echo Alavi_SPCE_smallCage11_ortho_x04_dx00307_l5_tp60_cp18
+time ./LanczosTOBYgrid LanczosInputFileToby.txt HvInputFileToby02.txt > /scratch/jtcantin/Alavi_SPCE_smallCage11_ortho_x04_dx00307_l5_tp60_cp18
+
+export OMP_NUM_THREADS=8
+echo Alavi_SPCE_smallCage11_ortho_x03_dx002_l5_tp60_cp18
+time ./LanczosTOBYgrid LanczosInputFileToby.txt HvInputFileToby03.txt > /scratch/jtcantin/Alavi_SPCE_smallCage11_ortho_x03_dx002_l5_tp60_cp18
+
+export OMP_NUM_THREADS=8
+echo Alavi_SPCE_smallCage11_ortho_x04_dx002_l5_tp60_cp16
+time ./LanczosTOBYgrid LanczosInputFileToby.txt HvInputFileToby04.txt > /scratch/jtcantin/Alavi_SPCE_smallCage11_ortho_x04_dx002_l5_tp60_cp16
+
+export OMP_NUM_THREADS=8
+echo Alavi_SPCE_smallCage11_ortho_x04_dx002_l5_tp60_cp17
+time ./LanczosTOBYgrid LanczosInputFileToby.txt HvInputFileToby05.txt > /scratch/jtcantin/Alavi_SPCE_smallCage11_ortho_x04_dx002_l5_tp60_cp17
+
+export OMP_NUM_THREADS=8
+echo Alavi_SPCE_smallCage11_ortho_x04_dx002_l3_tp60_cp18
+time ./LanczosTOBYgrid LanczosInputFileToby.txt HvInputFileToby08.txt > /scratch/jtcantin/Alavi_SPCE_smallCage11_ortho_x04_dx002_l3_tp60_cp18
+
+export OMP_NUM_THREADS=8
+echo Alavi_SPCE_smallCage11_ortho_x04_dx002_l4_tp60_cp18
+time ./LanczosTOBYgrid LanczosInputFileToby.txt HvInputFileToby09.txt > /scratch/jtcantin/Alavi_SPCE_smallCage11_ortho_x04_dx002_l4_tp60_cp18
+
+export OMP_NUM_THREADS=8
+echo Alavi_SPCE_smallCage11_ortho_x04_dx002_l6_tp60_cp18
+time ./LanczosTOBYgrid LanczosInputFileToby.txt HvInputFileToby11.txt > /scratch/jtcantin/Alavi_SPCE_smallCage11_ortho_x04_dx002_l6_tp60_cp18
+
+export OMP_NUM_THREADS=8
+echo Alavi_SPCE_smallCage11_ortho_x04_dx002_l5_tp60_cp19
+time ./LanczosTOBYgrid LanczosInputFileToby.txt HvInputFileToby13.txt > /scratch/jtcantin/Alavi_SPCE_smallCage11_ortho_x04_dx002_l5_tp60_cp19
+
+export OMP_NUM_THREADS=8
+echo Alavi_SPCE_smallCage11_ortho_x05_dx002_l5_tp60_cp18
+time ./LanczosTOBYgrid LanczosInputFileToby.txt HvInputFileToby14.txt > /scratch/jtcantin/Alavi_SPCE_smallCage11_ortho_x05_dx002_l5_tp60_cp18
+
+export OMP_NUM_THREADS=8
+echo Alavi_SPCE_smallCage11_ortho_x04_dx001_l5_tp60_cp18
+time ./LanczosTOBYgrid LanczosInputFileToby.txt HvInputFileToby15.txt > /scratch/jtcantin/Alavi_SPCE_smallCage11_ortho_x04_dx001_l5_tp60_cp18

@@ -1,7 +1,0 @@
-
-The following are the eigenvalues and errors for the simulation FreeRotor
-Number of Eigenvalues: 3
-State | Eigenvalue (kJ/mol) | Error (kJ/mol?)
-0 -4.001421416433004e-11 0.000000000000000e+00
-1 1.419305444225394e+00 0.000000000000000e+00
-2 4.257916332701832e+00 0.000000000000000e+00
