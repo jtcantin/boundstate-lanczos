@@ -131,6 +131,7 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 	double *V_ijkab_1_mat = new double [ni*nj*nk*na*nb];
 	double *V_ijkab_2_mat = new double [ni*nj*nk*na*nb];
 	
+#pragma omp parallel for default(shared) private(i,j,k,n,np,m,mp,ind,ind2,ind3,linearMolecule, CMpos, a, b, V_ijkab_1, V_ijkab_2) schedule(guided) collapse(3)	
 	for (i=0; i<ni; i++) {
 		for (j=0; j<nj; j++) {
 			for (k=0; k<nk; k++) {
