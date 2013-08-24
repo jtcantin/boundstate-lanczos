@@ -186,6 +186,7 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 	
 	//Calculate <lm|V|l'm'>(x,y,z) = sum(a,b)[ wa * wb * ( L_lm(theta) * S_m(phi) * V(theta,phi;x,y,z) * L_lpmp(theta) * S_mp(phi) + L_lm(theta) * S_m(phi2) * V(theta,phi2;x,y,z) * L_lpmp(theta) * S_mp(phi2) )
 	//      where phi = acos(cosPhiAbscissae[b])] and phi2 = 2*PI - acos(cosPhiAbscissae[b]); you need both to get the full range of phi [0,2pi)
+	// NOTE: You can't collapse(7) this loop as the a and b loops are sums.
 #pragma omp for schedule(guided) collapse(5)
 	for (i=0; i<ni; i++) {
 		for (j=0; j<nj; j++) {
@@ -206,16 +207,21 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 						}
 						
 						//Give feedback as to progress
-						if (count % step == 0) {
-							cout << double(count)/double(matrixSize) << endl;
-						}
-						count++;
+//						if (count % step == 0) {
+//							cout << double(count)/double(matrixSize) << endl;
+//						}
+//						count++;
 					}
 				}
 			}
 		}
 	}
 	}
+	
+	delete [] harmFactor;
+	delete [] harmFactorPI;
+	delete [] V_ijkab_1_mat;
+	delete [] V_ijkab_2_mat;
 	
 	return potentialMatrix;
 }
