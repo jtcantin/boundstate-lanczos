@@ -685,9 +685,25 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 	
 	double *u_ijkn = new double [ni*nj*nk*nn];
 	double *V_npnkji;
+	double *v_npijk = new double [nnp*ni*nj*nk];
 	
 	V_npnkji = interface->potential->fullPotential;
 	
+	//Reshuffle indices of v_ijknp to v_npijk to allow fewer flops in the indexing products
+	//  With this, 9 * ni * nj * nk * nn flops are required (note: nn = nnp)
+	//  Without, at least (4 + nnp) * ni * nj * nk * nn are required, even with minimizing the number
+	//    of flops required for indexing (nnp = nn = (l_max + 1)^2)
+	for (i=0; i<ni; i++) {
+		for (j=0; j<nj; j++) {
+			for (k=0; k<nk; k++) {
+				for (np=0; np<nnp; np++) {
+					v_npijk[((k*nj + j)*ni + i)*nnp + np] = v_ijknp[((np*nk + k)*nj + j)*ni + i];
+				}
+			}
+		}
+	}
+	
+	//Calculate u = Vv
 #pragma omp parallel for default(shared) private(i,j,k,n,np,ind,ind2,ind3) schedule(guided) collapse(4)
 	for (i=0; i<ni; i++) {
 		for (j=0; j<nj; j++) {
@@ -695,16 +711,19 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 				for (n=0; n<nn; n++) {
 					ind = ((n*nk + k)*nj + j)*ni + i;
 					ind2 = (((i*nj + j)*nk + k)*nn + n)*nnp;
+					ind3 = ((k*nj + j)*ni + i)*nnp;
 					
 					u_ijkn[ind] = 0.0;
 					
 					for (np=0; np<nnp; np++) {
-						u_ijkn[ind] += V_npnkji[ind2 + np] * v_ijknp[((np*nk + k)*nj + j)*ni + i];
+						u_ijkn[ind] += V_npnkji[ind2 + np] * v_npijk[ind3 + np];
 					}
 				}
 			}
 		}
 	}
+	
+	delete [] v_npijk;
 	
 	return u_ijkn;
 }
