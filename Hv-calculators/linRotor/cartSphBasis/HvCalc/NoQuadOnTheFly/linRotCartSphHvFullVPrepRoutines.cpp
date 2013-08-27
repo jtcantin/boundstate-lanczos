@@ -674,6 +674,7 @@ void quadratureConvergenceStudy_NoQuad(interfaceStor *interface, lanczosStor *la
 double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp) {
 	int i, j, k, n, np;
 	int ni, nj, nk, nn, nnp;
+	int ind, ind2, ind3;
 	
 	ni = interface->grids->nx;
 	nj = interface->grids->ny;
@@ -687,15 +688,18 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 	
 	V_npnkji = interface->potential->fullPotential;
 	
-#pragma omp parallel for default(shared) private(i,j,k,n,np) schedule(guided) collapse(4)
+#pragma omp parallel for default(shared) private(i,j,k,n,np,ind,ind2,ind3) schedule(guided) collapse(4)
 	for (i=0; i<ni; i++) {
 		for (j=0; j<nj; j++) {
 			for (k=0; k<nk; k++) {
 				for (n=0; n<nn; n++) {
-					u_ijkn[((n*nk + k)*nj + j)*ni + i] = 0.0;
+					ind = ((n*nk + k)*nj + j)*ni + i;
+					ind2 = (((i*nj + j)*nk + k)*nn + n)*nnp;
+					
+					u_ijkn[ind] = 0.0;
 					
 					for (np=0; np<nnp; np++) {
-						u_ijkn[((n*nk + k)*nj + j)*ni + i] += V_npnkji[(((i*nj + j)*nk + k)*nn + n)*nnp + np] * v_ijknp[((np*nk + k)*nj + j)*ni + i];
+						u_ijkn[ind] += V_npnkji[ind2 + np] * v_ijknp[((np*nk + k)*nj + j)*ni + i];
 					}
 				}
 			}

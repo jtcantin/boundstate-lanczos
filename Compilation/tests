@@ -29,7 +29,7 @@ The total basis size is: 102400
 The current simulation has been described as: SmallBasisTest2
 Eigenvalues will be searched for in the interval (-10.000000, 10.000000]; all in kJ/mol.
 
-The output directory is: /scratch/jtcantin/SmallBasisTest2_2013-08-27_12_30_00
+The output directory is: /scratch/jtcantin/SmallBasisTest2_2013-08-27_12_35_27
 'Lanczos Loop 1 - Get Tm' beginning.
 Lanczos Coefficients
 Iteration j alpha_j beta_j
