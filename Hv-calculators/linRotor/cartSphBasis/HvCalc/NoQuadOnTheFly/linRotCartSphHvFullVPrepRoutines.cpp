@@ -769,13 +769,20 @@ double* Hv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ipjkn
 	//	Hv_ijkn[p] = Tv_ijkn[p]; // Free system - only for debugging purposes
 	}*/
 	
+	
+	int ind;
+	
 	//Sum Tv_ijkn and Vv_ijkn to get Hv_ijkn and then multiply by S_n to get all, even or odd l
+#pragma omp parallel for default(shared) private(i,j,k,n,ind) schedule(guided) collapse (4)
 	for (i=0; i<ni; i++) {
 		for (j=0; j<nj; j++) {
 			for (k=0; k<nk; k++) {
 				for (n=0; n<nn; n++) {
-					Hv_ijkn[((n*nk + k)*nj + j)*ni + i] = Tv_ijkn[((n*nk + k)*nj + j)*ni + i] + Vv_ijkn[((n*nk + k)*nj + j)*ni + i];
-					Hv_ijkn[((n*nk + k)*nj + j)*ni + i] *= S_n[n];
+					
+					ind = ((n*nk + k)*nj + j)*ni + i;
+					
+					Hv_ijkn[ind] = Tv_ijkn[ind] + Vv_ijkn[ind];
+					Hv_ijkn[ind] *= S_n[n];
 				}
 			}
 		}
