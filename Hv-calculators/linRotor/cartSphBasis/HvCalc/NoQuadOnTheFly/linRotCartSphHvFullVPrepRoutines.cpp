@@ -693,6 +693,9 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 	//  With this, 9 * ni * nj * nk * nn flops are required (note: nn = nnp)
 	//  Without, at least (4 + nnp) * ni * nj * nk * nn are required, even with minimizing the number
 	//    of flops required for indexing (nnp = nn = (l_max + 1)^2)
+#pragma omp parallel default(shared) private(i,j,k,n,np,ind,ind2,ind3)
+	{
+#pragma omp for schedule(guided) collapse(4)
 	for (i=0; i<ni; i++) {
 		for (j=0; j<nj; j++) {
 			for (k=0; k<nk; k++) {
@@ -704,7 +707,7 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 	}
 	
 	//Calculate u = Vv
-#pragma omp parallel for default(shared) private(i,j,k,n,np,ind,ind2,ind3) schedule(guided) collapse(4)
+#pragma omp for schedule(guided) collapse(4)
 	for (i=0; i<ni; i++) {
 		for (j=0; j<nj; j++) {
 			for (k=0; k<nk; k++) {
@@ -721,6 +724,7 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 				}
 			}
 		}
+	}
 	}
 	
 	delete [] v_npijk;
