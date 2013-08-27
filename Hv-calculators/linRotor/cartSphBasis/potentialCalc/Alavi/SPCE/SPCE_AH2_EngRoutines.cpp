@@ -177,91 +177,90 @@ double LJ_SPCE_Eng_Fast(VECT pos, char *atomType, VECT *atomPos, int nAtoms) {
 	return Eng;
 }
 
-/*
-int main(int argc, char **argv) {
-	string filename;
-	char *atomType;
-	VECT *atomPos, pos;
-	int nAtoms;
-	double Eng, C_Eng, LJ_Eng;
-	int i, j;
-	
-	//int i, j;
-	
-	filename = argv[1];
-	
-	getTIP4Patoms(&atomType, &atomPos, &nAtoms, filename);
-	
-	Eng = 0.0; //kJ/mol
-	C_Eng = 0.0;
-	LJ_Eng = 0.0;
-	
-	pos.DIM(3);
-	
-	/*
-	// Small Cage 1
-	pos.COOR(0) = 0.6491; //nm
-	pos.COOR(1) = 0.2165;
-	pos.COOR(2) = 0.6492;
-	*/
-	
-	/*
-	// Small Cage 4
-	pos.COOR(0) = 1.0824; //nm
-	pos.COOR(1) = 0.2164;
-	pos.COOR(2) = 1.0819;
-	 */
-	/*
-	// Large Cage 1
-	pos.COOR(0) = 0.8651; //nm
-	pos.COOR(1) = 0.8655;
-	pos.COOR(2) = 0.8654;
-	
-	
-	C_Eng += Q_TIP4P_Eng(pos, 1.0, atomType, atomPos, nAtoms);
-	
-	cout << "Coulomb: " << C_Eng << " kJ/mol" << endl; //Should be -30.2331 kJ/mol for a 1.0e charge at the centre of the sII small cage 4 (1.0824nm, 0.2164nm, 1.0819nm) in the sII unitcell (sII_unitCelltest_CM_EA_ZYZ.xyz)
-	
-	LJ_Eng += LJ_TIP4P_Eng_Fast(pos, atomType, atomPos, nAtoms);
-	
-	cout << "LJ: " << LJ_Eng << " kJ/mol" << endl; 
-	
-	Eng += C_Eng;
-	Eng += LJ_Eng;
-	
-	cout << "Coulomb+LJ: " << Eng << " kJ/mol" << endl; 
-	
-	
 
-	
-	
-	
-	//Output data to test in VMD
-	ofstream outdatafile;
-	outdatafile.open("unitcell.xyz", ios::out);
-	if (outdatafile.is_open()) {
-		outdatafile << (nAtoms+1) << endl;
-		outdatafile << "# Comment" << endl;
-		for (i=0; i<(nAtoms); i++) {
-			outdatafile << atomType[i] << " ";
-			for (j=0; j<3; j++) {
-				outdatafile << atomPos[i].COOR(j)/NM_PER_ANG << " ";
-			}
-			outdatafile << endl;
-			
-		}
-		outdatafile << "Ar" << " "; 
-		for (j=0; j<3; j++) {
-			outdatafile << pos.COOR(j)/NM_PER_ANG << " ";
-		}
-		outdatafile << endl;
-	}
-		
-	outdatafile.close();
-	 
-	 
-	
-	delete [] atomPos;
-	delete [] atomType;
-}
-*/
+//int main(int argc, char **argv) {
+//	string filename;
+//	char *atomType;
+//	VECT *atomPos, pos;
+//	int nAtoms;
+//	double Eng, C_Eng, LJ_Eng;
+//	int i, j;
+//	
+//	//int i, j;
+//	
+//	filename = argv[1];
+//	
+//	getTIP4Patoms(&atomType, &atomPos, &nAtoms, filename);
+//	
+//	Eng = 0.0; //kJ/mol
+//	C_Eng = 0.0;
+//	LJ_Eng = 0.0;
+//	
+//	pos.DIM(3);
+//	
+//	/*
+//	// Small Cage 1
+//	pos.COOR(0) = 0.6491; //nm
+//	pos.COOR(1) = 0.2165;
+//	pos.COOR(2) = 0.6492;
+//	*/
+//	
+//	/*
+//	// Small Cage 4
+//	pos.COOR(0) = 1.0824; //nm
+//	pos.COOR(1) = 0.2164;
+//	pos.COOR(2) = 1.0819;
+//	 */
+//	
+//	// Large Cage 1
+//	pos.COOR(0) = 0.8651; //nm
+//	pos.COOR(1) = 0.8655;
+//	pos.COOR(2) = 0.8654;
+//	
+//	
+//	C_Eng += Q_TIP4P_Eng(pos, 1.0, atomType, atomPos, nAtoms);
+//	
+//	cout << "Coulomb: " << C_Eng << " kJ/mol" << endl; //Should be -30.2331 kJ/mol for a 1.0e charge at the centre of the sII small cage 4 (1.0824nm, 0.2164nm, 1.0819nm) in the sII unitcell (sII_unitCelltest_CM_EA_ZYZ.xyz)
+//	
+//	LJ_Eng += LJ_TIP4P_Eng_Fast(pos, atomType, atomPos, nAtoms);
+//	
+//	cout << "LJ: " << LJ_Eng << " kJ/mol" << endl; 
+//	
+//	Eng += C_Eng;
+//	Eng += LJ_Eng;
+//	
+//	cout << "Coulomb+LJ: " << Eng << " kJ/mol" << endl; 
+//	
+//	
+//
+//	
+//	
+//	
+//	//Output data to test in VMD
+//	ofstream outdatafile;
+//	outdatafile.open("unitcell.xyz", ios::out);
+//	if (outdatafile.is_open()) {
+//		outdatafile << (nAtoms+1) << endl;
+//		outdatafile << "# Comment" << endl;
+//		for (i=0; i<(nAtoms); i++) {
+//			outdatafile << atomType[i] << " ";
+//			for (j=0; j<3; j++) {
+//				outdatafile << atomPos[i].COOR(j)/NM_PER_ANG << " ";
+//			}
+//			outdatafile << endl;
+//			
+//		}
+//		outdatafile << "Ar" << " "; 
+//		for (j=0; j<3; j++) {
+//			outdatafile << pos.COOR(j)/NM_PER_ANG << " ";
+//		}
+//		outdatafile << endl;
+//	}
+//		
+//	outdatafile.close();
+//	 
+//	 
+//	
+//	delete [] atomPos;
+//	delete [] atomType;
+//}

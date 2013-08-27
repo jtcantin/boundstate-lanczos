@@ -14,12 +14,13 @@ SUP_PATH10= ../Hv-calculators/linRotor/cartSphBasis/potentialCalc/CoulombPotenti
 SUP_PATH11= ../Hv-calculators/linRotor/cartSphBasis/potentialCalc/IsotropicHarmonicOscillatorPotential/
 SUP_PATH12= ../Hv-calculators/linRotor/cartSphBasis/potentialCalc/Alavi/SPCE/
 SUP_PATH13= ../Hv-calculators/linRotor/cartSphBasis/HvCalc/NoQuadOnTheFly/
+SUP_PATH14= ../Hv-calculators/linRotor/cartSphBasis/HvCalc/NoQuadOnTheFly/ContinuousAngularGrid/
 
-INCLUDES= -I $(SUP_PATH1) -I $(SUP_PATH2) -I $(SUP_PATH3) -I $(SUP_PATH4) -I $(SUP_PATH5) -I $(SUP_PATH6) -I $(SUP_PATH7) -I $(SUP_PATH8) -I $(SUP_PATH9) -I $(SUP_PATH10) -I $(SUP_PATH11) -I $(SUP_PATH12) -I $(SUP_PATH13)
+INCLUDES= -I $(SUP_PATH1) -I $(SUP_PATH2) -I $(SUP_PATH3) -I $(SUP_PATH4) -I $(SUP_PATH5) -I $(SUP_PATH6) -I $(SUP_PATH7) -I $(SUP_PATH8) -I $(SUP_PATH9) -I $(SUP_PATH10) -I $(SUP_PATH11) -I $(SUP_PATH12) -I $(SUP_PATH13) -I $(SUP_PATH14)
 CFLAGS=-c -Wall -fopenmp -DLINUX -ggdb -O0 $(INCLUDES)
 FCFLAGS=-c -DLINUX -ggdb -O0 -framework Accelerate $(INCLUDES) 
 
-LIB_SOURCES= $(SUP_PATH1)Cvectors.cpp $(SUP_PATH1)matvec2.cpp $(SUP_PATH2)bisec.f $(SUP_PATH2)inverr.f $(SUP_PATH2)isoev.f $(SUP_PATH2)trivec.f $(SUP_PATH2)lancbis.cpp $(SUP_PATH2)genran.f $(SUP_PATH2)scalar.f $(SUP_PATH2)sturmi.f $(SUP_PATH2)inverm.f $(SUP_PATH3)Alavi_H2_Routines.cpp $(SUP_PATH5)gridFcns.cpp $(SUP_PATH5)energyRoutines.cpp $(SUP_PATH4)TIP4P_AH2_EngRoutines.cpp $(SUP_PATH1)rotmat.cpp $(SUP_PATH7)linRotCartSphHvRoutines.cpp $(SUP_PATH9)interface.cpp $(SUP_PATH10)Coulomb_Routines.cpp $(SUP_PATH11)IsoHarmOsc_Routines.cpp $(SUP_PATH12)SPCE_AH2_EngRoutines.cpp $(SUP_PATH13)linRotCartSphHvFullVPrepRoutines.cpp
+LIB_SOURCES= $(SUP_PATH1)Cvectors.cpp $(SUP_PATH1)matvec2.cpp $(SUP_PATH2)bisec.f $(SUP_PATH2)inverr.f $(SUP_PATH2)isoev.f $(SUP_PATH2)trivec.f $(SUP_PATH2)lancbis.cpp $(SUP_PATH2)genran.f $(SUP_PATH2)scalar.f $(SUP_PATH2)sturmi.f $(SUP_PATH2)inverm.f $(SUP_PATH3)Alavi_H2_Routines.cpp $(SUP_PATH5)gridFcns.cpp $(SUP_PATH5)energyRoutines.cpp $(SUP_PATH4)TIP4P_AH2_EngRoutines.cpp $(SUP_PATH1)rotmat.cpp $(SUP_PATH7)linRotCartSphHvRoutines.cpp $(SUP_PATH9)interface.cpp $(SUP_PATH10)Coulomb_Routines.cpp $(SUP_PATH11)IsoHarmOsc_Routines.cpp $(SUP_PATH12)SPCE_AH2_EngRoutines.cpp $(SUP_PATH13)linRotCartSphHvFullVPrepRoutines.cpp $(SUP_PATH14)linRotCartSphHvContGridRoutines.cpp $(SUP_PATH3)Alavi_ContGrid_H2_Routines.cpp
 
 LDFLAGS=-fopenmp -framework Accelerate -lgfortran
 

@@ -3,7 +3,7 @@
 using namespace std;
 
 double CoulombEng(const VECT& q1, double q1_q, const VECT& q2, double q2_q){
-	double distance, k, Eng;
+	double distance, Eng;
 	VECT diffVec;
 	
 	//k = 1/(4*PI*EPS0);

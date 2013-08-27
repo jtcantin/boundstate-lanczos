@@ -153,8 +153,8 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 						linearMolecule.phi = phiAbscissae[b]; 								
 						V_ijkab_1 = (*linearMoleculePotential)(interface, &linearMolecule);
 						
-						if (V_ijkab_1 >= potentialCeiling) {
-							V_ijkab_1 = potentialCeiling;
+						if (V_ijkab_1 >= interface->potentialCeiling) {
+							V_ijkab_1 = interface->potentialCeiling;
 						}
 						
 						V_ijkab_1_mat[(ind + a)*nb + b] = V_ijkab_1;
@@ -479,14 +479,18 @@ void HvPrep_Internal_NoQuad(int argc, char **argv, interfaceStor *interface, lan
 	
 	pointPotentialStorH2 *partialPotential;
 	
+	interface->potentialCeiling = ceilingPotential;
+	interface->grids = gridStor;
+	interface->quadrature = quadrature;
+	
 	partialPotential = (*(interface->fcnPointers->preCalcPotential))(numDim, gridMax, gridPoints, geometryFilename, interface, argc, argv);
 	
 	partialPotential->potentialCeiling = ceilingPotential;
 	
 	//Put everything in the interface sructure
-	interface->grids = gridStor;
+	
 	interface->lmBasis = lmBasis;
-	interface->quadrature = quadrature;
+	
 	interface->tesseral = tessHarmonics;
 	interface->tesseral2PI = tessHarmonics2PI;
 	interface->potential = partialPotential;
@@ -505,7 +509,7 @@ void HvPrep_Internal_NoQuad(int argc, char **argv, interfaceStor *interface, lan
 	}
 	
 	//Pre-Calculate <lm|V|lpmp>
-	interface->potential->fullPotential = calc_Vlmlpmp_NoQuad(interface);
+	interface->potential->fullPotential = (*(interface->fcnPointers->calcVlmlpmp))(interface);
 	
 	cout << "Potentials Pre-calculated." << endl;
 	
@@ -569,93 +573,98 @@ double* calcSym(interfaceStor *interface, string symFlag) {
 	
 
 void quadratureConvergenceStudy_NoQuad(interfaceStor *interface, lanczosStor *lanczos) {
+	
+	cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+	cout << "Sorry, but the quadrature convergence study is unavailable for the \"No Quad\" Hv calculator." << endl;
+	cout << "The values present in the Hv input file will be used instead." << endl;
+	cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 
-	int i,a,b,j;
-	int basisSize;
-	int na, nb;
-	
-	int nx, ny, nz, l_max, npx, npy, npz;
-	
-	basisSize = lanczos->total_basis_size;
-	
-	na = interface->quadrature->GLnum;
-	nb = interface->quadrature->GCnum;
-	
-	nx = interface->grids->nx;
-	ny = interface->grids->ny;
-	nz = interface->grids->nz;
-	
-	l_max = interface->lmBasis->lmax;
-	
-	npx = interface->potential->potentialUniverse->grid_num[0];
-	npy = interface->potential->potentialUniverse->grid_num[1];
-	npz = interface->potential->potentialUniverse->grid_num[2];
-	
-	
-	double* vec=new double[basisSize];
-	double* uec;
-	double expectVal = 0.0;
-	
-	quadStor *quadrature;
-	tesseralStor *tessHarmonics, *tessHarmonics2PI;
-	
-	string outputFilename = lanczos->sim_descr_short;
-	
-	ofstream outputFile(outputFilename.c_str());
-
-	cout << "Quadrature Convergence Study beginning." << endl;
-	
-	for (i=0; i<basisSize; i++) {
-		vec[i] = 1.0/sqrt((double)basisSize);
-	}
-	
-	outputFile << "#nx= " << nx << " ny= " << ny << " nz= " << nz;
-	outputFile << " l_max= " << l_max << " nThetaMax= " << na << " nPhiMax= " << nb;
-	outputFile << "npx= " << npx << " npy= " << npy << " npz= " << npz;
-	outputFile << endl;
-	
-	outputFile << "#ThetaPoints" << " " << "PhiPoints" << " " << "<v|H|v>" << endl;
-	
-	j = 0;
-	
-	for (a=1; a<=na; a++) {
-		for (b=1; b<=nb; b++) {
-			j++;
-			
-			quadrature = QuadraturePrep(a, b);
-			
-			TesseralPrep(a, b, quadrature, interface->lmBasis, &tessHarmonics, &tessHarmonics2PI);
-			
-			delete interface->quadrature;
-			delete interface->tesseral;
-			delete interface->tesseral2PI;
-			
-			interface->quadrature = quadrature;
-			interface->tesseral = tessHarmonics;
-			interface->tesseral2PI = tessHarmonics2PI;
-			
-			delete interface->potential->fullPotential;
-			
-			//Pre-Calculate <lm|V|lpmp>
-			interface->potential->fullPotential = calc_Vlmlpmp_NoQuad(interface);
-			
-			uec = Hv_5D_oneCompositeIndex_NoQuad(interface, vec);
-			
-			for (i=0; i<basisSize; i++) {
-				expectVal += vec[i]*uec[i];
-			}
-			
-			outputFile << a << " " << b << " " << expectVal << endl;
-			//outputFile << a << " " << expectVal << endl;
-			
-			if (j % 10 == 0) {
-				cout << "Working... at " << j << " out of " << na*nb << endl;
-			}
-			
-			expectVal = 0.0;
-			
-		}
-	}
+	//int i,a,b,j;
+//	int basisSize;
+//	int na, nb;
+//	
+//	int nx, ny, nz, l_max, npx, npy, npz;
+//	
+//	basisSize = lanczos->total_basis_size;
+//	
+//	na = interface->quadrature->GLnum;
+//	nb = interface->quadrature->GCnum;
+//	
+//	nx = interface->grids->nx;
+//	ny = interface->grids->ny;
+//	nz = interface->grids->nz;
+//	
+//	l_max = interface->lmBasis->lmax;
+//	
+//	npx = interface->potential->potentialUniverse->grid_num[0];
+//	npy = interface->potential->potentialUniverse->grid_num[1];
+//	npz = interface->potential->potentialUniverse->grid_num[2];
+//	
+//	
+//	double* vec=new double[basisSize];
+//	double* uec;
+//	double expectVal = 0.0;
+//	
+//	quadStor *quadrature;
+//	tesseralStor *tessHarmonics, *tessHarmonics2PI;
+//	
+//	string outputFilename = lanczos->sim_descr_short;
+//	
+//	ofstream outputFile(outputFilename.c_str());
+//
+//	cout << "Quadrature Convergence Study beginning." << endl;
+//	
+//	for (i=0; i<basisSize; i++) {
+//		vec[i] = 1.0/sqrt((double)basisSize);
+//	}
+//	
+//	outputFile << "#nx= " << nx << " ny= " << ny << " nz= " << nz;
+//	outputFile << " l_max= " << l_max << " nThetaMax= " << na << " nPhiMax= " << nb;
+//	outputFile << "npx= " << npx << " npy= " << npy << " npz= " << npz;
+//	outputFile << endl;
+//	
+//	outputFile << "#ThetaPoints" << " " << "PhiPoints" << " " << "<v|H|v>" << endl;
+//	
+//	j = 0;
+//	
+//	for (a=1; a<=na; a++) {
+//		for (b=1; b<=nb; b++) {
+//			j++;
+//			
+//			quadrature = QuadraturePrep(a, b);
+//			
+//			TesseralPrep(a, b, quadrature, interface->lmBasis, &tessHarmonics, &tessHarmonics2PI);
+//			
+//			delete interface->quadrature;
+//			delete interface->tesseral;
+//			delete interface->tesseral2PI;
+//			
+//			interface->quadrature = quadrature;
+//			interface->tesseral = tessHarmonics;
+//			interface->tesseral2PI = tessHarmonics2PI;
+//			
+//			delete interface->potential->fullPotential;
+//			
+//			//Pre-Calculate <lm|V|lpmp>
+//			interface->potential->fullPotential = calc_Vlmlpmp_NoQuad(interface);
+//			
+//			uec = Hv_5D_oneCompositeIndex_NoQuad(interface, vec);
+//			
+//			for (i=0; i<basisSize; i++) {
+//				expectVal += vec[i]*uec[i];
+//			}
+//			
+//			outputFile << a << " " << b << " " << expectVal << endl;
+//			//outputFile << a << " " << expectVal << endl;
+//			
+//			if (j % 10 == 0) {
+//				cout << "Working... at " << j << " out of " << na*nb << endl;
+//			}
+//			
+//			expectVal = 0.0;
+//			
+//		}
+//	}
 	
 	
 	

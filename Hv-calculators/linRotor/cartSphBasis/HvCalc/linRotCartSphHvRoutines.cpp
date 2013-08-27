@@ -1193,7 +1193,7 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	int nx, ny, nz, l_max, thetaPoints, phiPoints, pnx, pny, pnz;
 	double x_max, y_max, z_max, px_max, py_max, pz_max;
 	double rotationalConstant, totalMass, ceilingPotential;
-	string geometryFilename, line, junk, simulationFilename, quadConvergeStudy;
+	string geometryFilename, line, junk, simulationFilename, quadConvergeStudy, symFlag;
 	
 	inputFilename = argv[2];
 	
@@ -1268,6 +1268,9 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 		inputFile >> junk;
 		inputFile >> quadConvergeStudy;
 		
+		inputFile >> junk;
+		inputFile >> symFlag;
+		
 	}
 	else {
 		cerr << "Input file '" << inputFilename << "' could not be opened." << endl;
@@ -1287,12 +1290,24 @@ void HvPrep_Internal(int argc, char **argv, interfaceStor *interface, lanczosSto
 	
 	//Check that the system dimensions are reasonable
 	if (x_max > px_max || y_max > py_max || z_max > pz_max) {
+		cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 		cerr << "Error, the system's physical dimensions must be the same size or smaller than the potential universe dimensions." << endl;
+		cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 		exit(1);
 	}
 	
 	if (x_max*px_max*y_max*py_max*z_max*pz_max < DBL_EPSILON || nx*ny*nz*pnx*pny*pnz == 0) {
+		cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 		cerr << "Error, none of the system dimensions nor the number of points can be zero and none should be smaller than the machine epsilon: " << DBL_EPSILON << endl;
+		cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+		exit(1);
+	}
+	
+	if (symFlag != "All") {
+		cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+		cerr << "Sorry, but the symmeterizer has not yet been implemented in the \"Quadrature on the Fly\" Hv calculator." << endl;
+		cerr << "Please select \"All\" as the symmeterization option." << endl;
+		cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 		exit(1);
 	}
 	
@@ -1485,7 +1500,7 @@ quadStor* QuadraturePrep(int thetaPoints, int phiPoints) {
 	//Theta [0,PI]
 	double *thetaAbscissae = new double [thetaPoints];
 	
-	for (a; a<thetaPoints; a++) {
+	for (a=0; a<thetaPoints; a++) {
 		thetaAbscissae[a] = acos(cosThetaAbscissae[a]);
 	}
 	
@@ -1493,7 +1508,7 @@ quadStor* QuadraturePrep(int thetaPoints, int phiPoints) {
 	double *phiAbscissae = new double [phiPoints];
 	double *PIphiAbscissae = new double [phiPoints];
 	
-	for (b; b<phiPoints; b++) {
+	for (b=0; b<phiPoints; b++) {
 		phiAbscissae[b] = acos(cosPhiAbscissae[b]);
 		PIphiAbscissae[b] = 2*PI - acos(cosPhiAbscissae[b]);
 	}

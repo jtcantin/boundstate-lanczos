@@ -48,7 +48,7 @@ universeProp* generateGrid(int numDim, double *gridMax, int *gridPoints) {
 		universe->grid[i].DIM(universe->numDim);
 		for (j=0; j<universe->numDim; j++) {
 			//universe->grid[i].COOR(j) = indexDim(j, i, universe->numDim, universe->grid_num)*universe->d_i[j]; //Seems to work, but not fully tested.
-			universe->grid[i].COOR(j) = (indexDim(j, i, universe->numDim, universe->grid_num)*universe->d_i[j]) - (universe->grid_max[j]/2.0); //Seems to work, but not fully tested.; subtract 1/2*box_i_max to centre origin
+			universe->grid[i].COOR(j) = (double(indexDim(j, i, universe->numDim, universe->grid_num))*universe->d_i[j]) - (universe->grid_max[j]/2.0); //Seems to work, but not fully tested.; subtract 1/2*box_i_max to centre origin
 		}		
 	}
 	}

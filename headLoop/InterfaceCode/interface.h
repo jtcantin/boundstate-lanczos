@@ -15,8 +15,14 @@
 //Linear Rotor Cartesian Position and Spherical Harmonics Rotational Basis Hv with the Potential Fully Pre-calculated
 #include "linRotCartSphHvFullVPrepRoutines.h"
 
+//Linear Rotor Cartesian Position and Spherical Harmonics Rotational Basis Hv with the Potential Fully Pre-calculated and an angular continuous grid
+#include "linRotCartSphHvContGridRoutines.h"
+
 //Alavi Hydrogen Model
 #include "Alavi_H2_Routines.h"
+
+//Alavi Hydrogen Model - Continuous Grid
+#include "Alavi_ContGrid_H2_Routines.h"
 
 //TIP4P Model
 #include "TIP4P_AH2_EngRoutines.h"

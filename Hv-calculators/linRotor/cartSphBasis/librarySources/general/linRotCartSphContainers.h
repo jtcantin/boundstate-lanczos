@@ -148,6 +148,8 @@ struct pointPotentialStorH2 {
 	universeProp *potentialUniverse;
 	double potentialCeiling;
 	double *fullPotential;
+	double *fullPotential2;
+	double *fullPotential3;
 	
 	//For Coulomb Potential
 	double centreCharge;
@@ -159,6 +161,8 @@ struct pointPotentialStorH2 {
 		delete [] H_potential;
 		delete potentialUniverse;
 		delete [] fullPotential;
+		delete [] fullPotential2;
+		delete [] fullPotential3;
 	};
 };
 
@@ -206,6 +210,7 @@ struct fcnPointerStor {
 	double (*SummedLJPotential)(VECT, char*, VECT*, int) = NULL;
 	double (*SummedLJPotentialFast)(VECT, char*, VECT*, int) = NULL;
 	void (*getAtomGeometry)(char**, VECT**, int*, string) = NULL;
+	double* (*calcVlmlpmp)(interfaceStor*) = NULL;
 	
 };
 
@@ -217,6 +222,8 @@ struct interfaceStor {
 	tesseralStor *tesseral2PI;
 	lmFBR *lmBasis;
 	fcnPointerStor *fcnPointers;
+	sysAtoms *atomGeo;
+	double potentialCeiling;
 	
 	/*
 	interfaceStor() {
@@ -236,6 +243,7 @@ struct interfaceStor {
 		delete tesseral2PI;
 		delete lmBasis;
 		delete fcnPointers;
+		delete atomGeo;
 	};
 };
 
