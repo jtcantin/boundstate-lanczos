@@ -98,7 +98,7 @@ void Alavi_SiteSite_Eng_contGrid(double *H2potential, double *H2potentialPI, uni
 			for (b=0; b<nb; b++) {
 				
 				ind = a*nb+b;
-				ind2 = (i*na + a)*nb +b;
+				ind2 = (i*na + a)*nb + b;
 				
 				// Get positions for phi = [0, pi)
 				H1pos = point_universe->grid[i] + CM_H[ind];
@@ -152,40 +152,84 @@ pointPotentialStorH2* preCalcPotential_Alavi_ContGrid(int numDim, double *gridMa
 	double sysGridMax[3];
 	int sysGridPoints[3];
 	
-	sysGridMax[0] = interface->grids->x_max;
-	sysGridPoints[0] = interface->grids->nx;
+	grids = interface->grids
 	
-	sysGridMax[1] = interface->grids->y_max;
-	sysGridPoints[1] = interface->grids->ny;
+	sysGridMax[0] = grids->x_max;
+	sysGridPoints[0] = grids->nx;
 	
-	sysGridMax[2] = interface->grids->z_max;
-	sysGridPoints[2] = interface->grids->nz;
+	sysGridMax[1] = grids->y_max;
+	sysGridPoints[1] = grids->ny;
 	
+	sysGridMax[2] = grids->z_max;
+	sysGridPoints[2] = grids->nz;
+	
+	potentialUniverse->numDim = 3;
+	potentialUniverse->grid_max = sysGridMax;
+	potentialUniverse->grid_num = sysGridPoints;
+	potentialUniverse->sysSize = sysGridMax[0]*sysGridMax[1]*sysGridMax[2];
+	
+	//Store dx, dy, dz
+	potentialUniverse->d_i = new double [potentialUniverse->numDim];
+	potentialUniverse->d_i[0] = sysGridMax[0] / double(sysGridPoints[0] - 1);
+	potentialUniverse->d_i[1] = sysGridMax[1] / double(sysGridPoints[1] - 1);
+	potentialUniverse->d_i[2] = sysGridMax[2] / double(sysGridPoints[2] - 1);
+	
+	//Build the grid
+	potentialUniverse->grid = new VECT [potentialUniverse->sysSize];
+	
+	int i, j, k;
+	
+	//Initialize vectors
+	for (i=0; i<potentialUniverse->sysSize; i++) {
+		potentialUniverse->grid[i].DIM(potentialUniverse->numDim)
+	}
+	
+	//Insert grid values
+	int ind;
+	
+	int ni = sysGridPoints[0];
+	int nj = sysGridPoints[1];
+	int nk = sysGridPoints[2];
+	
+	for (i=0; i<ni; i++) {
+		for (j=0; j<nj; j++) {
+			for (k=0; k<nk; k++) {
+				
+				ind = (i*nj + j)*nk + k;
+				
+				potentialUniverse->grid[ind].COOR(0) = grids->x_Grid[i];
+				potentialUniverse->grid[ind].COOR(1) = grids->y_Grid[j];
+				potentialUniverse->grid[ind].COOR(2) = grids->z_Grid[k];
+			}
+		}
+	}
+	
+	cout << "Grid generated." << endl;
 	
 	potentialUniverse = generateGrid(3, sysGridMax, sysGridPoints);
 	
 	//Check if the grids are the same
-	int i, j, k;
-	int index[3];
-	for (i=0; i<sysGridPoints[0] ; i++) {
-		for (j=0; j<sysGridPoints[1]; j++) {
-			for (k=0; k<sysGridPoints[2]; k++) {
-						
-				cout << "_______________________________________________________" << endl;
-				cout << "Point " << i << "," << j << "," << k << endl;
-				
-				index[0] = i;
-				index[1] = j;
-				index[2] = k;
-				
-				cout << potentialUniverse->grid[disp(index, 3, sysGridPoints)].COOR(0) - interface->grids->x_Grid[i] << endl;
-				cout << potentialUniverse->grid[disp(index, 3, sysGridPoints)].COOR(1) - interface->grids->y_Grid[j] << endl;
-				cout << potentialUniverse->grid[disp(index, 3, sysGridPoints)].COOR(2) - interface->grids->z_Grid[k] << endl;
-				
-			}
-		}
-		
-	}
+//	int i, j, k;
+//	int index[3];
+//	for (i=0; i<sysGridPoints[0] ; i++) {
+//		for (j=0; j<sysGridPoints[1]; j++) {
+//			for (k=0; k<sysGridPoints[2]; k++) {
+//						
+//				cout << "_______________________________________________________" << endl;
+//				cout << "Point " << i << "," << j << "," << k << endl;
+//				
+//				index[0] = i;
+//				index[1] = j;
+//				index[2] = k;
+//				
+//				cout << potentialUniverse->grid[disp(index, 3, sysGridPoints)].COOR(0) - grids->x_Grid[i] << endl;
+//				cout << potentialUniverse->grid[disp(index, 3, sysGridPoints)].COOR(1) - grids->y_Grid[j] << endl;
+//				cout << potentialUniverse->grid[disp(index, 3, sysGridPoints)].COOR(2) - grids->z_Grid[k] << endl;
+//				
+//			}
+//		}
+//		
+//	}
 	
 	//Get the system geometry for the water molecules
 	sysAtoms *atomGeo = new sysAtoms();

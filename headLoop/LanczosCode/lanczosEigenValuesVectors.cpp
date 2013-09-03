@@ -323,7 +323,9 @@ int main(int argc,char **argv) {
 	cout << endl;
 	cout << "'Eigenvector calculation' beginning." << endl;
 	
+	//////////////////////////////////
 	//Calculate the eigenvectors of Tm
+	//////////////////////////////////
 	MAT evtr(niter,ngood);
 	
 	cout << "'Tm eigenvector calculation' beginning." << endl;
@@ -526,6 +528,18 @@ void lanczosvectors(VECT &alpha, VECT &beta, VECT &beta2, int niter, VECT &eval,
     double* levtr=new double[niter*ngood];
     double* mamin=new double[ngood];
 	
+	//Initialize Values
+	for (i=0; i<niter; i++) {
+		wrk1[i] = 0.0;
+		wrk2[i] = 0.0;
+	}
+	for (i=0; i<niter*ngood; i++) {
+		levtr[i] = 0.0;
+	}
+	for (i=0; i<ngood; i++) {
+		mamin[i] = 0.0;
+	}
+	
 	//Calculate the Tm eigenvectors
     FORTRAN(trivec)(lalpha,lbeta,lbeta2,wrk1,wrk2,&niter,leval,&ngood,levtr,mamin);
 	
@@ -533,5 +547,16 @@ void lanczosvectors(VECT &alpha, VECT &beta, VECT &beta2, int niter, VECT &eval,
     for (i=0;i<niter;i++)
 		for (j=0;j<ngood;j++) 
 			evtr(i,j)=levtr[i+j*niter];
+	
+	//Deallocate memory
+	delete [] lalpha;
+	delete [] lbeta;
+	delete [] lbeta2;
+	delete [] leval;
+	delete [] wrk1;
+	delete [] wrk2;
+	delete [] levtr;
+	delete [] mamin;
+	
 }
 
