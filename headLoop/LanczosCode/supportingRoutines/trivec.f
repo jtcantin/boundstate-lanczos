@@ -12,8 +12,8 @@ C
       DIMENSION ALPHA(NIT),BETA(NIT+1),BET2(NIT+1),WRK1(NIT),WRK2(NIT),
      1 EVAL(NGOOD),EVTR(NIT,NGOOD),MAMIN(NGOOD)
 C
-      WRITE(6,'(1X,
-     1 ''calculate eigenvectors of tridiagonal matrix...'')')
+C      WRITE(6,'(1X,
+C     1 ''calculate eigenvectors of tridiagonal matrix...'')')
 C      TZERO=TIMER(0D0)
 C
 C obtain random vector WRK2 for INVERM (see also comments in INVERR):

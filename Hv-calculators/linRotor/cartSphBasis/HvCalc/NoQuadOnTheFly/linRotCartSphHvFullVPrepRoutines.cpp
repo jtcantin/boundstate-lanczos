@@ -102,7 +102,7 @@ double* calc_Vlmlpmp_NoQuad(interfaceStor *interface) {
 	H2_orient linearMolecule;
 	
 	cout << "Total potential matrix size: " << matrixSize << endl;
-	cout << "Note: the following statements are only an estimate of the progress." << endl;
+	//cout << "Note: the following statements are only an estimate of the progress." << endl;
 	
 	double *harmFactor = new double [nn*nnp*na*nb];
 	double *harmFactorPI = new double [nn*nnp*na*nb];
@@ -348,7 +348,7 @@ void HvPrep_Internal_NoQuad(int argc, char **argv, interfaceStor *interface, lan
 	}
 	
 	cout << "Hv Input file parameters read." << endl;
-	cout << pny;
+	//cout << pny;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Generate the x, y, and z bases and Kinetic Energy Operators

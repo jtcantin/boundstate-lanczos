@@ -81,7 +81,7 @@ double* calc_Vlmlpmp_NoQuad_ContGrid(interfaceStor *interface) {
 	double *potentialMatrix = new double [matrixSize];
 	
 	cout << "Total potential matrix size: " << matrixSize << endl;
-	cout << "Note: the following statements are only an estimate of the progress." << endl;
+	//cout << "Note: the following statements are only an estimate of the progress." << endl;
 	
 	double *harmFactor = new double [nn*nnp*na*nb];
 	double *harmFactorPI = new double [nn*nnp*na*nb];

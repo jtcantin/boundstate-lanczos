@@ -29,9 +29,11 @@ void Alavi_SiteSite_Eng_contGrid(double *H2potential, double *H2potentialPI, uni
 	VECT *CM_H = new VECT [na*nb];
 	VECT *CM_H_PI = new VECT [na*nb];
 	
-	int ind, a, b, ind2;
+	int ind, a, b, ind2, potentialGridSize;
 	double potential;
 	double potCeil = interface->potentialCeiling;
+	
+	potentialGridSize = point_universe->sysSize * na * nb;
 	
 #pragma omp parallel default(shared) private (i, thread, H1pos, H2pos, ind, a, b, ind2, potential)
 	{
@@ -39,7 +41,7 @@ void Alavi_SiteSite_Eng_contGrid(double *H2potential, double *H2potentialPI, uni
 	thread = omp_get_thread_num();
 	if (thread == 0) {
 		nthreads = omp_get_num_threads();
-		cout << "Alavi Point Potential Parallel Section Number of Threads: " << nthreads << endl;
+		cout << "Alavi Potential Calc Parallel Section Number of Threads: " << nthreads << endl;
 	}
 	
 	//Calculate Energy for Centre of Mass
@@ -87,6 +89,10 @@ void Alavi_SiteSite_Eng_contGrid(double *H2potential, double *H2potentialPI, uni
 		}
 	}
 			
+	if (thread == 0) {
+		cout << "H-H Orientation Vectors Calculated." << endl;
+		cout << "V(x,y,z,theta,phi) Grid Size: " << potentialGridSize << endl;
+	}
 
 	H1pos.DIM(3);
 	H2pos.DIM(3);
@@ -146,13 +152,16 @@ pointPotentialStorH2* preCalcPotential_Alavi_ContGrid(int numDim, double *gridMa
 	
 	//There are 3 spatial dimensions, so numDim = 3 and the gridMax and gridPoints arrays are of length 3
 	
+	//cout << "In pre-calc Alavi" << endl;
+	
 	//Get the grid for the potential using the same values as the system grid
-	universeProp *potentialUniverse;
+	universeProp *potentialUniverse = new universeProp();
+	fiveDGrid *grids;
 	
-	double sysGridMax[3];
-	int sysGridPoints[3];
+	double *sysGridMax = new double [3];
+	int *sysGridPoints = new int [3];
 	
-	grids = interface->grids
+	grids = interface->grids;
 	
 	sysGridMax[0] = grids->x_max;
 	sysGridPoints[0] = grids->nx;
@@ -163,10 +172,14 @@ pointPotentialStorH2* preCalcPotential_Alavi_ContGrid(int numDim, double *gridMa
 	sysGridMax[2] = grids->z_max;
 	sysGridPoints[2] = grids->nz;
 	
+	int ni = sysGridPoints[0];
+	int nj = sysGridPoints[1];
+	int nk = sysGridPoints[2];
+	
 	potentialUniverse->numDim = 3;
 	potentialUniverse->grid_max = sysGridMax;
 	potentialUniverse->grid_num = sysGridPoints;
-	potentialUniverse->sysSize = sysGridMax[0]*sysGridMax[1]*sysGridMax[2];
+	potentialUniverse->sysSize = ni*nj*nk;
 	
 	//Store dx, dy, dz
 	potentialUniverse->d_i = new double [potentialUniverse->numDim];
@@ -175,27 +188,35 @@ pointPotentialStorH2* preCalcPotential_Alavi_ContGrid(int numDim, double *gridMa
 	potentialUniverse->d_i[2] = sysGridMax[2] / double(sysGridPoints[2] - 1);
 	
 	//Build the grid
-	potentialUniverse->grid = new VECT [potentialUniverse->sysSize];
+	try {
+		potentialUniverse->grid = new VECT [potentialUniverse->sysSize];
+    }
+    catch( bad_alloc a) {
+        const char * temp = a.what();
+        cout << temp << endl;
+        cout << "Threw a bad_alloc exception when allocating the potential vector grid." << endl;
+    }
 	
 	int i, j, k;
 	
 	//Initialize vectors
-	for (i=0; i<potentialUniverse->sysSize; i++) {
-		potentialUniverse->grid[i].DIM(potentialUniverse->numDim)
-	}
+	//for (i=0; i<potentialUniverse->sysSize; i++) {
+//		potentialUniverse->grid[i].DIM(potentialUniverse->numDim);
+//	}
 	
 	//Insert grid values
 	int ind;
 	
-	int ni = sysGridPoints[0];
-	int nj = sysGridPoints[1];
-	int nk = sysGridPoints[2];
+	//cout << "Beginning grid generation." << endl;
 	
+	#pragma omp parallel for default(shared) private (i, j, k, ind) schedule(guided) collapse(3)
 	for (i=0; i<ni; i++) {
 		for (j=0; j<nj; j++) {
 			for (k=0; k<nk; k++) {
 				
 				ind = (i*nj + j)*nk + k;
+				
+				potentialUniverse->grid[ind].DIM(potentialUniverse->numDim);
 				
 				potentialUniverse->grid[ind].COOR(0) = grids->x_Grid[i];
 				potentialUniverse->grid[ind].COOR(1) = grids->y_Grid[j];
@@ -206,7 +227,7 @@ pointPotentialStorH2* preCalcPotential_Alavi_ContGrid(int numDim, double *gridMa
 	
 	cout << "Grid generated." << endl;
 	
-	potentialUniverse = generateGrid(3, sysGridMax, sysGridPoints);
+	//potentialUniverse = generateGrid(3, sysGridMax, sysGridPoints);
 	
 	//Check if the grids are the same
 //	int i, j, k;
@@ -231,12 +252,15 @@ pointPotentialStorH2* preCalcPotential_Alavi_ContGrid(int numDim, double *gridMa
 //		
 //	}
 	
+	//cout << "Getting the atom geometry" << endl;
 	//Get the system geometry for the water molecules
 	sysAtoms *atomGeo = new sysAtoms();
 	
 	void (*getAtomGeometry)(char**, VECT**, int*, string) = interface->fcnPointers->getAtomGeometry;
 	
 	(*getAtomGeometry)(&(atomGeo->atomType), &(atomGeo->atomPos), &(atomGeo->nAtoms), geometryFilename);
+	
+	cout << "Atom Geometry Acquired." << endl;
 	
 	//Get the final potentials
 	int na, nb;
@@ -261,7 +285,7 @@ pointPotentialStorH2* preCalcPotential_Alavi_ContGrid(int numDim, double *gridMa
 	
 	//interface->atomGeo = atomGeo;
 	
-	delete [] atomGeo;
+	//delete [] atomGeo;
 	
 	return partialPotential;
 }
