@@ -1,0 +1,51 @@
+#NOTE: You need to set the following environment variables in nlogn to get ./Lanczos to run:
+# export LD_LIBRARY_PATH=/home/pnroy/Dev/lib64:$LD_LIBRARY_PATH
+# export LIBRARY_PATH=/home/pnroy/Dev/lib64:$LIBRARY_PATH
+CC=/home/pnroy/Dev/bin/g++
+FC=/home/pnroy/Dev/bin/gfortran
+
+SUP_PATH1= ../Hv-calculators/linRotor/cartSphBasis/librarySources/matVecClasses/
+SUP_PATH2= ../headLoop/LanczosCode/supportingRoutines/
+SUP_PATH3= ../Hv-calculators/linRotor/cartSphBasis/potentialCalc/Alavi/AlaviGeneric/
+SUP_PATH4= ../Hv-calculators/linRotor/cartSphBasis/potentialCalc/Alavi/TIP4P/
+SUP_PATH5= ../Hv-calculators/linRotor/cartSphBasis/potentialCalc/CommonRoutines/
+SUP_PATH6= ../headLoop/LanczosCode/
+SUP_PATH7= ../Hv-calculators/linRotor/cartSphBasis/HvCalc/
+SUP_PATH8= ../Hv-calculators/linRotor/cartSphBasis/librarySources/general/
+SUP_PATH9= ../headLoop/InterfaceCode/
+SUP_PATH10= ../Hv-calculators/linRotor/cartSphBasis/potentialCalc/CoulombPotential/
+SUP_PATH11= ../Hv-calculators/linRotor/cartSphBasis/potentialCalc/IsotropicHarmonicOscillatorPotential/
+SUP_PATH12= ../Hv-calculators/linRotor/cartSphBasis/potentialCalc/Alavi/SPCE/
+SUP_PATH13= ../Hv-calculators/linRotor/cartSphBasis/HvCalc/NoQuadOnTheFly/
+SUP_PATH14= ../Hv-calculators/linRotor/cartSphBasis/HvCalc/NoQuadOnTheFly/ContinuousAngularGrid/
+
+INCLUDES= -I $(SUP_PATH1) -I $(SUP_PATH2) -I $(SUP_PATH3) -I $(SUP_PATH4) -I $(SUP_PATH5) -I $(SUP_PATH6) -I $(SUP_PATH7) -I $(SUP_PATH8) -I $(SUP_PATH9) -I $(SUP_PATH10) -I $(SUP_PATH11) -I $(SUP_PATH12) -I $(SUP_PATH13) -I $(SUP_PATH14)
+CFLAGS=-c -pg -g -Wall -fopenmp -DLINUX -O3 -mtune=native $(INCLUDES)
+FCFLAGS=-c -pg -g -DLINUX -O3 -L/home/pnroy/Dev/lib64/ -lblas -llapack -lgfortran -mtune=native  $(INCLUDES) 
+
+LIB_SOURCES=$(SUP_PATH1)Cvectors.cpp $(SUP_PATH1)matvec2.cpp $(SUP_PATH2)bisec.f $(SUP_PATH2)inverr.f $(SUP_PATH2)isoev.f $(SUP_PATH2)trivec.f $(SUP_PATH2)lancbis.cpp $(SUP_PATH2)genran.f $(SUP_PATH2)scalar.f $(SUP_PATH2)sturmi.f $(SUP_PATH2)inverm.f $(SUP_PATH3)Alavi_H2_Routines.cpp $(SUP_PATH5)gridFcns.cpp $(SUP_PATH5)energyRoutines.cpp $(SUP_PATH4)TIP4P_AH2_EngRoutines.cpp $(SUP_PATH1)rotmat.cpp $(SUP_PATH7)linRotCartSphHvRoutines.cpp $(SUP_PATH9)interface.cpp $(SUP_PATH10)Coulomb_Routines.cpp $(SUP_PATH11)IsoHarmOsc_Routines.cpp $(SUP_PATH12)SPCE_AH2_EngRoutines.cpp $(SUP_PATH13)linRotCartSphHvFullVPrepRoutines.cpp $(SUP_PATH14)linRotCartSphHvContGridRoutines.cpp $(SUP_PATH3)Alavi_ContGrid_H2_Routines.cpp
+
+LDFLAGS= -pg -g -L/home/pnroy/Dev/lib64/ -fopenmp -lblas -llapack -lgfortran
+SOURCES=$(SUP_PATH6)lanczosEigenValuesVectors.cpp $(LIB_SOURCES)
+SOURCES2 = $(SOURCES:.cpp=.o)
+OBJECTS= $(SOURCES2:.f=.o)
+EXECUTABLE=LanczosNLOGNprofile
+
+#print_vars:
+#	echo $(SOURCES)
+#	echo $(SOURCES2)
+#	echo $(OBJECTS)
+
+all: $(SOURCES) $(EXECUTABLE)
+
+$(EXECUTABLE): $(OBJECTS)
+	$(CC)  $(OBJECTS) -o $@ $(LDFLAGS)
+
+.cpp.o:
+	$(CC)  $< -o $@ $(CFLAGS)
+
+.f.o:
+	$(FC)  $< -o $@ $(FCFLAGS)
+
+clean:
+	rm -f $(OBJECTS) $(EXECUTABLE)

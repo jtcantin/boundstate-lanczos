@@ -1,0 +1,557 @@
+
+
+
+call graph profile:
+          The sum of self and descendents is the major sort
+          for this listing.
+
+          function entries:
+
+index     the index of the function in the call graph
+          listing, as an aid to locating it (see below).
+
+%time     the percentage of the total time of the program
+          accounted for by this function and its
+          descendents.
+
+self      the number of seconds spent in this function
+          itself.
+
+descendents
+          the number of seconds spent in the descendents of
+          this function on behalf of this function.
+
+called    the number of times this function is called (other
+          than recursive calls).
+
+self      the number of times this function calls itself
+          recursively.
+
+name      the name of the function, with an indication of
+          its membership in a cycle, if any.
+
+index     the index of the function in the call graph
+          listing, as an aid to locating it.
+
+
+
+          parent listings:
+
+self*     the number of seconds of this function's self time
+          which is due to calls from this parent.
+
+descendents*
+          the number of seconds of this function's
+          descendent time which is due to calls from this
+          parent.
+
+called**  the number of times this function is called by
+          this parent.  This is the numerator of the
+          fraction which divides up the function's time to
+          its parents.
+
+total*    the number of times this function was called by
+          all of its parents.  This is the denominator of
+          the propagation fraction.
+
+parents   the name of this parent, with an indication of the
+          parent's membership in a cycle, if any.
+
+index     the index of this parent in the call graph
+          listing, as an aid in locating it.
+
+
+
+          children listings:
+
+self*     the number of seconds of this child's self time
+          which is due to being called by this function.
+
+descendent*
+          the number of seconds of this child's descendent's
+          time which is due to being called by this
+          function.
+
+called**  the number of times this child is called by this
+          function.  This is the numerator of the
+          propagation fraction for this child.
+
+total*    the number of times this child is called by all
+          functions.  This is the denominator of the
+          propagation fraction.
+
+children  the name of this child, and an indication of its
+          membership in a cycle, if any.
+
+index     the index of this child in the call graph listing,
+          as an aid to locating it.
+
+
+
+          * these fields are omitted for parents (or
+          children) in the same cycle as the function.  If
+          the function (or child) is a member of a cycle,
+          the propagated times and propagation denominator
+          represent the self time and descendent time of the
+          cycle as a whole.
+
+          ** static-only parents and children are indicated
+          by a call count of 0.
+
+
+
+          cycle listings:
+          the cycle as a whole is listed with the same
+          fields as a function entry.  Below it are listed
+          the members of the cycle, and their contributions
+          to the time and call counts of the cycle.
+
+
+granularity: each sample hit covers 4 byte(s) no time propagated
+
+                                  called/total       parents 
+index  %time    self descendents  called+self    name    	index
+                                  called/total       children
+
+                0.00        0.00 24060000/168420000     __ZmiRK6vectorS1_ [775]
+                0.00        0.00 24060000/168420000     __ZN6vectoraSERKS_ [9318]
+                0.00        0.00 24060000/168420000     __ZN6vectorC1Ev [9312]
+                0.00        0.00 24060000/168420000     __ZN6vector5setSzEi [9308]
+                0.00        0.00 24060000/168420000     __ZNK6vector5eNormEv [9647]
+                0.00        0.00 48120000/168420000     __ZN6vectorD1Ev [9316]
+[773]    0.0    0.00        0.00 168420000         __Z10CoulombEngRK6vectordS1_d [773]
+                0.00        0.00 24060000/24060000     __Z10Q_SPCE_Eng6vectordPcPS_i [776]
+
+-----------------------------------------------
+
+                0.00        0.00       1/70152585     __Z14lanczosvectorsR6vectorS0_S0_iS0_iR6matrix [783]
+                0.00        0.00       1/70152585     __ZN11lanczosStorC1Ev [9255]
+                0.00        0.00       1/70152585     __ZN6matrixC1Eii [9302]
+                0.00        0.00       1/70152585     __ZN6matrixD1Ev [9305]
+                0.00        0.00       1/70152585     __Z7lancbisiR6vectorS0_ddRiRKS_S3_S3_ [784]
+                0.00        0.00       1/70152585     __Z16HvInterfaceSetupSsPP11generalStorPPFviPPcS0_P11lanczosStorEPPFviS3_S0_S5_PdS9_E [801]
+                0.00        0.00       1/70152585     __Z28Hv_Prep_linRotCartSph_NoQuadiPPcP11generalStorP11lanczosStor [811]
+                0.00        0.00       2/70152585     __ZStneIcSt11char_traitsIcESaIcEEbRKSbIT_T0_T1_EPKS3_ [809]
+                0.00        0.00       2/70152585     __ZSteqIcSt11char_traitsIcESaIcEEbRKSbIT_T0_T1_EPKS3_ [11954]
+                0.00        0.00       3/70152585     __ZStplIcSt11char_traitsIcESaIcEESbIT_T0_T1_EPKS3_RKS6_ [807]
+                0.00        0.00       4/70152585     __ZStorSt13_Ios_OpenmodeS_ [11988]
+                0.00        0.00       4/70152585     __ZStplIcSt11char_traitsIcESaIcEESbIT_T0_T1_ERKS6_S8_ [11992]
+                0.00        0.00       7/70152585     __ZStplIcSt11char_traitsIcESaIcEESbIT_T0_T1_ERKS6_PKS3_ [11990]
+                0.00        0.00       7/70152585     __ZN6vectorC1Ei [9311]
+                0.00        0.00       7/70152585     __ZN6vectorD1Ev [9316]
+                0.00        0.00       7/70152585     __ZSt12setprecisioni [11810]
+                0.00        0.00     600/70152585     __Z23Hv_linRotCartSph_NoQuadiPPcP11generalStorP11lanczosStorPdS5_ [789]
+                0.00        0.00 9601200/70152585     __ZNK6matrixclEii [9646]
+                0.00        0.00 60550735/70152585     __ZNK6vectorclEi [9648]
+[774]    0.0    0.00        0.00 70152585         _main [774]
+                0.00        0.00       1/1           __start [815]
+
+-----------------------------------------------
+
+                0.00        0.00 24280000/24280000     __ZN6vectorC1Ei [9311]
+[775]    0.0    0.00        0.00 24280000         __ZmiRK6vectorS1_ [775]
+                0.00        0.00 24060000/168420000     __Z10CoulombEngRK6vectordS1_d [773]
+                0.00        0.00  200000/2407206     __Z41__static_initialization_and_destruction_0ii [777]
+                0.00        0.00   20000/180000      __Z9LJEngFastRK6vectorS1_dd [779]
+
+-----------------------------------------------
+
+                0.00        0.00 24060000/24060000     __Z10CoulombEngRK6vectordS1_d [773]
+[776]    0.0    0.00        0.00 24060000         __Z10Q_SPCE_Eng6vectordPcPS_i [776]
+                0.00        0.00  401000/2407206     __Z41__static_initialization_and_destruction_0ii [777]
+
+-----------------------------------------------
+
+                0.00        0.00       2/2407206     __ZN6vectorC1Ev [9312]
+                0.00        0.00    1000/2407206     __Z16LJ_SPCE_Eng_Fast6vectorPcPS_i [780]
+                0.00        0.00    1202/2407206     __ZN6vector5setSzEi [9308]
+                0.00        0.00  200000/2407206     __ZplRK6vectorS1_ [778]
+                0.00        0.00  200000/2407206     __ZmiRK6vectorS1_ [775]
+                0.00        0.00  400000/2407206     __ZN6vectoraSERKS_ [9318]
+                0.00        0.00  401000/2407206     __Z10Q_SPCE_Eng6vectordPcPS_i [776]
+                0.00        0.00  402000/2407206     __ZN6vectorC1ERKS_ [9310]
+                0.00        0.00  802002/2407206     __ZN6vectorD1Ev [9316]
+[777]    0.0    0.00        0.00 2407206         __Z41__static_initialization_and_destruction_0ii [777]
+                0.00        0.00       1/405         __Z27Alavi_SiteSite_Eng_contGridPdS_P12universePropP8sysAtomsP13interfaceStor [791]
+                0.00        0.00       1/1003        __Z31preCalcPotential_Alavi_ContGridiPdPiSsP13interfaceStoriPPc [785]
+
+-----------------------------------------------
+
+                0.00        0.00  200060/200060      __ZN6vectorC1Ei [9311]
+[778]    0.0    0.00        0.00  200060         __ZplRK6vectorS1_ [778]
+                0.00        0.00  200000/2407206     __Z41__static_initialization_and_destruction_0ii [777]
+                0.00        0.00      60/892         __Z12getSPCEatomsPPcPP6vectorPiSs [787]
+
+-----------------------------------------------
+
+                0.00        0.00   20000/180000      __ZmiRK6vectorS1_ [775]
+                0.00        0.00   20000/180000      __ZN6vectoraSERKS_ [9318]
+                0.00        0.00   20000/180000      __ZN6vectorC1Ev [9312]
+                0.00        0.00   20000/180000      __ZN6vector5setSzEi [9308]
+                0.00        0.00   20000/180000      __ZNK6vector5eNormEv [9647]
+                0.00        0.00   40000/180000      __ZN6vectorD1Ev [9316]
+                0.00        0.00   40000/180000      __ZSt3powdi [11873]
+[779]    0.0    0.00        0.00  180000         __Z9LJEngFastRK6vectorS1_dd [779]
+                0.00        0.00   20000/20000       __Z16LJ_SPCE_Eng_Fast6vectorPcPS_i [780]
+
+-----------------------------------------------
+
+                0.00        0.00   20000/20000       __Z9LJEngFastRK6vectorS1_dd [779]
+[780]    0.0    0.00        0.00   20000         __Z16LJ_SPCE_Eng_Fast6vectorPcPS_i [780]
+                0.00        0.00    1000/2407206     __Z41__static_initialization_and_destruction_0ii [777]
+
+-----------------------------------------------
+
+                0.00        0.00     600/6600        __Z27diagMv_5D_oneCompositeIndexPdS_iiii [9113]
+                0.00        0.00    1800/6600        __Z23Mv_5D_oneCompositeIndexPdS_iiii [9107]
+                0.00        0.00    4200/6600        __Z37reshuffleIndices_5D_oneCompositeIndexPdiiii [9117]
+[781]    0.0    0.00        0.00    6600         __Z23Tv_5D_oneCompositeIndexP13interfaceStorPd [781]
+                0.00        0.00     600/1800        __Z30Hv_5D_oneCompositeIndex_NoQuadP13interfaceStorPd [782]
+
+-----------------------------------------------
+
+                0.00        0.00     600/1800        __Z23Tv_5D_oneCompositeIndexP13interfaceStorPd [781]
+                0.00        0.00     600/1800        __Z30Vv_5D_oneCompositeIndex_NoQuadP13interfaceStorPd [790]
+                0.00        0.00     600/1800        __Z41__static_initialization_and_destruction_0ii [9124]
+[782]    0.0    0.00        0.00    1800         __Z30Hv_5D_oneCompositeIndex_NoQuadP13interfaceStorPd [782]
+                0.00        0.00     600/600         __Z23Hv_linRotCartSph_NoQuadiPPcP11generalStorP11lanczosStorPdS5_ [789]
+
+-----------------------------------------------
+
+                0.00        0.00       1/1503        _trivec_ [799]
+                0.00        0.00     600/1503        __ZNK6matrixclEii [9646]
+                0.00        0.00     902/1503        __ZNK6vectorclEi [9648]
+[783]    0.0    0.00        0.00    1503         __Z14lanczosvectorsR6vectorS0_S0_iS0_iR6matrix [783]
+                0.00        0.00       1/70152585     _main [774]
+
+-----------------------------------------------
+
+                0.00        0.00       1/1119        _bisec_ [15720]
+                0.00        0.00       1/1119        _inverr_ [793]
+                0.00        0.00       1/1119        _isoev_ [19459]
+                0.00        0.00    1116/1119        __ZNK6vectorclEi [9648]
+[784]    0.0    0.00        0.00    1119         __Z7lancbisiR6vectorS0_ddRiRKS_S3_S3_ [784]
+                0.00        0.00       1/70152585     _main [774]
+
+-----------------------------------------------
+
+                0.00        0.00       1/1003        __Z12getSPCEatomsPPcPP6vectorPiSs [787]
+                0.00        0.00       1/1003        __Z27Alavi_SiteSite_Eng_contGridPdS_P12universePropP8sysAtomsP13interfaceStor [791]
+                0.00        0.00       1/1003        __Z41__static_initialization_and_destruction_0ii [777]
+                0.00        0.00    1000/1003        __ZN6vectorC1Ev [9312]
+[785]    0.0    0.00        0.00    1003         __Z31preCalcPotential_Alavi_ContGridiPdPiSsP13interfaceStoriPPc [785]
+                0.00        0.00       1/10          __Z22HvPrep_Internal_NoQuadiPPcP13interfaceStorP11lanczosStor [802]
+
+-----------------------------------------------
+
+                0.00        0.00    1000/1000        __ZN6vectorD1Ev [9316]
+[786]    0.0    0.00        0.00    1000         __ZN12universePropD1Ev [786]
+                0.00        0.00       1/10          __Z22HvPrep_Internal_NoQuadiPPcP13interfaceStorP11lanczosStor [802]
+
+-----------------------------------------------
+
+                0.00        0.00       6/892         __ZN6vectorC1Ei [9311]
+                0.00        0.00      20/892         __ZN6matrixC1Eii [9302]
+                0.00        0.00      20/892         __ZN6matrixaSERKS_ [9307]
+                0.00        0.00      20/892         __Z8rotMat3DPd [792]
+                0.00        0.00      40/892         __ZN6matrixD1Ev [9305]
+                0.00        0.00      60/892         __ZmldRK6vector [797]
+                0.00        0.00      60/892         __ZmlRK6matrixRK6vector [796]
+                0.00        0.00      60/892         __ZplRK6vectorS1_ [778]
+                0.00        0.00     100/892         __ZN6vectorC1Ev [9312]
+                0.00        0.00     100/892         __ZN6vector5setSzEi [9308]
+                0.00        0.00     180/892         __ZN6vectoraSERKS_ [9318]
+                0.00        0.00     226/892         __ZN6vectorD1Ev [9316]
+[787]    0.0    0.00        0.00     892         __Z12getSPCEatomsPPcPP6vectorPiSs [787]
+                0.00        0.00       1/1003        __Z31preCalcPotential_Alavi_ContGridiPdPiSsP13interfaceStoriPPc [785]
+
+-----------------------------------------------
+
+                0.00        0.00     800/800         __Z9factoriali [9167]
+[788]    0.0    0.00        0.00     800         __Z21normAssocLegendrePolyPPiid [788]
+                0.00        0.00      40/80          __Z12TesseralPrepiiP8quadStorP5lmFBRPP12tesseralStorS5_ [795]
+
+-----------------------------------------------
+
+                0.00        0.00     600/600         __Z30Hv_5D_oneCompositeIndex_NoQuadP13interfaceStorPd [782]
+[789]    0.0    0.00        0.00     600         __Z23Hv_linRotCartSph_NoQuadiPPcP11generalStorP11lanczosStorPdS5_ [789]
+                0.00        0.00     600/70152585     _main [774]
+
+-----------------------------------------------
+
+                0.00        0.00     600/600         __Z41__static_initialization_and_destruction_0ii [9124]
+[790]    0.0    0.00        0.00     600         __Z30Vv_5D_oneCompositeIndex_NoQuadP13interfaceStorPd [790]
+                0.00        0.00     600/1800        __Z30Hv_5D_oneCompositeIndex_NoQuadP13interfaceStorPd [782]
+
+-----------------------------------------------
+
+                0.00        0.00       1/405         __Z41__static_initialization_and_destruction_0ii [777]
+                0.00        0.00     202/405         __ZN6vectorD1Ev [9316]
+                0.00        0.00     202/405         __ZN6vectorC1Ev [9312]
+[791]    0.0    0.00        0.00     405         __Z27Alavi_SiteSite_Eng_contGridPdS_P12universePropP8sysAtomsP13interfaceStor [791]
+                0.00        0.00       1/1003        __Z31preCalcPotential_Alavi_ContGridiPdPiSsP13interfaceStoriPPc [785]
+
+-----------------------------------------------
+
+                0.00        0.00      20/200         __ZN6matrixC1Eii [9302]
+                0.00        0.00     180/200         __ZNK6matrixclEii [9646]
+[792]    0.0    0.00        0.00     200         __Z8rotMat3DPd [792]
+                0.00        0.00      20/892         __Z12getSPCEatomsPPcPP6vectorPiSs [787]
+
+-----------------------------------------------
+
+                0.00        0.00       1/101         _genran_ [18935]
+                0.00        0.00     100/101         _scalar_ [20880]
+[793]    0.0    0.00        0.00     101         _inverr_ [793]
+                0.00        0.00       1/1119        __Z7lancbisiR6vectorS0_ddRiRKS_S3_S3_ [784]
+
+-----------------------------------------------
+
+                0.00        0.00     100/100         __ZSt3powdi [11873]
+[794]    0.0    0.00        0.00     100         __Z11cartKinGriddidPPdS0_ [794]
+                0.00        0.00       1/10          __Z22HvPrep_Internal_NoQuadiPPcP13interfaceStorP11lanczosStor [802]
+
+-----------------------------------------------
+
+                0.00        0.00      40/80          __Z21normAssocLegendrePolyPPiid [788]
+                0.00        0.00      40/80          __Z16tesseralTrigTermPPiid [9094]
+[795]    0.0    0.00        0.00      80         __Z12TesseralPrepiiP8quadStorP5lmFBRPP12tesseralStorS5_ [795]
+                0.00        0.00       1/10          __Z22HvPrep_Internal_NoQuadiPPcP13interfaceStorP11lanczosStor [802]
+
+-----------------------------------------------
+
+                0.00        0.00      60/60          __ZN6vectorC1Ei [9311]
+[796]    0.0    0.00        0.00      60         __ZmlRK6matrixRK6vector [796]
+                0.00        0.00      60/892         __Z12getSPCEatomsPPcPP6vectorPiSs [787]
+
+-----------------------------------------------
+
+                0.00        0.00      60/60          __ZN6vectorC1Ei [9311]
+[797]    0.0    0.00        0.00      60         __ZmldRK6vector [797]
+                0.00        0.00      60/892         __Z12getSPCEatomsPPcPP6vectorPiSs [787]
+
+-----------------------------------------------
+
+                0.00        0.00       7/28          __ZStoRRSt13_Ios_FmtflagsS_ [805]
+                0.00        0.00       7/28          __ZStaNRSt13_Ios_FmtflagsS_ [804]
+                0.00        0.00       7/28          __ZStanSt13_Ios_FmtflagsS_ [11951]
+                0.00        0.00       7/28          __ZStcoSt13_Ios_Fmtflags [11952]
+[798]    0.0    0.00        0.00      28         __ZNSt8ios_base4setfESt13_Ios_FmtflagsS0_ [798]
+                0.00        0.00       6/6           __ZSt10scientificRSt8ios_base [806]
+                0.00        0.00       1/1           __ZSt5fixedRSt8ios_base [814]
+
+-----------------------------------------------
+
+                0.00        0.00       1/27          _genran_ [18935]
+                0.00        0.00       2/27          _sturmi_ [22151]
+                0.00        0.00      24/27          _inverm_ [800]
+[799]    0.0    0.00        0.00      27         _trivec_ [799]
+                0.00        0.00       1/1503        __Z14lanczosvectorsR6vectorS0_S0_iS0_iR6matrix [783]
+
+-----------------------------------------------
+
+                0.00        0.00      24/24          _scalar_ [20880]
+[800]    0.0    0.00        0.00      24         _inverm_ [800]
+                0.00        0.00      24/27          _trivec_ [799]
+
+-----------------------------------------------
+
+                0.00        0.00       1/11          __ZN14fcnPointerStorC1Ev [9281]
+                0.00        0.00      10/11          __ZSteqIcSt11char_traitsIcESaIcEEbRKSbIT_T0_T1_EPKS3_ [11954]
+[801]    0.0    0.00        0.00      11         __Z16HvInterfaceSetupSsPP11generalStorPPFviPPcS0_P11lanczosStorEPPFviS3_S0_S5_PdS9_E [801]
+                0.00        0.00       1/70152585     _main [774]
+
+-----------------------------------------------
+
+                0.00        0.00       1/10          __Z13genIndices_lmiPPPiS_S1_S_ [810]
+                0.00        0.00       1/10          __Z11cartKinGriddidPPdS0_ [794]
+                0.00        0.00       1/10          __Z9rotKinEngPPiid [9169]
+                0.00        0.00       1/10          __Z14QuadraturePrepii [808]
+                0.00        0.00       1/10          __Z12TesseralPrepiiP8quadStorP5lmFBRPP12tesseralStorS5_ [795]
+                0.00        0.00       1/10          __ZSteqIcSt11char_traitsIcESaIcEEbRKSbIT_T0_T1_EPKS3_ [11954]
+                0.00        0.00       1/10          __Z7calcSymP13interfaceStorSs [813]
+                0.00        0.00       1/10          __ZN12universePropD1Ev [786]
+                0.00        0.00       1/10          __Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor [812]
+                0.00        0.00       1/10          __Z31preCalcPotential_Alavi_ContGridiPdPiSsP13interfaceStoriPPc [785]
+[802]    0.0    0.00        0.00      10         __Z22HvPrep_Internal_NoQuadiPPcP13interfaceStorP11lanczosStor [802]
+                0.00        0.00       1/1           __Z28Hv_Prep_linRotCartSph_NoQuadiPPcP11generalStorP11lanczosStor [811]
+
+-----------------------------------------------
+
+                0.00        0.00       1/7           __ZSt5fixedRSt8ios_base [814]
+                0.00        0.00       6/7           __ZSt10scientificRSt8ios_base [806]
+[803]    0.0    0.00        0.00       7         __ZNSolsEPFRSt8ios_baseS0_E [803]
+
+-----------------------------------------------
+
+                0.00        0.00       7/7           __ZStanSt13_Ios_FmtflagsS_ [11951]
+[804]    0.0    0.00        0.00       7         __ZStaNRSt13_Ios_FmtflagsS_ [804]
+                0.00        0.00       7/28          __ZNSt8ios_base4setfESt13_Ios_FmtflagsS0_ [798]
+
+-----------------------------------------------
+
+                0.00        0.00       7/7           __ZStorSt13_Ios_FmtflagsS_ [11987]
+[805]    0.0    0.00        0.00       7         __ZStoRRSt13_Ios_FmtflagsS_ [805]
+                0.00        0.00       7/28          __ZNSt8ios_base4setfESt13_Ios_FmtflagsS0_ [798]
+
+-----------------------------------------------
+
+                0.00        0.00       6/6           __ZNSt8ios_base4setfESt13_Ios_FmtflagsS0_ [798]
+[806]    0.0    0.00        0.00       6         __ZSt10scientificRSt8ios_base [806]
+                0.00        0.00       6/7           __ZNSolsEPFRSt8ios_baseS0_E [803]
+
+-----------------------------------------------
+
+                0.00        0.00       3/3           __ZNSt11char_traitsIcE6lengthEPKc [10756]
+[807]    0.0    0.00        0.00       3         __ZStplIcSt11char_traitsIcESaIcEESbIT_T0_T1_EPKS3_RKS6_ [807]
+                0.00        0.00       3/70152585     _main [774]
+
+-----------------------------------------------
+
+                0.00        0.00       1/2           __Z6gaulegddPdS_i [9145]
+                0.00        0.00       1/2           __Z14gaussChebysheviPPdS0_ [9089]
+[808]    0.0    0.00        0.00       2         __Z14QuadraturePrepii [808]
+                0.00        0.00       1/10          __Z22HvPrep_Internal_NoQuadiPPcP13interfaceStorP11lanczosStor [802]
+
+-----------------------------------------------
+
+                0.00        0.00       2/2           __ZSteqIcSt11char_traitsIcESaIcEEbRKSbIT_T0_T1_EPKS3_ [11954]
+[809]    0.0    0.00        0.00       2         __ZStneIcSt11char_traitsIcESaIcEEbRKSbIT_T0_T1_EPKS3_ [809]
+                0.00        0.00       2/70152585     _main [774]
+
+-----------------------------------------------
+
+                0.00        0.00       1/1           __ZSt3powdi [11873]
+[810]    0.0    0.00        0.00       1         __Z13genIndices_lmiPPPiS_S1_S_ [810]
+                0.00        0.00       1/10          __Z22HvPrep_Internal_NoQuadiPPcP13interfaceStorP11lanczosStor [802]
+
+-----------------------------------------------
+
+                0.00        0.00       1/1           __Z22HvPrep_Internal_NoQuadiPPcP13interfaceStorP11lanczosStor [802]
+[811]    0.0    0.00        0.00       1         __Z28Hv_Prep_linRotCartSph_NoQuadiPPcP11generalStorP11lanczosStor [811]
+                0.00        0.00       1/70152585     _main [774]
+
+-----------------------------------------------
+
+                0.00        0.00       1/1           __Z41__static_initialization_and_destruction_0ii [9134]
+[812]    0.0    0.00        0.00       1         __Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor [812]
+                0.00        0.00       1/10          __Z22HvPrep_Internal_NoQuadiPPcP13interfaceStorP11lanczosStor [802]
+
+-----------------------------------------------
+
+                0.00        0.00       1/1           __ZSteqIcSt11char_traitsIcESaIcEEbRKSbIT_T0_T1_EPKS3_ [11954]
+[813]    0.0    0.00        0.00       1         __Z7calcSymP13interfaceStorSs [813]
+                0.00        0.00       1/10          __Z22HvPrep_Internal_NoQuadiPPcP13interfaceStorP11lanczosStor [802]
+
+-----------------------------------------------
+
+                0.00        0.00       1/1           __ZNSt8ios_base4setfESt13_Ios_FmtflagsS0_ [798]
+[814]    0.0    0.00        0.00       1         __ZSt5fixedRSt8ios_base [814]
+                0.00        0.00       1/7           __ZNSolsEPFRSt8ios_baseS0_E [803]
+
+-----------------------------------------------
+
+                0.00        0.00       1/1           _main [774]
+[815]    0.0    0.00        0.00       1         __start [815]
+
+-----------------------------------------------
+
+
+
+
+
+flat profile:
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+ 
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this 
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+
+granularity: each sample hit covers 4 byte(s) no time accumulated
+
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+  0.0       0.00     0.00 168420000     0.00     0.00  __Z10CoulombEngRK6vectordS1_d [773]
+  0.0       0.00     0.00 70152585     0.00     0.00  _main [774]
+  0.0       0.00     0.00 24280000     0.00     0.00  __ZmiRK6vectorS1_ [775]
+  0.0       0.00     0.00 24060000     0.00     0.00  __Z10Q_SPCE_Eng6vectordPcPS_i [776]
+  0.0       0.00     0.00  2407206     0.00     0.00  __Z41__static_initialization_and_destruction_0ii [777]
+  0.0       0.00     0.00   200060     0.00     0.00  __ZplRK6vectorS1_ [778]
+  0.0       0.00     0.00   180000     0.00     0.00  __Z9LJEngFastRK6vectorS1_dd [779]
+  0.0       0.00     0.00    20000     0.00     0.00  __Z16LJ_SPCE_Eng_Fast6vectorPcPS_i [780]
+  0.0       0.00     0.00     6600     0.00     0.00  __Z23Tv_5D_oneCompositeIndexP13interfaceStorPd [781]
+  0.0       0.00     0.00     1800     0.00     0.00  __Z30Hv_5D_oneCompositeIndex_NoQuadP13interfaceStorPd [782]
+  0.0       0.00     0.00     1503     0.00     0.00  __Z14lanczosvectorsR6vectorS0_S0_iS0_iR6matrix [783]
+  0.0       0.00     0.00     1119     0.00     0.00  __Z7lancbisiR6vectorS0_ddRiRKS_S3_S3_ [784]
+  0.0       0.00     0.00     1003     0.00     0.00  __Z31preCalcPotential_Alavi_ContGridiPdPiSsP13interfaceStoriPPc [785]
+  0.0       0.00     0.00     1000     0.00     0.00  __ZN12universePropD1Ev [786]
+  0.0       0.00     0.00      892     0.00     0.00  __Z12getSPCEatomsPPcPP6vectorPiSs [787]
+  0.0       0.00     0.00      800     0.00     0.00  __Z21normAssocLegendrePolyPPiid [788]
+  0.0       0.00     0.00      600     0.00     0.00  __Z23Hv_linRotCartSph_NoQuadiPPcP11generalStorP11lanczosStorPdS5_ [789]
+  0.0       0.00     0.00      600     0.00     0.00  __Z30Vv_5D_oneCompositeIndex_NoQuadP13interfaceStorPd [790]
+  0.0       0.00     0.00      405     0.00     0.00  __Z27Alavi_SiteSite_Eng_contGridPdS_P12universePropP8sysAtomsP13interfaceStor [791]
+  0.0       0.00     0.00      200     0.00     0.00  __Z8rotMat3DPd [792]
+  0.0       0.00     0.00      101     0.00     0.00  _inverr_ [793]
+  0.0       0.00     0.00      100     0.00     0.00  __Z11cartKinGriddidPPdS0_ [794]
+  0.0       0.00     0.00       80     0.00     0.00  __Z12TesseralPrepiiP8quadStorP5lmFBRPP12tesseralStorS5_ [795]
+  0.0       0.00     0.00       60     0.00     0.00  __ZmlRK6matrixRK6vector [796]
+  0.0       0.00     0.00       60     0.00     0.00  __ZmldRK6vector [797]
+  0.0       0.00     0.00       28     0.00     0.00  __ZNSt8ios_base4setfESt13_Ios_FmtflagsS0_ [798]
+  0.0       0.00     0.00       27     0.00     0.00  _trivec_ [799]
+  0.0       0.00     0.00       24     0.00     0.00  _inverm_ [800]
+  0.0       0.00     0.00       11     0.00     0.00  __Z16HvInterfaceSetupSsPP11generalStorPPFviPPcS0_P11lanczosStorEPPFviS3_S0_S5_PdS9_E [801]
+  0.0       0.00     0.00       10     0.00     0.00  __Z22HvPrep_Internal_NoQuadiPPcP13interfaceStorP11lanczosStor [802]
+  0.0       0.00     0.00        7     0.00     0.00  __ZNSolsEPFRSt8ios_baseS0_E [803]
+  0.0       0.00     0.00        7     0.00     0.00  __ZStaNRSt13_Ios_FmtflagsS_ [804]
+  0.0       0.00     0.00        7     0.00     0.00  __ZStoRRSt13_Ios_FmtflagsS_ [805]
+  0.0       0.00     0.00        6     0.00     0.00  __ZSt10scientificRSt8ios_base [806]
+  0.0       0.00     0.00        3     0.00     0.00  __ZStplIcSt11char_traitsIcESaIcEESbIT_T0_T1_EPKS3_RKS6_ [807]
+  0.0       0.00     0.00        2     0.00     0.00  __Z14QuadraturePrepii [808]
+  0.0       0.00     0.00        2     0.00     0.00  __ZStneIcSt11char_traitsIcESaIcEEbRKSbIT_T0_T1_EPKS3_ [809]
+  0.0       0.00     0.00        1     0.00     0.00  __Z13genIndices_lmiPPPiS_S1_S_ [810]
+  0.0       0.00     0.00        1     0.00     0.00  __Z28Hv_Prep_linRotCartSph_NoQuadiPPcP11generalStorP11lanczosStor [811]
+  0.0       0.00     0.00        1     0.00     0.00  __Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor [812]
+  0.0       0.00     0.00        1     0.00     0.00  __Z7calcSymP13interfaceStorSs [813]
+  0.0       0.00     0.00        1     0.00     0.00  __ZSt5fixedRSt8ios_base [814]
+  0.0       0.00     0.00        1     0.00     0.00  __start [815]
+
+Index by function name
+
+ [773] __Z10CoulombEngRK6v [811] __Z28Hv_Prep_linRot [804] __ZStaNRSt13_Ios_Fm
+ [776] __Z10Q_SPCE_Eng6vec [812] __Z28calc_Vlmlpmp_N [809] __ZStneIcSt11char_t
+ [794] __Z11cartKinGriddid [782] __Z30Hv_5D_oneCompo [805] __ZStoRRSt13_Ios_Fm
+ [795] __Z12TesseralPrepii [790] __Z30Vv_5D_oneCompo [807] __ZStplIcSt11char_t
+ [787] __Z12getSPCEatomsPP [785] __Z31preCalcPotenti [775] __ZmiRK6vectorS1_  
+ [810] __Z13genIndices_lmi [777] __Z41__static_initi [796] __ZmlRK6matrixRK6ve
+ [808] __Z14QuadraturePrep [813] __Z7calcSymP13inter [797] __ZmldRK6vector    
+ [783] __Z14lanczosvectors [784] __Z7lancbisiR6vecto [778] __ZplRK6vectorS1_  
+ [801] __Z16HvInterfaceSet [792] __Z8rotMat3DPd      [815] __start            
+ [780] __Z16LJ_SPCE_Eng_Fa [779] __Z9LJEngFastRK6vec [800] _inverm_           
+ [788] __Z21normAssocLegen [786] __ZN12universePropD [793] _inverr_           
+ [802] __Z22HvPrep_Interna [803] __ZNSolsEPFRSt8ios_ [774] _main              
+ [789] __Z23Hv_linRotCartS [798] __ZNSt8ios_base4set [799] _trivec_           
+ [781] __Z23Tv_5D_oneCompo [806] __ZSt10scientificRS
+ [791] __Z27Alavi_SiteSite [814] __ZSt5fixedRSt8ios_

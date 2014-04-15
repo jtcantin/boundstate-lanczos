@@ -50,7 +50,6 @@ void Alavi_SiteSite_Eng_contGrid(double *H2potential, double *H2potentialPI, uni
 #pragma omp for schedule(guided)
 	for (i=0; i<point_universe->sysSize; i++) {
 		CMpotential[i] = (*SummedCoulombPotential)(point_universe->grid[i], Q_H2_CM, atomGeo->atomType, atomGeo->atomPos, atomGeo->nAtoms);
-		
 	}
 	
 	if (thread == 0) {
