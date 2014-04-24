@@ -690,7 +690,7 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 	
 #ifdef BLAS
 	// Vector to store output of BLAS
-	double *u_n = new double [nn];
+	double *u_n;
 	//BLAS parameters
 	char trans = 'T'; //transpose to swap row and major column orders
 	double alpha = 1.0; //No scalar multiplication of product
@@ -706,7 +706,7 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 	//  With this, 9 * ni * nj * nk * nn flops are required (note: nn = nnp)
 	//  Without, at least (4 + nnp) * ni * nj * nk * nn are required, even with minimizing the number
 	//    of flops required for indexing (nnp = nn = (l_max + 1)^2)
-#pragma omp parallel default(shared) private(i,j,k,n,np,ind,ind2,ind3)
+#pragma omp parallel default(shared) private(i,j,k,n,np,ind,ind2,ind3,u_n)
 	{
 #pragma omp for schedule(guided) collapse(4)
 	for (i=0; i<ni; i++) {
@@ -723,6 +723,7 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 	
 #ifdef BLAS
 	//Initialize BLAS storage vector
+	u_n = new double [nn];
 	for (n=0; n<nn; n++) {
 		u_n[n] = 0.0;
 	}
@@ -749,6 +750,8 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 		}
 	}
 	
+	delete [] u_n;
+	
 	
 	
 #else
@@ -773,10 +776,6 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 	}
 #endif
 	}
-
-#ifdef BLAS
-	delete [] u_n;
-#endif
 	
 #ifdef BLAS
 	delete [] u_n;
