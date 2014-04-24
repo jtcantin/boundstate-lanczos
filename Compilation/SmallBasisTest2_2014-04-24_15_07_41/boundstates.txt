@@ -1,0 +1,7 @@
+
+The following are the eigenvalues and errors for the simulation SmallBasisTest2
+Number of Eigenvalues: 3
+State | Eigenvalue (kJ/mol) | Error (kJ/mol?)
+0 -8.673254410969093e+00 6.441663744541369e+02
+1 -2.706496661994606e-01 6.951431134732346e+02
+2 8.804121381836012e+00 6.845744716405991e+02
