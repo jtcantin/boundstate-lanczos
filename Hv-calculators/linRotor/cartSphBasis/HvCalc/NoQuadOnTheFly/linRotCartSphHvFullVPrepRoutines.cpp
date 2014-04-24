@@ -688,6 +688,21 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 	double *V_npnkji;
 	double *v_npijk = new double [nnp*ni*nj*nk];
 	
+#ifdef BLAS
+	// Vector to store output of BLAS
+	double *u_n = new double [nn];
+	for (n=0; n<nn; n++) {
+		u_n[n] = 0.0;
+	}
+	//BLAS parameters
+	char trans = 'T'; //transpose to swap row and major column orders
+	double alpha = 1.0; //No scalar multiplication of product
+	double beta = 0.0; //No addition of original vector
+	int lda = nn; //Column major stride
+	int incv = 1; //Vector v index increment
+	int incu = 1; //Vector u index increment
+#endif
+	
 	V_npnkji = interface->potential->fullPotential;
 	
 	//Reshuffle indices of v_ijknp to v_npijk to allow fewer flops in the indexing products
@@ -706,7 +721,34 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 			}
 		}
 	}
+
 	
+	
+#ifdef BLAS
+	//Calculate u = Vv
+	//NOTE: make sure to use column major arrangement for matrix; that is, transpose the matrix when sending to BLAS
+#pragma omp for schedule(guided) collapse(3)
+	for (i=0; i<ni; i++) {
+		for (j=0; j<nj; j++) {
+			for (k=0; k<nk; k++) {
+				
+				ind2 = (((i*nj + j)*nk + k)*nn); // Add to matrix pointer to shift value in memory by offset
+				ind3 = ((k*nj + j)*ni + i)*nnp; // Add to vector pointer to shift value in memory by offset
+
+				FORTRAN(dgemv)(&trans,&nn,&nnp,&alpha,(V_npnkji + ind2),&lda,(v_npijk + ind3),&incv,&beta,u_n,&incu);
+				
+				for (n=0; n<nn; n++) {
+					ind = ((n*nk + k)*nj + j)*ni + i;
+					
+					u_ijkn[ind] = u_n[n];
+				}
+			}
+		}
+	}
+	
+	
+	
+#else
 	//Calculate u = Vv
 #pragma omp for schedule(guided) collapse(4)
 	for (i=0; i<ni; i++) {
@@ -726,6 +768,7 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 			}
 		}
 	}
+#endif
 	}
 	
 	delete [] v_npijk;
@@ -755,9 +798,16 @@ double* Hv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ipjkn
 	
 	//cout << "Tv finished" << endl;
 	
+//#ifdef PROF_TEST
+	
+	Vv_ijkn = new double [basis_size];	
+	
+//#else
 	//Calculate the potential energy terms
 	Vv_ijkn = Vv_5D_oneCompositeIndex_NoQuad(interface, v_ipjkn);
 	
+	
+//#endif
 	//cout << "Vv finished" << endl;
 	
 	//Get symmeterizer
@@ -783,7 +833,9 @@ double* Hv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ipjkn
 					ind = ((n*nk + k)*nj + j)*ni + i;
 					
 					Hv_ijkn[ind] = Tv_ijkn[ind] + Vv_ijkn[ind];
+					
 					Hv_ijkn[ind] *= S_n[n];
+					
 				}
 			}
 		}

@@ -1,0 +1,551 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 36.92   1007.33  1007.33    10000     0.10     0.10  Tv_5D_oneCompositeIndex(interfaceStor*, double*)
+ 23.81   1656.88   649.55    10000     0.06     0.06  _GLOBAL__sub_I__Z12getSPCEatomsPPcPP6vectorPiSs
+ 12.80   2006.15   349.27        2   174.64   174.64  _GLOBAL__sub_I__Z19calc_Vlmlpmp_NoQuadP13interfaceStor
+  6.36   2179.65   173.49 1309959822     0.00     0.00  operator-(vector const&, vector const&)
+  4.45   2301.05   121.41                             main
+  3.17   2387.49    86.43 1292453070     0.00     0.00  vector::setSz(int)
+  2.76   2462.88    75.39 1227940087     0.00     0.00  CoulombEng(vector const&, double, vector const&, double)
+  2.36   2527.13    64.25 1327251948     0.00     0.00  vector::eNorm() const
+  2.13   2585.16    58.03 1357552711     0.00     0.00  vector::operator=(vector const&)
+  1.13   2615.91    30.75 1319548383     0.00     0.00  vector::vector()
+  0.95   2641.91    26.00 20382185     0.00     0.00  vector::vector(vector const&)
+  0.82   2664.24    22.33 21314474     0.00     0.00  Q_SPCE_Eng(vector, double, char*, vector*, int)
+  0.68   2682.71    18.47 2922814787     0.00     0.00  vector::~vector()
+  0.64   2700.10    17.39    10009     0.00     0.17  Hv_linRotCartSph_NoQuad(int, char**, generalStor*, lanczosStor*, double*, double*)
+  0.21   2705.82     5.72        1     5.72     5.72  _GLOBAL__sub_I__Z12generateGridiPdPi
+  0.20   2711.24     5.42                             ReadVector(vector&, int, _IO_FILE*)
+  0.17   2715.96     4.72                             cdiagmat::operator=(cdiagmat const&)
+  0.15   2720.16     4.21                             cdiagmat::cdiagmat(cdiagmat const&)
+  0.15   2724.32     4.16                             vector::setCoor(double*)
+  0.07   2726.20     1.88        2     0.94   279.45  _GLOBAL__sub_I__Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor
+  0.07   2728.07     1.87 10191338     0.00     0.00  operator+(vector const&, vector const&)
+  0.00   2728.11     0.05        1     0.05     0.05  getSPCEatoms(char**, vector**, int*, std::string)
+  0.00   2728.15     0.04                             cdiagmat::cdiagmat(int)
+  0.00   2728.19     0.04                             operator+(cvector const&, std::complex<double> const&)
+  0.00   2728.20     0.02                             operator*(vector const&, vector const&)
+  0.00   2728.21     0.01    10000     0.00     0.17  Hv_5D_oneCompositeIndex_NoQuad(interfaceStor*, double*)
+  0.00   2728.21     0.00    41738     0.00     0.00  LJEngFast(vector const&, vector const&, double, double)
+  0.00   2728.21     0.00     2287     0.00     0.00  LJ_SPCE_Eng_Fast(vector, char*, vector*, int)
+  0.00   2728.21     0.00      160     0.00     0.00  normAssocLegendrePoly(int**, int, double)
+  0.00   2728.21     0.00       60     0.00     0.00  operator*(matrix const&, vector const&)
+  0.00   2728.21     0.00       60     0.00     0.00  operator*(double, vector const&)
+  0.00   2728.21     0.00       40     0.00     0.00  matrix::matrix(int, int)
+  0.00   2728.21     0.00       40     0.00     0.00  matrix::~matrix()
+  0.00   2728.21     0.00       20     0.00     0.00  rotMat3D(double*)
+  0.00   2728.21     0.00       20     0.00     0.00  matrix::operator=(matrix const&)
+  0.00   2728.21     0.00       11     0.00     0.00  vector::vector(int)
+  0.00   2728.21     0.00        5     0.00     0.00  std::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, char const*)
+  0.00   2728.21     0.00        4     0.00     0.00  std::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  0.00   2728.21     0.00        3     0.00     0.00  std::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(char const*, std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  0.00   2728.21     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z10CoulombEngRK6vectordS1_d
+  0.00   2728.21     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z13IsoHarmOscEngP13interfaceStorP9H2_orient
+  0.00   2728.21     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z13getTIP4PatomsPPcPP6vectorPiSs
+  0.00   2728.21     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z16CoulombPotentialP13interfaceStorP9H2_orient
+  0.00   2728.21     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z16HvInterfaceSetupSsPP11generalStorPPFviPPcS0_P11lanczosStorEPPFviS3_S0_S5_PdS9_E
+  0.00   2728.21     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z21AlaviMapH2GridToHGridP9H2_orientP12universePropd
+  0.00   2728.21     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z27Alavi_SiteSite_Eng_contGridPdS_P12universePropP8sysAtomsP13interfaceStor
+  0.00   2728.21     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z7lancbisiR6vectorS0_ddRiRKS_S3_S3_
+  0.00   2728.21     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z8rotMat3DPd
+  0.00   2728.21     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z9factoriali
+  0.00   2728.21     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN6CNvectC2Ev
+  0.00   2728.21     0.00        1     0.00     0.00  _GLOBAL__sub_I__ZN6matrixC2Eii
+  0.00   2728.21     0.00        1     0.00     0.00  _GLOBAL__sub_I_main
+  0.00   2728.21     0.00        1     0.00     0.00  cartKinGrid(double, int, double, double**, double**)
+  0.00   2728.21     0.00        1     0.00     0.00  TesseralPrep(int, int, quadStor*, lmFBR*, tesseralStor**, tesseralStor**)
+  0.00   2728.21     0.00        1     0.00     0.00  genIndices_lm(int, int***, int*, int***, int*)
+  0.00   2728.21     0.00        1     0.00     0.00  QuadraturePrep(int, int)
+  0.00   2728.21     0.00        1     0.00     0.00  HvInterfaceSetup(std::string, generalStor**, void (**)(int, char**, generalStor*, lanczosStor*), void (**)(int, char**, generalStor*, lanczosStor*, double*, double*))
+  0.00   2728.21     0.00        1     0.00   455.63  HvPrep_Internal_NoQuad(int, char**, interfaceStor*, lanczosStor*)
+  0.00   2728.21     0.00        1     0.00     0.00  Alavi_SiteSite_Eng_contGrid(double*, double*, universeProp*, sysAtoms*, interfaceStor*)
+  0.00   2728.21     0.00        1     0.00     0.00  Hv_Prep_linRotCartSph_NoQuad(int, char**, generalStor*, lanczosStor*)
+  0.00   2728.21     0.00        1     0.00   174.64  calc_Vlmlpmp_NoQuad_ContGrid(interfaceStor*)
+  0.00   2728.21     0.00        1     0.00   279.49  preCalcPotential_Alavi_ContGrid(int, double*, int*, std::string, interfaceStor*, int, char**)
+  0.00   2728.21     0.00        1     0.00     0.00  gauleg(double, double, double*, double*, int)
+  0.00   2728.21     0.00        1     0.00     0.00  calcSym(interfaceStor*, std::string)
+  0.00   2728.21     0.00        1     0.00     0.00  lancbis(int, vector&, vector&, double, double, int&, vector const&, vector const&, vector const&)
+  0.00   2728.21     0.00        1     0.00     0.00  rotKinEng(int**, int, double)
+  0.00   2728.21     0.00        1     0.00     0.00  bisec_
+  0.00   2728.21     0.00        1     0.00     0.00  genran_
+  0.00   2728.21     0.00        1     0.00     0.00  inverr_
+  0.00   2728.21     0.00        1     0.00     0.00  isoev_
+  0.00   2728.21     0.00        1     0.00     0.00  scalar_
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+ 
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this 
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 2 byte(s) for 0.00% of 2728.21 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]     82.5  121.41 2128.34                 main [1]
+               17.38 1655.33   10000/10009       Hv_linRotCartSph_NoQuad(int, char**, generalStor*, lanczosStor*, double*, double*) [2]
+                0.00  455.63       1/1           HvPrep_Internal_NoQuad(int, char**, interfaceStor*, lanczosStor*) [10]
+                0.00    0.00       5/5           std::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, char const*) [56]
+                0.00    0.00       5/11          vector::vector(int) [55]
+                0.00    0.00       4/4           std::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [57]
+                0.00    0.00       3/3           std::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(char const*, std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [58]
+                0.00    0.00       1/1           HvInterfaceSetup(std::string, generalStor**, void (**)(int, char**, generalStor*, lanczosStor*), void (**)(int, char**, generalStor*, lanczosStor*, double*, double*)) [76]
+                0.00    0.00       1/1           Hv_Prep_linRotCartSph_NoQuad(int, char**, generalStor*, lanczosStor*) [77]
+                0.00    0.00       1/1           lancbis(int, vector&, vector&, double, double, int&, vector const&, vector const&, vector const&) [80]
+-----------------------------------------------
+                0.02    1.49       9/10009       HvPrep_Internal_NoQuad(int, char**, interfaceStor*, lanczosStor*) [10]
+               17.38 1655.33   10000/10009       main [1]
+[2]     61.4   17.39 1656.82   10009         Hv_linRotCartSph_NoQuad(int, char**, generalStor*, lanczosStor*, double*, double*) [2]
+                0.01 1656.81   10000/10000       Hv_5D_oneCompositeIndex_NoQuad(interfaceStor*, double*) [3]
+-----------------------------------------------
+                0.01 1656.81   10000/10000       Hv_linRotCartSph_NoQuad(int, char**, generalStor*, lanczosStor*, double*, double*) [2]
+[3]     60.7    0.01 1656.81   10000         Hv_5D_oneCompositeIndex_NoQuad(interfaceStor*, double*) [3]
+             1007.33    0.00   10000/10000       Tv_5D_oneCompositeIndex(interfaceStor*, double*) [4]
+              649.48    0.00    9999/10000       _GLOBAL__sub_I__Z12getSPCEatomsPPcPP6vectorPiSs [5]
+-----------------------------------------------
+             1007.33    0.00   10000/10000       Hv_5D_oneCompositeIndex_NoQuad(interfaceStor*, double*) [3]
+[4]     36.9 1007.33    0.00   10000         Tv_5D_oneCompositeIndex(interfaceStor*, double*) [4]
+-----------------------------------------------
+                0.06    0.00       1/10000       __do_global_ctors_aux [9]
+              649.48    0.00    9999/10000       Hv_5D_oneCompositeIndex_NoQuad(interfaceStor*, double*) [3]
+[5]     23.8  649.55    0.00   10000         _GLOBAL__sub_I__Z12getSPCEatomsPPcPP6vectorPiSs [5]
+-----------------------------------------------
+                0.94  278.51       1/2           preCalcPotential_Alavi_ContGrid(int, double*, int*, std::string, interfaceStor*, int, char**) [12]
+                0.94  278.51       1/2           __do_global_ctors_aux [9]
+[6]     20.5    1.88  557.01       2         _GLOBAL__sub_I__Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor [6]
+               22.33  504.20 21314474/21314474     Q_SPCE_Eng(vector, double, char*, vector*, int) [7]
+               26.00    0.00 20382185/20382185     vector::vector(vector const&) [19]
+                1.87    0.00 10191278/10191338     operator+(vector const&, vector const&) [26]
+                1.37    0.00 10369253/1309959822     operator-(vector const&, vector const&) [14]
+                0.96    0.00 22482928/1357552711     vector::operator=(vector const&) [17]
+                0.27    0.00 42941249/2922814787     vector::~vector() [20]
+                0.00    0.01    2287/2287        LJ_SPCE_Eng_Fast(vector, char*, vector*, int) [32]
+                0.00    0.00   26055/1292453070     vector::setSz(int) [15]
+                0.00    0.00       4/1319548383     vector::vector() [18]
+-----------------------------------------------
+               22.33  504.20 21314474/21314474     _GLOBAL__sub_I__Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor [6]
+[7]     19.3   22.33  504.20 21314474         Q_SPCE_Eng(vector, double, char*, vector*, int) [7]
+               75.39  428.81 1227940087/1227940087     CoulombEng(vector const&, double, vector const&, double) [8]
+-----------------------------------------------
+               75.39  428.81 1227940087/1227940087     Q_SPCE_Eng(vector, double, char*, vector*, int) [7]
+[8]     18.5   75.39  428.81 1227940087         CoulombEng(vector const&, double, vector const&, double) [8]
+              172.11    0.00 1299547029/1309959822     operator-(vector const&, vector const&) [14]
+               86.43    0.00 1292389209/1292453070     vector::setSz(int) [15]
+               64.25    0.00 1327209375/1327251948     vector::eNorm() const [16]
+               57.06    0.00 1335027691/1357552711     vector::operator=(vector const&) [17]
+               30.75    0.00 1319477168/1319548383     vector::vector() [18]
+               18.20    0.00 2879751062/2922814787     vector::~vector() [20]
+-----------------------------------------------
+                                                 <spontaneous>
+[9]     16.9    0.00  459.87                 __do_global_ctors_aux [9]
+                0.94  278.51       1/2           _GLOBAL__sub_I__Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor [6]
+              174.64    0.00       1/2           _GLOBAL__sub_I__Z19calc_Vlmlpmp_NoQuadP13interfaceStor [11]
+                5.72    0.00       1/1           _GLOBAL__sub_I__Z12generateGridiPdPi [21]
+                0.06    0.00       1/10000       _GLOBAL__sub_I__Z12getSPCEatomsPPcPP6vectorPiSs [5]
+                0.00    0.00       1/1           _GLOBAL__sub_I_main [71]
+                0.00    0.00       1/1           _GLOBAL__sub_I__ZN6CNvectC2Ev [69]
+                0.00    0.00       1/1           _GLOBAL__sub_I__ZN6matrixC2Eii [70]
+                0.00    0.00       1/1           _GLOBAL__sub_I__Z7lancbisiR6vectorS0_ddRiRKS_S3_S3_ [66]
+                0.00    0.00       1/1           _GLOBAL__sub_I__Z21AlaviMapH2GridToHGridP9H2_orientP12universePropd [64]
+                0.00    0.00       1/1           _GLOBAL__sub_I__Z10CoulombEngRK6vectordS1_d [59]
+                0.00    0.00       1/1           _GLOBAL__sub_I__Z13getTIP4PatomsPPcPP6vectorPiSs [61]
+                0.00    0.00       1/1           _GLOBAL__sub_I__Z8rotMat3DPd [67]
+                0.00    0.00       1/1           _GLOBAL__sub_I__Z9factoriali [68]
+                0.00    0.00       1/1           _GLOBAL__sub_I__Z16HvInterfaceSetupSsPP11generalStorPPFviPPcS0_P11lanczosStorEPPFviS3_S0_S5_PdS9_E [63]
+                0.00    0.00       1/1           _GLOBAL__sub_I__Z16CoulombPotentialP13interfaceStorP9H2_orient [62]
+                0.00    0.00       1/1           _GLOBAL__sub_I__Z13IsoHarmOscEngP13interfaceStorP9H2_orient [60]
+                0.00    0.00       1/1           _GLOBAL__sub_I__Z27Alavi_SiteSite_Eng_contGridPdS_P12universePropP8sysAtomsP13interfaceStor [65]
+-----------------------------------------------
+                0.00  455.63       1/1           main [1]
+[10]    16.7    0.00  455.63       1         HvPrep_Internal_NoQuad(int, char**, interfaceStor*, lanczosStor*) [10]
+                0.00  279.49       1/1           preCalcPotential_Alavi_ContGrid(int, double*, int*, std::string, interfaceStor*, int, char**) [12]
+                0.00  174.64       1/1           calc_Vlmlpmp_NoQuad_ContGrid(interfaceStor*) [13]
+                0.02    1.49       9/10009       Hv_linRotCartSph_NoQuad(int, char**, generalStor*, lanczosStor*, double*, double*) [2]
+                0.00    0.00   21952/2922814787     vector::~vector() [20]
+                0.00    0.00       1/1           cartKinGrid(double, int, double, double**, double**) [72]
+                0.00    0.00       1/1           genIndices_lm(int, int***, int*, int***, int*) [74]
+                0.00    0.00       1/1           rotKinEng(int**, int, double) [81]
+                0.00    0.00       1/1           QuadraturePrep(int, int) [75]
+                0.00    0.00       1/1           TesseralPrep(int, int, quadStor*, lmFBR*, tesseralStor**, tesseralStor**) [73]
+                0.00    0.00       1/1           calcSym(interfaceStor*, std::string) [79]
+-----------------------------------------------
+              174.64    0.00       1/2           calc_Vlmlpmp_NoQuad_ContGrid(interfaceStor*) [13]
+              174.64    0.00       1/2           __do_global_ctors_aux [9]
+[11]    12.8  349.27    0.00       2         _GLOBAL__sub_I__Z19calc_Vlmlpmp_NoQuadP13interfaceStor [11]
+-----------------------------------------------
+                0.00  279.49       1/1           HvPrep_Internal_NoQuad(int, char**, interfaceStor*, lanczosStor*) [10]
+[12]    10.2    0.00  279.49       1         preCalcPotential_Alavi_ContGrid(int, double*, int*, std::string, interfaceStor*, int, char**) [12]
+                0.94  278.51       1/2           _GLOBAL__sub_I__Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor [6]
+                0.05    0.00       1/1           getSPCEatoms(char**, vector**, int*, std::string) [27]
+                0.00    0.00   21952/1319548383     vector::vector() [18]
+                0.00    0.00       1/1           Alavi_SiteSite_Eng_contGrid(double*, double*, universeProp*, sysAtoms*, interfaceStor*) [33]
+-----------------------------------------------
+                0.00  174.64       1/1           HvPrep_Internal_NoQuad(int, char**, interfaceStor*, lanczosStor*) [10]
+[13]     6.4    0.00  174.64       1         calc_Vlmlpmp_NoQuad_ContGrid(interfaceStor*) [13]
+              174.64    0.00       1/2           _GLOBAL__sub_I__Z19calc_Vlmlpmp_NoQuadP13interfaceStor [11]
+-----------------------------------------------
+                0.01    0.00   43540/1309959822     LJEngFast(vector const&, vector const&, double, double) [31]
+                1.37    0.00 10369253/1309959822     _GLOBAL__sub_I__Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor [6]
+              172.11    0.00 1299547029/1309959822     CoulombEng(vector const&, double, vector const&, double) [8]
+[14]     6.4  173.49    0.00 1309959822         operator-(vector const&, vector const&) [14]
+-----------------------------------------------
+                0.00    0.00     100/1292453070     getSPCEatoms(char**, vector**, int*, std::string) [27]
+                0.00    0.00   26055/1292453070     _GLOBAL__sub_I__Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor [6]
+                0.00    0.00   37706/1292453070     LJEngFast(vector const&, vector const&, double, double) [31]
+               86.43    0.00 1292389209/1292453070     CoulombEng(vector const&, double, vector const&, double) [8]
+[15]     3.2   86.43    0.00 1292453070         vector::setSz(int) [15]
+-----------------------------------------------
+                0.00    0.00   42573/1327251948     LJEngFast(vector const&, vector const&, double, double) [31]
+               64.25    0.00 1327209375/1327251948     CoulombEng(vector const&, double, vector const&, double) [8]
+[16]     2.4   64.25    0.00 1327251948         vector::eNorm() const [16]
+-----------------------------------------------
+                0.00    0.00     180/1357552711     getSPCEatoms(char**, vector**, int*, std::string) [27]
+                0.00    0.00   41912/1357552711     LJEngFast(vector const&, vector const&, double, double) [31]
+                0.96    0.00 22482928/1357552711     _GLOBAL__sub_I__Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor [6]
+               57.06    0.00 1335027691/1357552711     CoulombEng(vector const&, double, vector const&, double) [8]
+[17]     2.1   58.03    0.00 1357552711         vector::operator=(vector const&) [17]
+-----------------------------------------------
+                0.00    0.00       4/1319548383     _GLOBAL__sub_I__Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor [6]
+                0.00    0.00     100/1319548383     getSPCEatoms(char**, vector**, int*, std::string) [27]
+                0.00    0.00    5602/1319548383     Alavi_SiteSite_Eng_contGrid(double*, double*, universeProp*, sysAtoms*, interfaceStor*) [33]
+                0.00    0.00   21952/1319548383     preCalcPotential_Alavi_ContGrid(int, double*, int*, std::string, interfaceStor*, int, char**) [12]
+                0.00    0.00   43557/1319548383     LJEngFast(vector const&, vector const&, double, double) [31]
+               30.75    0.00 1319477168/1319548383     CoulombEng(vector const&, double, vector const&, double) [8]
+[18]     1.1   30.75    0.00 1319548383         vector::vector() [18]
+-----------------------------------------------
+               26.00    0.00 20382185/20382185     _GLOBAL__sub_I__Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor [6]
+[19]     1.0   26.00    0.00 20382185         vector::vector(vector const&) [19]
+-----------------------------------------------
+                0.00    0.00     226/2922814787     getSPCEatoms(char**, vector**, int*, std::string) [27]
+                0.00    0.00    5602/2922814787     Alavi_SiteSite_Eng_contGrid(double*, double*, universeProp*, sysAtoms*, interfaceStor*) [33]
+                0.00    0.00   21952/2922814787     HvPrep_Internal_NoQuad(int, char**, interfaceStor*, lanczosStor*) [10]
+                0.00    0.00   94696/2922814787     LJEngFast(vector const&, vector const&, double, double) [31]
+                0.27    0.00 42941249/2922814787     _GLOBAL__sub_I__Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor [6]
+               18.20    0.00 2879751062/2922814787     CoulombEng(vector const&, double, vector const&, double) [8]
+[20]     0.7   18.47    0.00 2922814787         vector::~vector() [20]
+-----------------------------------------------
+                5.72    0.00       1/1           __do_global_ctors_aux [9]
+[21]     0.2    5.72    0.00       1         _GLOBAL__sub_I__Z12generateGridiPdPi [21]
+-----------------------------------------------
+                                                 <spontaneous>
+[22]     0.2    5.42    0.00                 ReadVector(vector&, int, _IO_FILE*) [22]
+-----------------------------------------------
+                                                 <spontaneous>
+[23]     0.2    4.72    0.00                 cdiagmat::operator=(cdiagmat const&) [23]
+-----------------------------------------------
+                                                 <spontaneous>
+[24]     0.2    4.21    0.00                 cdiagmat::cdiagmat(cdiagmat const&) [24]
+-----------------------------------------------
+                                                 <spontaneous>
+[25]     0.2    4.16    0.00                 vector::setCoor(double*) [25]
+-----------------------------------------------
+                0.00    0.00      60/10191338     getSPCEatoms(char**, vector**, int*, std::string) [27]
+                1.87    0.00 10191278/10191338     _GLOBAL__sub_I__Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor [6]
+[26]     0.1    1.87    0.00 10191338         operator+(vector const&, vector const&) [26]
+-----------------------------------------------
+                0.05    0.00       1/1           preCalcPotential_Alavi_ContGrid(int, double*, int*, std::string, interfaceStor*, int, char**) [12]
+[27]     0.0    0.05    0.00       1         getSPCEatoms(char**, vector**, int*, std::string) [27]
+                0.00    0.00      60/10191338     operator+(vector const&, vector const&) [26]
+                0.00    0.00     180/1357552711     vector::operator=(vector const&) [17]
+                0.00    0.00     100/1292453070     vector::setSz(int) [15]
+                0.00    0.00     100/1319548383     vector::vector() [18]
+                0.00    0.00     226/2922814787     vector::~vector() [20]
+                0.00    0.00      60/60          operator*(matrix const&, vector const&) [49]
+                0.00    0.00      60/60          operator*(double, vector const&) [50]
+                0.00    0.00      40/40          matrix::~matrix() [52]
+                0.00    0.00      20/40          matrix::matrix(int, int) [51]
+                0.00    0.00      20/20          rotMat3D(double*) [53]
+                0.00    0.00      20/20          matrix::operator=(matrix const&) [54]
+                0.00    0.00       6/11          vector::vector(int) [55]
+-----------------------------------------------
+                                                 <spontaneous>
+[28]     0.0    0.04    0.00                 cdiagmat::cdiagmat(int) [28]
+-----------------------------------------------
+                                                 <spontaneous>
+[29]     0.0    0.04    0.00                 operator+(cvector const&, std::complex<double> const&) [29]
+-----------------------------------------------
+                                                 <spontaneous>
+[30]     0.0    0.02    0.00                 operator*(vector const&, vector const&) [30]
+-----------------------------------------------
+                0.00    0.01   41738/41738       LJ_SPCE_Eng_Fast(vector, char*, vector*, int) [32]
+[31]     0.0    0.00    0.01   41738         LJEngFast(vector const&, vector const&, double, double) [31]
+                0.01    0.00   43540/1309959822     operator-(vector const&, vector const&) [14]
+                0.00    0.00   37706/1292453070     vector::setSz(int) [15]
+                0.00    0.00   42573/1327251948     vector::eNorm() const [16]
+                0.00    0.00   41912/1357552711     vector::operator=(vector const&) [17]
+                0.00    0.00   43557/1319548383     vector::vector() [18]
+                0.00    0.00   94696/2922814787     vector::~vector() [20]
+-----------------------------------------------
+                0.00    0.01    2287/2287        _GLOBAL__sub_I__Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor [6]
+[32]     0.0    0.00    0.01    2287         LJ_SPCE_Eng_Fast(vector, char*, vector*, int) [32]
+                0.00    0.01   41738/41738       LJEngFast(vector const&, vector const&, double, double) [31]
+-----------------------------------------------
+                0.00    0.00       1/1           preCalcPotential_Alavi_ContGrid(int, double*, int*, std::string, interfaceStor*, int, char**) [12]
+[33]     0.0    0.00    0.00       1         Alavi_SiteSite_Eng_contGrid(double*, double*, universeProp*, sysAtoms*, interfaceStor*) [33]
+                0.00    0.00    5602/1319548383     vector::vector() [18]
+                0.00    0.00    5602/2922814787     vector::~vector() [20]
+-----------------------------------------------
+                0.00    0.00       1/1           lancbis(int, vector&, vector&, double, double, int&, vector const&, vector const&, vector const&) [80]
+[34]     0.0    0.00    0.00       1         bisec_ [34]
+-----------------------------------------------
+                0.00    0.00       1/1           inverr_ [36]
+[35]     0.0    0.00    0.00       1         genran_ [35]
+-----------------------------------------------
+                0.00    0.00       1/1           lancbis(int, vector&, vector&, double, double, int&, vector const&, vector const&, vector const&) [80]
+[36]     0.0    0.00    0.00       1         inverr_ [36]
+                0.00    0.00       1/1           genran_ [35]
+                0.00    0.00       1/1           scalar_ [38]
+-----------------------------------------------
+                0.00    0.00       1/1           lancbis(int, vector&, vector&, double, double, int&, vector const&, vector const&, vector const&) [80]
+[37]     0.0    0.00    0.00       1         isoev_ [37]
+-----------------------------------------------
+                0.00    0.00       1/1           inverr_ [36]
+[38]     0.0    0.00    0.00       1         scalar_ [38]
+-----------------------------------------------
+                0.00    0.00     160/160         TesseralPrep(int, int, quadStor*, lmFBR*, tesseralStor**, tesseralStor**) [73]
+[48]     0.0    0.00    0.00     160         normAssocLegendrePoly(int**, int, double) [48]
+-----------------------------------------------
+                0.00    0.00      60/60          getSPCEatoms(char**, vector**, int*, std::string) [27]
+[49]     0.0    0.00    0.00      60         operator*(matrix const&, vector const&) [49]
+-----------------------------------------------
+                0.00    0.00      60/60          getSPCEatoms(char**, vector**, int*, std::string) [27]
+[50]     0.0    0.00    0.00      60         operator*(double, vector const&) [50]
+-----------------------------------------------
+                0.00    0.00      20/40          rotMat3D(double*) [53]
+                0.00    0.00      20/40          getSPCEatoms(char**, vector**, int*, std::string) [27]
+[51]     0.0    0.00    0.00      40         matrix::matrix(int, int) [51]
+-----------------------------------------------
+                0.00    0.00      40/40          getSPCEatoms(char**, vector**, int*, std::string) [27]
+[52]     0.0    0.00    0.00      40         matrix::~matrix() [52]
+-----------------------------------------------
+                0.00    0.00      20/20          getSPCEatoms(char**, vector**, int*, std::string) [27]
+[53]     0.0    0.00    0.00      20         rotMat3D(double*) [53]
+                0.00    0.00      20/40          matrix::matrix(int, int) [51]
+-----------------------------------------------
+                0.00    0.00      20/20          getSPCEatoms(char**, vector**, int*, std::string) [27]
+[54]     0.0    0.00    0.00      20         matrix::operator=(matrix const&) [54]
+-----------------------------------------------
+                0.00    0.00       5/11          main [1]
+                0.00    0.00       6/11          getSPCEatoms(char**, vector**, int*, std::string) [27]
+[55]     0.0    0.00    0.00      11         vector::vector(int) [55]
+-----------------------------------------------
+                0.00    0.00       5/5           main [1]
+[56]     0.0    0.00    0.00       5         std::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, char const*) [56]
+-----------------------------------------------
+                0.00    0.00       4/4           main [1]
+[57]     0.0    0.00    0.00       4         std::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [57]
+-----------------------------------------------
+                0.00    0.00       3/3           main [1]
+[58]     0.0    0.00    0.00       3         std::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(char const*, std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [58]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [9]
+[59]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z10CoulombEngRK6vectordS1_d [59]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [9]
+[60]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z13IsoHarmOscEngP13interfaceStorP9H2_orient [60]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [9]
+[61]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z13getTIP4PatomsPPcPP6vectorPiSs [61]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [9]
+[62]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z16CoulombPotentialP13interfaceStorP9H2_orient [62]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [9]
+[63]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z16HvInterfaceSetupSsPP11generalStorPPFviPPcS0_P11lanczosStorEPPFviS3_S0_S5_PdS9_E [63]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [9]
+[64]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z21AlaviMapH2GridToHGridP9H2_orientP12universePropd [64]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [9]
+[65]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z27Alavi_SiteSite_Eng_contGridPdS_P12universePropP8sysAtomsP13interfaceStor [65]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [9]
+[66]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z7lancbisiR6vectorS0_ddRiRKS_S3_S3_ [66]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [9]
+[67]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z8rotMat3DPd [67]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [9]
+[68]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z9factoriali [68]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [9]
+[69]     0.0    0.00    0.00       1         _GLOBAL__sub_I__ZN6CNvectC2Ev [69]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [9]
+[70]     0.0    0.00    0.00       1         _GLOBAL__sub_I__ZN6matrixC2Eii [70]
+-----------------------------------------------
+                0.00    0.00       1/1           __do_global_ctors_aux [9]
+[71]     0.0    0.00    0.00       1         _GLOBAL__sub_I_main [71]
+-----------------------------------------------
+                0.00    0.00       1/1           HvPrep_Internal_NoQuad(int, char**, interfaceStor*, lanczosStor*) [10]
+[72]     0.0    0.00    0.00       1         cartKinGrid(double, int, double, double**, double**) [72]
+-----------------------------------------------
+                0.00    0.00       1/1           HvPrep_Internal_NoQuad(int, char**, interfaceStor*, lanczosStor*) [10]
+[73]     0.0    0.00    0.00       1         TesseralPrep(int, int, quadStor*, lmFBR*, tesseralStor**, tesseralStor**) [73]
+                0.00    0.00     160/160         normAssocLegendrePoly(int**, int, double) [48]
+-----------------------------------------------
+                0.00    0.00       1/1           HvPrep_Internal_NoQuad(int, char**, interfaceStor*, lanczosStor*) [10]
+[74]     0.0    0.00    0.00       1         genIndices_lm(int, int***, int*, int***, int*) [74]
+-----------------------------------------------
+                0.00    0.00       1/1           HvPrep_Internal_NoQuad(int, char**, interfaceStor*, lanczosStor*) [10]
+[75]     0.0    0.00    0.00       1         QuadraturePrep(int, int) [75]
+                0.00    0.00       1/1           gauleg(double, double, double*, double*, int) [78]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[76]     0.0    0.00    0.00       1         HvInterfaceSetup(std::string, generalStor**, void (**)(int, char**, generalStor*, lanczosStor*), void (**)(int, char**, generalStor*, lanczosStor*, double*, double*)) [76]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[77]     0.0    0.00    0.00       1         Hv_Prep_linRotCartSph_NoQuad(int, char**, generalStor*, lanczosStor*) [77]
+-----------------------------------------------
+                0.00    0.00       1/1           QuadraturePrep(int, int) [75]
+[78]     0.0    0.00    0.00       1         gauleg(double, double, double*, double*, int) [78]
+-----------------------------------------------
+                0.00    0.00       1/1           HvPrep_Internal_NoQuad(int, char**, interfaceStor*, lanczosStor*) [10]
+[79]     0.0    0.00    0.00       1         calcSym(interfaceStor*, std::string) [79]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[80]     0.0    0.00    0.00       1         lancbis(int, vector&, vector&, double, double, int&, vector const&, vector const&, vector const&) [80]
+                0.00    0.00       1/1           bisec_ [34]
+                0.00    0.00       1/1           isoev_ [37]
+                0.00    0.00       1/1           inverr_ [36]
+-----------------------------------------------
+                0.00    0.00       1/1           HvPrep_Internal_NoQuad(int, char**, interfaceStor*, lanczosStor*) [10]
+[81]     0.0    0.00    0.00       1         rotKinEng(int**, int, double) [81]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+
+Index by function name
+
+  [59] _GLOBAL__sub_I__Z10CoulombEngRK6vectordS1_d (energyRoutines.cpp) [75] QuadraturePrep(int, int) [19] vector::vector(vector const&)
+  [21] _GLOBAL__sub_I__Z12generateGridiPdPi (gridFcns.cpp) [76] HvInterfaceSetup(std::string, generalStor**, void (**)(int, char**, generalStor*, lanczosStor*), void (**)(int, char**, generalStor*, lanczosStor*, double*, double*)) [18] vector::vector()
+   [5] _GLOBAL__sub_I__Z12getSPCEatomsPPcPP6vectorPiSs (SPCE_AH2_EngRoutines.cpp) [32] LJ_SPCE_Eng_Fast(vector, char*, vector*, int) [20] vector::~vector()
+  [60] _GLOBAL__sub_I__Z13IsoHarmOscEngP13interfaceStorP9H2_orient (IsoHarmOsc_Routines.cpp) [48] normAssocLegendrePoly(int**, int, double) [17] vector::operator=(vector const&)
+  [61] _GLOBAL__sub_I__Z13getTIP4PatomsPPcPP6vectorPiSs (TIP4P_AH2_EngRoutines.cpp) [10] HvPrep_Internal_NoQuad(int, char**, interfaceStor*, lanczosStor*) [24] cdiagmat::cdiagmat(cdiagmat const&)
+  [62] _GLOBAL__sub_I__Z16CoulombPotentialP13interfaceStorP9H2_orient (Coulomb_Routines.cpp) [2] Hv_linRotCartSph_NoQuad(int, char**, generalStor*, lanczosStor*, double*, double*) [28] cdiagmat::cdiagmat(int)
+  [63] _GLOBAL__sub_I__Z16HvInterfaceSetupSsPP11generalStorPPFviPPcS0_P11lanczosStorEPPFviS3_S0_S5_PdS9_E (interface.cpp) [4] Tv_5D_oneCompositeIndex(interfaceStor*, double*) [23] cdiagmat::operator=(cdiagmat const&)
+  [11] _GLOBAL__sub_I__Z19calc_Vlmlpmp_NoQuadP13interfaceStor (linRotCartSphHvFullVPrepRoutines.cpp) [33] Alavi_SiteSite_Eng_contGrid(double*, double*, universeProp*, sysAtoms*, interfaceStor*) [16] vector::eNorm() const
+  [64] _GLOBAL__sub_I__Z21AlaviMapH2GridToHGridP9H2_orientP12universePropd (Alavi_H2_Routines.cpp) [77] Hv_Prep_linRotCartSph_NoQuad(int, char**, generalStor*, lanczosStor*) [58] std::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(char const*, std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  [65] _GLOBAL__sub_I__Z27Alavi_SiteSite_Eng_contGridPdS_P12universePropP8sysAtomsP13interfaceStor (Alavi_ContGrid_H2_Routines.cpp) [13] calc_Vlmlpmp_NoQuad_ContGrid(interfaceStor*) [56] std::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, char const*)
+   [6] _GLOBAL__sub_I__Z28calc_Vlmlpmp_NoQuad_ContGridP13interfaceStor (linRotCartSphHvContGridRoutines.cpp) [3] Hv_5D_oneCompositeIndex_NoQuad(interfaceStor*, double*) [57] std::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  [66] _GLOBAL__sub_I__Z7lancbisiR6vectorS0_ddRiRKS_S3_S3_ (lancbis.cpp) [12] preCalcPotential_Alavi_ContGrid(int, double*, int*, std::string, interfaceStor*, int, char**) [14] operator-(vector const&, vector const&)
+  [67] _GLOBAL__sub_I__Z8rotMat3DPd (rotmat.cpp) [78] gauleg(double, double, double*, double*, int) [49] operator*(matrix const&, vector const&)
+  [68] _GLOBAL__sub_I__Z9factoriali (linRotCartSphHvRoutines.cpp) [79] calcSym(interfaceStor*, std::string) [30] operator*(vector const&, vector const&)
+  [69] _GLOBAL__sub_I__ZN6CNvectC2Ev (Cvectors.cpp) [80] lancbis(int, vector&, vector&, double, double, int&, vector const&, vector const&, vector const&) [50] operator*(double, vector const&)
+  [70] _GLOBAL__sub_I__ZN6matrixC2Eii (matvec2.cpp) [53] rotMat3D(double*) [26] operator+(vector const&, vector const&)
+  [71] _GLOBAL__sub_I_main (lanczosEigenValuesVectors.cpp) [31] LJEngFast(vector const&, vector const&, double, double) [29] operator+(cvector const&, std::complex<double> const&)
+   [8] CoulombEng(vector const&, double, vector const&, double) [81] rotKinEng(int**, int, double) [34] bisec_
+   [7] Q_SPCE_Eng(vector, double, char*, vector*, int) [51] matrix::matrix(int, int) [35] genran_
+  [22] ReadVector(vector&, int, _IO_FILE*) [52] matrix::~matrix() [36] inverr_
+  [72] cartKinGrid(double, int, double, double**, double**) [54] matrix::operator=(matrix const&) [37] isoev_
+  [73] TesseralPrep(int, int, quadStor*, lmFBR*, tesseralStor**, tesseralStor**) [15] vector::setSz(int) [1] main
+  [27] getSPCEatoms(char**, vector**, int*, std::string) [25] vector::setCoor(double*) [38] scalar_
+  [74] genIndices_lm(int, int***, int*, int***, int*) [55] vector::vector(int)
