@@ -691,9 +691,6 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 #ifdef BLAS
 	// Vector to store output of BLAS
 	double *u_n = new double [nn];
-	for (n=0; n<nn; n++) {
-		u_n[n] = 0.0;
-	}
 	//BLAS parameters
 	char trans = 'T'; //transpose to swap row and major column orders
 	double alpha = 1.0; //No scalar multiplication of product
@@ -725,6 +722,10 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 	
 	
 #ifdef BLAS
+	//Initialize BLAS storage vector
+	for (n=0; n<nn; n++) {
+		u_n[n] = 0.0;
+	}
 	//Calculate u = Vv
 	//NOTE: make sure to use column major arrangement for matrix; that is, transpose the matrix when sending to BLAS
 #pragma omp for schedule(guided) collapse(3)
@@ -737,10 +738,12 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 
 				FORTRAN(dgemv)(&trans,&nn,&nnp,&alpha,(V_npnkji + ind2),&lda,(v_npijk + ind3),&incv,&beta,u_n,&incu);
 				
+				//Copy result over to correct section
 				for (n=0; n<nn; n++) {
 					ind = ((n*nk + k)*nj + j)*ni + i;
 					
 					u_ijkn[ind] = u_n[n];
+					u_n[n] = 0.0;
 				}
 			}
 		}
@@ -771,6 +774,10 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 #endif
 	}
 	
+#ifdef BLAS
+	delete [] u_n;
+#endif
+	
 	delete [] v_npijk;
 	
 	return u_ijkn;
@@ -800,7 +807,7 @@ double* Hv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ipjkn
 	
 //#ifdef PROF_TEST
 	
-	Vv_ijkn = new double [basis_size];	
+//	Vv_ijkn = new double [basis_size];	
 	
 //#else
 	//Calculate the potential energy terms
