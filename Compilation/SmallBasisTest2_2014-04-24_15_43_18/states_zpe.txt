@@ -1,0 +1,8 @@
+
+The following are the relative energies for the simulation SmallBasisTest2
+Number of Eigenvalues: 3
+Zero Point Energy = -4.040679737227038e+00 kJ/mol
+State | Relative Energy (kJ/mol)
+0 0.000000000000000e+00
+1 6.342439497821033e+00
+2 1.292813601205125e+01

@@ -778,6 +778,10 @@ double* Vv_5D_oneCompositeIndex_NoQuad(interfaceStor *interface, double *v_ijknp
 	delete [] u_n;
 #endif
 	
+#ifdef BLAS
+	delete [] u_n;
+#endif
+	
 	delete [] v_npijk;
 	
 	return u_ijkn;
